@@ -5,11 +5,11 @@ use Bio::SeqIO;
 use Bio::Tools::GFF;
 use Bio::SeqFeature::Generic;
 use Data::Dumper;
+use Bio::SeqFeature::Gene::Exon;
+use Bio::SeqFeature::Gene::Transcript;
 #make one big file for each species in genbank format with one entry per contig
-
 #TODO : find what to do with IES kai coordinates (me i xoris IES?) na tropopoiiso to pos handle species gia na einai eukolo gia ola
-#TODO: start version control
-# for scaffold
+# make post-processing script that merges CDSes with join
 
 # read assembled contigs file and push sequences into a hash
 # read gene, cds and protein files and push into hashes
@@ -41,6 +41,7 @@ my %scaffoldH;
 #make hash for output
 my %entriesH;
 my %geneFeatureH;
+my %transcriptFeatureH;
 
 #open sequence files and fill hashes
 my $scaffoldIn = Bio::SeqIO->new('-file' => $scaffoldsF,
@@ -113,28 +114,43 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 							 
     $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
   }elsif($feature->primary_tag() eq 'CDS'){
+    #print as: CDS gene name    start..end
     my $newFeature = new Bio::SeqFeature::Generic(-start => $feature->start(),
-     						  -end => $feature->end(),
-     						  -strand => $feature->strand(),
-     						  -primary_tag => $feature->primary_tag(),
-						  -tag => { gene => $feature->get_tag_values('Parent'),							                           translation => $proteinH{$speciesAbr.'GNP'.$number}->seq(),
-							    codon_start => $feature->frame()}
+						  -end => $feature->end,
+						  -strand      => $feature->strand(),
+						  -primary_tag => $feature->primary_tag().' '.($feature->get_tag_values('Parent'))[0],
 						 );
-    #print Dumper $newFeature;
-    $entriesH{$scaffold}->add_SeqFeature($newFeature);#$geneFeatureH{$feature->get_tag_values('Parent')};
-  }else{
-    my $newFeature = new Bio::SeqFeature::Generic(-start => $feature->start(),
-     						  -end => $feature->end(),
-     						  -strand => $feature->strand(),
-     						  -primary_tag => $feature->primary_tag(),
-						  -tag => { gene => $feature->get_tag_values('Parent')}
-						 );
-    #print Dumper $newFeature;
-    $entriesH{$scaffold}->add_SeqFeature($newFeature);#$geneFeatureH{$feature->get_tag_values('Parent')};
 
+
+    # my $newFeature = new Bio::SeqFeature::Generic(-start => $feature->start(),
+    #  						  -end => $feature->end(),
+    #  						  -strand => $feature->strand(),
+    #  						  -primary_tag => $feature->primary_tag(),
+    # 						  -tag => { gene => $feature->get_tag_values('Parent'),			   #				                           translation => $proteinH{$speciesAbr.'GNP'.$number}->seq(),
+    # 							    codon_start => $feature->frame()}
+    # 						 );
+
+
+
+    #print Dumper $newFeature;
+    $entriesH{$scaffold}->add_SeqFeature($newFeature);#$geneFeatureH{$feature->get_tag_values('Parent')};
   }
-
+  
   #before going to the next gene add the features to the sequence and the write the sequence
+#Cant find how to print the join opperator, I will do it in two passes. Print the file and then pass second time to make exons into joins
+  # my $newFeature = new Bio::SeqFeature::Gene::Transcript();
+  # my $exon1 = new Bio::SeqFeature::Gene::Exon(-start => 1,
+  # 						 -end => 3);
+  # my $exon2 = new Bio::SeqFeature::Gene::Exon(-start => 5,
+  # 						 -end => 8);
+  # $newFeature->add_exon($exon1);
+  # $newFeature->add_exon($exon2);
+  # my $seqO = Bio::Seq->new('-display_id' => "test",
+  # 			 '-format' =>'genbank');
+  # $seqO->add_SeqFeature($newFeature);
+  # $data_out->write_seq($seqO);
+  # print Dumper $newFeature;
+  # die;
 }
 
 foreach my $entry (sort keys %entriesH){
