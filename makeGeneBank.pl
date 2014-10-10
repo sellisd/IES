@@ -11,7 +11,6 @@ use Bio::Location::Split;
 
 #make one big file for each species in genbank format with one entry per contig
 #TODO : find what to do with IES kai coordinates (me i xoris IES?) na tropopoiiso to pos handle species gia na einai eukolo gia ola
-# na kratiso to curGene name kai oso to CDS exei to idio na min add, otan stamatisei prin kanei otidipote na add to palio CDS
 
 # read assembled contigs file and push sequences into a hash
 # read gene, cds and protein files and push into hashes
