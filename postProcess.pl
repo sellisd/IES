@@ -37,6 +37,17 @@ while(my $line = <IN>){
     next;
   }
   if($inFeature == 1){  #inside FEATURES
+####
+parse features
+
+
+
+
+
+
+
+
+
     if($ar[0] eq 'gene'){
       print $line,"\n"; # print gene start..end
       $line = <IN>;     #

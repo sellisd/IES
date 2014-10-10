@@ -11,7 +11,7 @@ use Bio::Location::Split;
 
 #make one big file for each species in genbank format with one entry per contig
 #TODO : find what to do with IES kai coordinates (me i xoris IES?) na tropopoiiso to pos handle species gia na einai eukolo gia ola
-# make post-processing script that merges CDSes with join
+# na kratiso to curGene name kai oso to CDS exei to idio na min add, otan stamatisei prin kanei otidipote na add to palio CDS
 
 # read assembled contigs file and push sequences into a hash
 # read gene, cds and protein files and push into hashes
@@ -75,9 +75,13 @@ while(my $geneSeq = $geneIn->next_seq){
 my $gff3In = Bio::Tools::GFF->new('-file' => $gff3,
 				  '-gff_version' => 3);
 
+my $curGene;
+my $scaffold;
+my $prevScaffold;
 #read gff3 file and build genbank entries
 while(my $feature = $gff3In->next_feature()){ # one line at a time
-  my $scaffold = $feature->seq_id(); #print out the scaffold
+  $prevScaffold = $scaffold;
+  $scaffold = $feature->seq_id(); #print out the scaffold
   if(defined($entriesH{$scaffold})){
 
   }else{
@@ -100,20 +104,36 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
   $entriesH{$scaffold}->add_SeqFeature($sourceFeat);
   }
   my @id = $feature->get_tag_values('ID');
+  
   $id[0] =~ /.{6}(\d+)/; #extract the number regardless of whether it is a gene, exon etc
   my $number = $1;
-  
+  # if(defined($curGene)){
+  #   if($curGene ne $feature->get_tag_values('Parent')){ #if a new gene starts add the previous CDS
+  #  #   $entriesH{$scaffold}->add_SeqFeature($CDSH{$id[0]});
+  #   }
+  #}
   if ($feature->primary_tag() eq 'gene'){
+    if(defined($curGene)){
+      # print $curGene," "; 
+      # print keys %CDSH,"\n";
+      # print $CDSH{$curGene},"\n";
+      # die;
+      if(defined($CDSH{$curGene})){
+	$entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene});
+	$curGene = $number; #set the current gene
+      }
+    }else{
+      $curGene = $number;
+    }
     #build features
     #find all entries that are in the same scaffold
-   # print $geneH{'PBIGNG'.$1}; #the new gene
-#print $feature->get_tag_values('ID'); die;
+    # print $geneH{'PBIGNG'.$1}; #the new gene
+    #print $feature->get_tag_values('ID'); die;
     $geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
 							 -end         => $feature->end(),
 							 -strand      => $feature->strand(),
 							 -primary_tag => $feature->primary_tag(),
 							 -tag => {gene     => $id[0]});
-							 
     $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
   }elsif($feature->primary_tag() eq 'CDS'){
     #print as: CDS gene name    start..end
@@ -122,26 +142,26 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
     # 						  -strand      => $feature->strand(),
     # 						  -primary_tag => $feature->primary_tag().' '.($feature->get_tag_values('Parent'))[0],
     # 						 );
-    if(defined($CDSH{$id[0]})){
-      my $location = $CDSH{$id[0]}->location(); #if already seen find the location of CDS
+    my $parent = ($feature->get_tag_values('Parent'))[0];
+    $parent = deparseNumber($parent);
+    if(defined($CDSH{$parent})){
+      my $location = $CDSH{$parent}->location(); #if already seen find the location of CDS
       # and add the new one to the list
       $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
 							       -end    => $feature->end(),
 							       -strand => $feature->strand()));
-      $CDSH{$id[0]}->set_attributes(-location => $location); #update location
+      $CDSH{$parent}->set_attributes(-location => $location); #update location
     }else{
       my $location = Bio::Location::Split->new();
       $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
 							       -end    => $feature->end(),
 							       -strand => $feature->strand()));
       
-      $CDSH{$id[0]} = new Bio::SeqFeature::Generic(-location => $location,
+      $CDSH{$parent} = new Bio::SeqFeature::Generic(-location => $location,
 						   -strand => $feature->strand(),
 						   -primary_tag => $feature->primary_tag(),
 						   -tag => { gene => $feature->get_tag_values('Parent'),			   				                           translation => $proteinH{$speciesAbr.'GNP'.$number}->seq()}
 						  );
-
-   
     }
   }elsif($feature->primary_tag() eq 'exon'){
     $geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
@@ -154,11 +174,14 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
     $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
   }
 }
-#print Dumper %CDSH;
+
+$entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene}); #add the last CDS
+ 
 foreach my $entry (sort keys %entriesH){
   $data_out->write_seq($entriesH{$entry});
 }
 
+#print Dumper %CDSH;
 $gff3In->close;
 exit;
 #read the various formats and combine information
@@ -199,3 +222,9 @@ exit;
 # }
 
 # exit;
+
+sub deparseNumber{
+  my $string = shift @_;
+  $string =~ /.{6}(\d+)/; #extract the number regardless of whether it is a gene, exon etc
+  return $1;
+}
