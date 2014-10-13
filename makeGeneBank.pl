@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+
 use warnings;
 use strict;
 use Bio::SeqIO;
@@ -9,6 +10,15 @@ use Bio::SeqFeature::Gene::Exon;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::Location::Split;
 
+#everything should be in MAC coordinates
+# IES_junction 122..123
+# idx_ref = NAME (unique)
+# note "in CDS
+# note stopCodon\
+#  score
+# logika ola einai se MAC coordinates
+#make genbank file for all the rest first
+#then for ies and then find in which genes they are in
 #make one big file for each species in genbank format with one entry per contig
 #TODO : find what to do with IES kai coordinates (me i xoris IES?) na tropopoiiso to pos handle species gia na einai eukolo gia ola
 
@@ -17,17 +27,16 @@ use Bio::Location::Split;
 # read gff with Tools::GFF and for each entry find the sequence
 #   populate it with features and the appropriate DNA and protein sequence from the appropriate files
 
-
 #species name
 my $speciesAbr = 'PBI';
 my $species = 'Paramecium biaurelia';
 my $taxonId = 65126;
 #file and paths for input
-my $cds = 'working/cds.fa';
-my $protein = 'working/protein.fa';
-my $gene = 'working/gene.fa';
-my $gff3 = 'working/pb.gff3';
-my $scaffoldsF = 'working/scaffolds.fa';
+my $cds = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.cds.fa';
+my $protein = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.protein.fa';
+my $gene = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.gene.fa';
+my $gff3 = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.gff3';
+my $scaffoldsF = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_assembly_v1.fasta';
 
 #output file
 my $data_out = Bio::SeqIO->new('-file' => '>output.gnbk',
@@ -49,7 +58,7 @@ my $scaffoldIn = Bio::SeqIO->new('-file' => $scaffoldsF,
 				 '-format' => 'fasta');
 while(my $scaffoldSeq = $scaffoldIn->next_seq){
   my $scId = $scaffoldSeq->display_id;
-  $scId =~ /(scaffold_\d+)_with/ or die $scId;
+  $scId =~ /(scaffold_\d+)/ or die $scId; #Everything is in MAC coordinates (without IES)
   $scaffoldH{$1} = $scaffoldSeq;
 }
 
