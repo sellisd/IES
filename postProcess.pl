@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use Bio::SeqIO;
 use Bio::Tools::GFF;
 use Data::Dumper;
 # add IES in the constructed genbank file
@@ -33,12 +34,43 @@ while (my $line = <IN>){
     }
     $counter++;
   }
-die "@annotations" unless defined($id);
-  $IESH{$id} = {'scaffold' => $scaffold,
-		'start' => $start,
-		'end'   => $end,
-		'score' => $score,
-		'sequence' => $sequence};
+  my $entry = {'id' => $id,
+	       'start' => $start,
+	       'end'   => $end,
+	       'score' => $score,
+	       'sequence' => $sequence};
+  if(defined($IESH{$scaffold})){
+      push @{$IESH{$scaffold}}, $entry;
+  }else{
+      $IESH{$scaffold} = [$entry];
+  }
 }
 close IN;
-print Dumper %IESH;
+
+#read genbank file
+#go through sequencies and add as features the IES
+
+my $genbank = 'output.gnbk';
+my $gnbkIn = Bio::SeqIO->new('-file' => $genbank,
+ 			    '-format' => 'genbank');
+
+my $gnbkOut = Bio::SeqIO->new('-file'=> '>newOut.gnbk',
+			      '-format' => 'genbank');
+while(my $seqO = $gnbkIn -> next_seq()){
+  my $scaffold = $seqO->display_id();
+#loop through iess in this scaffold
+  foreach my $ies (@{$IESH{$scaffold}}){
+      my $newFeature = new Bio::SeqFeature::Generic(-start => $ies->{'start'},
+						    -end   => $ies->{'end'},
+						    -primary_tag   => "IES_junction",
+						    -tag   => {'score' => $ies->{'score'},
+							       'sequence' => $ies->{'sequence'}
+						    }
+	  );
+      $seqO->add_SeqFeature($newFeature);
+  }
+  $gnbkOut->write_seq($seqO);
+  #find which ones are in this scaffold
+#make features
+#add feature to scaffold
+}
