@@ -142,9 +142,7 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
   $entriesH{$scaffold}->add_SeqFeature($sourceFeat);
   }
   my @id = $feature->get_tag_values('ID');
-  
-  $id[0] =~ /.{6}(\d+)/; #extract the number regardless of whether it is a gene, exon etc
-  my $number = $1;
+  my $number = deparseNumber($id[0]);
 
   if ($feature->primary_tag() eq 'gene'){
     if(defined($curGene)){

@@ -6,7 +6,6 @@ use Bio::Tools::GFF;
 use Data::Dumper;
 use Getopt::Long;
 my $help;
-
 my $usage = <<HERE;
 
 Add IES information in a genbank file
