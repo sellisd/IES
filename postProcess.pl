@@ -4,10 +4,23 @@ use strict;
 use Bio::SeqIO;
 use Bio::Tools::GFF;
 use Data::Dumper;
-# add IES in the constructed genbank file
-my $iesgffF = '/Users/diamantis/data/IES_data/pbiaurelia/internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
+use Getopt::Long;
+my $help;
+
+my $usage = <<HERE;
+
+Add IES information in a genbank file
+usage: postProcess.pl IES.gff3 input.gnbk
+
+HERE
+die $usage unless (GetOptions('help|?' => \$help));
+die $usage if $help;
+my $iesgffF = $ARGV[0];#'/Users/diamantis/data/IES_data/pbiaurelia/internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
+my $genbank = $ARGV[1]; 
+my $genBankOut = $genbank;
+$genBankOut =~ s/\.gnbk/.IES.gnbk/;
 my $IESgff = Bio::Tools::GFF->new('-file' => $iesgffF,
-				    '-format' => 'gff3');
+				  '-format' => 'gff3');
 # parse gff3 with annotations
 my %IESH;
 open IN, $iesgffF;
@@ -50,11 +63,10 @@ close IN;
 #read genbank file
 #go through sequencies and add as features the IES
 
-my $genbank = 'output.gnbk';
 my $gnbkIn = Bio::SeqIO->new('-file' => $genbank,
  			    '-format' => 'genbank');
 
-my $gnbkOut = Bio::SeqIO->new('-file'=> '>newOut.gnbk',
+my $gnbkOut = Bio::SeqIO->new('-file'=> '>'.$genBankOut,
 			      '-format' => 'genbank');
 while(my $seqO = $gnbkIn -> next_seq()){
   my $scaffold = $seqO->display_id();

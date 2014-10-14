@@ -20,26 +20,56 @@ use Bio::Location::Split;
 #make genbank file for all the rest first
 #then for ies and then find in which genes they are in
 #make one big file for each species in genbank format with one entry per contig
-#TODO : find what to do with IES kai coordinates (me i xoris IES?) na tropopoiiso to pos handle species gia na einai eukolo gia ola
-
-# read assembled contigs file and push sequences into a hash
-# read gene, cds and protein files and push into hashes
-# read gff with Tools::GFF and for each entry find the sequence
-#   populate it with features and the appropriate DNA and protein sequence from the appropriate files
 
 #species name
-my $speciesAbr = 'PBI';
-my $species = 'Paramecium biaurelia';
-my $taxonId = 65126;
+my $speciesAbr = 'PSEX';
+my $species;
+my $taxonId;
 #file and paths for input
-my $cds = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.cds.fa';
-my $protein = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.protein.fa';
-my $gene = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.gene.fa';
-my $gff3 = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.gff3';
-my $scaffoldsF = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_assembly_v1.fasta';
+my $cds;
+my $protein;
+my $gene;
+my $gff3;
+my $scaffoldsF;
+my $outputFile;
+my $iesgffF;
+#load defaults
+if ($speciesAbr eq 'PBI'){
+    $species = 'Paramecium biaurelia';
+    $taxonId = 65126;
+    $cds = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.cds.fa';
+    $protein = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.protein.fa';
+    $gene = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.gene.fa';
+    $gff3 = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.gff3';
+    $scaffoldsF = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_assembly_v1.fasta';
+    $outputFile = '/Users/diamantis/data/IES_data/pbiaurelia/PBI.gnbk';
+    $iesgffF = '/Users/diamantis/data/IES_data/pbiaurelia/internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
+}elsif($speciesAbr eq 'PSEX'){
+    $species = 'Paramecium sexaurelia';
+    $taxonId = 65128;
+    $cds = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.cds.fa';
+    $protein = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.protein.fa';
+    $gene = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.gene.fa';
+    $gff3 = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.gff3';
+    $scaffoldsF = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_assembly_v1.fasta';
+    $outputFile = '/Users/diamantis/data/IES_data/psexaurelia/PSEX.gnbk';
+    $iesgffF = '/Users/diamantis/data/IES_data/psexaurelia/internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
+}elsif($speciesAbr eq 'PTET'){
+    $species = 'Paramecium tetraurelia';
+    $taxonId = 5888;
+    $cds = '/Users/diamantis/data/IES_data/ptetraurelia_mac_51_annotation_v2.0.4.cds.fa';
+    $protein = '/Users/diamantis/data/IES_data/ptetraurelia_mac_51_annotation_v2.0.4.protein.fa';
+    $gene = '/Users/diamantis/data/IES_data/ptetraurelia_mac_51_annotation_v2.0.4.gene.fa';
+    $gff3 = '/Users/diamantis/data/IES_data/ptetraurelia_mac_51_annotation_v2.0.4.gff3';
+    $scaffoldsF = '/Users/diamantis/data/IES_data/ptetraurelia_mac_51.fa';
+    $outputFile = '/Users/diamantis/data/IES_data/ptetraurelia/PTET.gnbk';
+    $iesgffF = '/Users/diamantis/data/IES_data/ptetraurelia/internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
+}else{
+    die "unknown species";
+}
 
 #output file
-my $data_out = Bio::SeqIO->new('-file' => '>output.gnbk',
+my $data_out = Bio::SeqIO->new('-file' => '>'.$outputFile,
 				 '-format' => 'genbank');
 
 #define hashes to be filled with sequences
@@ -115,17 +145,9 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
   
   $id[0] =~ /.{6}(\d+)/; #extract the number regardless of whether it is a gene, exon etc
   my $number = $1;
-  # if(defined($curGene)){
-  #   if($curGene ne $feature->get_tag_values('Parent')){ #if a new gene starts add the previous CDS
-  #  #   $entriesH{$scaffold}->add_SeqFeature($CDSH{$id[0]});
-  #   }
-  #}
+
   if ($feature->primary_tag() eq 'gene'){
     if(defined($curGene)){
-      # print $curGene," "; 
-      # print keys %CDSH,"\n";
-      # print $CDSH{$curGene},"\n";
-      # die;
       if(defined($CDSH{$curGene})){
 	$entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene});
 	$curGene = $number; #set the current gene
@@ -144,12 +166,6 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 							 -tag => {gene     => $id[0]});
     $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
   }elsif($feature->primary_tag() eq 'CDS'){
-    #print as: CDS gene name    start..end
-    # my $newFeature = new Bio::SeqFeature::Generic(-start => $feature->start(),
-    # 						  -end => $feature->end,
-    # 						  -strand      => $feature->strand(),
-    # 						  -primary_tag => $feature->primary_tag().' '.($feature->get_tag_values('Parent'))[0],
-    # 						 );
     my $parent = ($feature->get_tag_values('Parent'))[0];
     $parent = deparseNumber($parent);
     if(defined($CDSH{$parent})){
@@ -168,71 +184,36 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
       $CDSH{$parent} = new Bio::SeqFeature::Generic(-location => $location,
 						   -strand => $feature->strand(),
 						   -primary_tag => $feature->primary_tag(),
-						   -tag => { gene => $feature->get_tag_values('Parent'),			   				                           translation => $proteinH{$speciesAbr.'GNP'.$number}->seq()}
-						  );
+						    -tag => { gene => $feature->get_tag_values('Parent'),
+							      translation => $proteinH{$speciesAbr.'GNP'.$number}->seq()}
+	  );
     }
   }elsif($feature->primary_tag() eq 'exon'){
-    $geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
-							 -end         => $feature->end(),
-							 -strand      => $feature->strand(),
-							 -primary_tag => $feature->primary_tag(),
-							 -tag => {gene     => ($feature->get_tag_values('Parent'))[0],
-								  codon_start => $feature->frame()});
-    #TODO add also reading frame or starting codon
-    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+      $geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
+							   -end         => $feature->end(),
+							   -strand      => $feature->strand(),
+							   -primary_tag => $feature->primary_tag(),
+							   -tag => {gene     => ($feature->get_tag_values('Parent'))[0],
+								    codon_start => $feature->frame()});
+      $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
   }
 }
 
 $entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene}); #add the last CDS
- 
+
 foreach my $entry (sort keys %entriesH){
-  $data_out->write_seq($entriesH{$entry});
+    $data_out->write_seq($entriesH{$entry});
 }
 
-#print Dumper %CDSH;
 $gff3In->close;
-exit;
-#read the various formats and combine information
 
-
-# my $cdsIn = Bio::SeqIO->new('-file' => $cds,
-# 			    '-format' => 'fasta');
-# my $proteinIn = Bio::SeqIO->new('-file' => $protein,
-# 			    '-format' => 'fasta');
-# my $geneIn = Bio::SeqIO->new('-file' => $gene,
-# 			    '-format' => 'fasta');
-# my $gff3In = Bio::Tools::GFF->new('-file' => $gff3,
-# 				  '-gff_version' => 3);
-
-# #read first the gene
-
-# #! the sequencies might not alwyas be in the same order, make sure to check in the end
-# my $data_out = Bio::SeqIO->new('-file' => '>output.gnbk',
-# 			       '-format' => 'genbank');
-
-# while (my $seq = $gff3In->next_seq){
-#   $data_out->write_seq($seq);
-# }
-# exit;
-# #write feature with CDS and annotation
-
-# while (my $geneseq = $geneIn->next_seq){
-#   my $cdsseq = $cdsIn->next_seq;
-#   my $proteinseq = $proteinIn->next_seq;
-# #make feature object
-#   # my $feat = new Bio::SeqFeature::Generic('-start' => $cdsIn,
-#   # 					  '-stop' => ,
-#   # 					  '-strand' => ,
-#   # 					  '-primary_tag' =);
-
-#   $data_out->write_seq($cdsseq);
-# #die;
-# }
-
-# exit;
+#call postProcess.pl for adding the IES information
+print "adding IES information postProcess.pl:\n";
+print "  ./postProcess.pl $iesgffF $outputFile\n";
+exec "./postProcess.pl $iesgffF $outputFile";
 
 sub deparseNumber{
-  my $string = shift @_;
-  $string =~ /.{6}(\d+)/; #extract the number regardless of whether it is a gene, exon etc
-  return $1;
+    my $string = shift @_;
+    $string =~ /.{6}(\d+)/; #extract the number regardless of whether it is a gene, exon etc
+    return $1;
 }
