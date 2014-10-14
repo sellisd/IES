@@ -10,6 +10,7 @@ use Bio::SeqFeature::Gene::Exon;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::Location::Split;
 
+#TODO: cannot read the p. tetraurelia files!!!
 #everything should be in MAC coordinates
 # IES_junction 122..123
 # idx_ref = NAME (unique)
@@ -22,7 +23,7 @@ use Bio::Location::Split;
 #make one big file for each species in genbank format with one entry per contig
 
 #species name
-my $speciesAbr = 'PSEX';
+my $speciesAbr = 'PTET.51.';
 my $species;
 my $taxonId;
 #file and paths for input
@@ -54,20 +55,19 @@ if ($speciesAbr eq 'PBI'){
     $scaffoldsF = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_assembly_v1.fasta';
     $outputFile = '/Users/diamantis/data/IES_data/psexaurelia/PSEX.gnbk';
     $iesgffF = '/Users/diamantis/data/IES_data/psexaurelia/internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
-}elsif($speciesAbr eq 'PTET'){
+}elsif($speciesAbr eq 'PTET.51.'){
     $species = 'Paramecium tetraurelia';
     $taxonId = 5888;
-    $cds = '/Users/diamantis/data/IES_data/ptetraurelia_mac_51_annotation_v2.0.4.cds.fa';
-    $protein = '/Users/diamantis/data/IES_data/ptetraurelia_mac_51_annotation_v2.0.4.protein.fa';
-    $gene = '/Users/diamantis/data/IES_data/ptetraurelia_mac_51_annotation_v2.0.4.gene.fa';
-    $gff3 = '/Users/diamantis/data/IES_data/ptetraurelia_mac_51_annotation_v2.0.4.gff3';
-    $scaffoldsF = '/Users/diamantis/data/IES_data/ptetraurelia_mac_51.fa';
+    $cds = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.cds.fa';
+    $protein = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.protein.fa';
+    $gene = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.gene.fa';
+    $gff3 = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.gff3';
+    $scaffoldsF = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51.fa';
     $outputFile = '/Users/diamantis/data/IES_data/ptetraurelia/PTET.gnbk';
     $iesgffF = '/Users/diamantis/data/IES_data/ptetraurelia/internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
 }else{
     die "unknown species";
 }
-
 #output file
 my $data_out = Bio::SeqIO->new('-file' => '>'.$outputFile,
 				 '-format' => 'genbank');
@@ -88,7 +88,7 @@ my $scaffoldIn = Bio::SeqIO->new('-file' => $scaffoldsF,
 				 '-format' => 'fasta');
 while(my $scaffoldSeq = $scaffoldIn->next_seq){
   my $scId = $scaffoldSeq->display_id;
-  $scId =~ /(scaffold_\d+)/ or die $scId; #Everything is in MAC coordinates (without IES)
+  $scId =~ /(scaffold_?[_\d]+)/ or die $scId; #Everything is in MAC coordinates (without IES) scaffold names are not consistent across species
   $scaffoldH{$1} = $scaffoldSeq;
 }
 
@@ -101,9 +101,14 @@ while(my $cdsSeq = $cdsIn->next_seq){
 my $proteinIn = Bio::SeqIO->new('-file' => $protein,
  			    '-format' => 'fasta');
 while(my $proteinSeq = $proteinIn->next_seq){
-  $proteinH{$proteinSeq->display_id} = $proteinSeq;
+    my $id = $proteinSeq->display_id;
+    my $idNo = deparseNumber($id);
+    if(defined($proteinH{$idNo})){
+	die;
+    }else{
+	$proteinH{$idNo} = $proteinSeq;
+    }
 }
-
 my $geneIn = Bio::SeqIO->new('-file' => $gene,
  			    '-format' => 'fasta');
 while(my $geneSeq = $geneIn->next_seq){
@@ -132,31 +137,31 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
     $entriesH{$scaffold}->seq($sequence);
     my $length = $scaffoldH{$scaffold}->length();
     my $sourceFeat = new Bio::SeqFeature::Generic(
-						  -primary_tag => 'source',
-						  -start       => 1,
-						  -end         => $length,
-						  -tag         => {organism => $species,
-								   db_xref  => 'taxon:'.$taxonId}
-						  #organism taxonID number
-						 );
-  $entriesH{$scaffold}->add_SeqFeature($sourceFeat);
+	-primary_tag => 'source',
+	-start       => 1,
+	-end         => $length,
+	-tag         => {organism => $species,
+			 db_xref  => 'taxon:'.$taxonId}
+	#organism taxonID number
+	);
+    $entriesH{$scaffold}->add_SeqFeature($sourceFeat);
   }
   my @id = $feature->get_tag_values('ID');
-  my $number = deparseNumber($id[0]);
-
+  $id[0] =~ /$speciesAbr.+?(\d+):?/;
+  my $number = $1;
   if ($feature->primary_tag() eq 'gene'){
-    if(defined($curGene)){
-      if(defined($CDSH{$curGene})){
+      if(defined($curGene)){
+	if(defined($CDSH{$curGene})){
 	$entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene});
 	$curGene = $number; #set the current gene
-      }
+	}else{
+	    $curGene = $number; #for a gene without CDS
+	}
     }else{
-      $curGene = $number;
+	$curGene = $number;
     }
     #build features
     #find all entries that are in the same scaffold
-    # print $geneH{'PBIGNG'.$1}; #the new gene
-    #print $feature->get_tag_values('ID'); die;
     $geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
 							 -end         => $feature->end(),
 							 -strand      => $feature->strand(),
@@ -164,26 +169,26 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 							 -tag => {gene     => $id[0]});
     $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
   }elsif($feature->primary_tag() eq 'CDS'){
-    my $parent = ($feature->get_tag_values('Parent'))[0];
-    $parent = deparseNumber($parent);
-    if(defined($CDSH{$parent})){
-      my $location = $CDSH{$parent}->location(); #if already seen find the location of CDS
-      # and add the new one to the list
-      $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
-							       -end    => $feature->end(),
-							       -strand => $feature->strand()));
-      $CDSH{$parent}->set_attributes(-location => $location); #update location
-    }else{
-      my $location = Bio::Location::Split->new();
-      $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
-							       -end    => $feature->end(),
-							       -strand => $feature->strand()));
+      my $parent = ($feature->get_tag_values('Parent'))[0];
+      $parent = deparseNumber($parent);
+      if(defined($CDSH{$parent})){
+	  my $location = $CDSH{$parent}->location(); #if already seen find the location of CDS
+	  # and add the new one to the list
+	  $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
+								   -end    => $feature->end(),
+								   -strand => $feature->strand()));
+	  $CDSH{$parent}->set_attributes(-location => $location); #update location
+      }else{
+	  my $location = Bio::Location::Split->new();
+	  $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
+								   -end    => $feature->end(),
+								   -strand => $feature->strand()));
       
       $CDSH{$parent} = new Bio::SeqFeature::Generic(-location => $location,
-						   -strand => $feature->strand(),
-						   -primary_tag => $feature->primary_tag(),
+						    -strand => $feature->strand(),
+						    -primary_tag => $feature->primary_tag(),
 						    -tag => { gene => $feature->get_tag_values('Parent'),
-							      translation => $proteinH{$speciesAbr.'GNP'.$number}->seq()}
+							      translation => $proteinH{$number}->seq()}
 	  );
     }
   }elsif($feature->primary_tag() eq 'exon'){
@@ -196,7 +201,6 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
       $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
   }
 }
-
 $entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene}); #add the last CDS
 
 foreach my $entry (sort keys %entriesH){
@@ -212,6 +216,6 @@ exec "./postProcess.pl $iesgffF $outputFile";
 
 sub deparseNumber{
     my $string = shift @_;
-    $string =~ /.{6}(\d+)/; #extract the number regardless of whether it is a gene, exon etc
+    $string =~ /$speciesAbr.*\D(\d+)/ or die; #extract the number regardless of whether it is a gene, exon etc
     return $1;
 }
