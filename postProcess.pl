@@ -75,7 +75,8 @@ while(my $seqO = $gnbkIn -> next_seq()){
 						    -end   => $ies->{'end'},
 						    -primary_tag   => "IES_junction",
 						    -tag   => {'score' => $ies->{'score'},
-							       'sequence' => $ies->{'sequence'}
+							       'sequence' => $ies->{'sequence'},
+							       'id'  => $ies->{'id'}
 						    }
 	  );
       $seqO->add_SeqFeature($newFeature);

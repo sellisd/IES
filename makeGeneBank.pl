@@ -22,7 +22,10 @@ use Bio::Location::Split;
 #then for ies and then find in which genes they are in
 #make one big file for each species in genbank format with one entry per contig
 
-#species name
+#species abreviations
+# Paremecium tetraurelia PTET.51.
+# Paramecium biaurelia PBI
+# Paramecium sexaurelia PSEX
 my $speciesAbr = 'PTET.51.';
 my $species;
 my $taxonId;
