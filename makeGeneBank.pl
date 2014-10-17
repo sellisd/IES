@@ -9,6 +9,9 @@ use Data::Dumper;
 use Bio::SeqFeature::Gene::Exon;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::Location::Split;
+#use Bio::Taxon;
+use Bio::Species;
+
 
 #TODO: cannot read the p. tetraurelia files!!!
 #everything should be in MAC coordinates
@@ -21,7 +24,7 @@ use Bio::Location::Split;
 #make genbank file for all the rest first
 #then for ies and then find in which genes they are in
 #make one big file for each species in genbank format with one entry per contig
-
+my @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligohymenophorea','Peniculida','Parameciidae','Paramecium');
 #species abreviations
 # Paremecium tetraurelia PTET.51.
 # Paramecium biaurelia PBI
@@ -71,10 +74,22 @@ if ($speciesAbr eq 'PBI'){
 }else{
     die "unknown species";
 }
+push @lineage, $species;
+@lineage = reverse(@lineage);
+my $speciesO = Bio::Species->new(-classification => \@lineage);
+#my $taxonO = Bio::DB::Taxonomy->new(-source => 'list',
+#				    -names =>\@lineage);
+# #my $sequencedbg = Bio::Seq->new('-display_id' => 'test',
+# #				'-format' =>'genbank',
+# #				'-accession_number' => 'SFAD1423');
+## $sequencedbg->species($speciesO);
+## $sequencedbg->species->binomial('Paramecium dokimi');
+
 #output file
 my $data_out = Bio::SeqIO->new('-file' => '>'.$outputFile,
-				 '-format' => 'genbank');
-
+			       '-format' => 'genbank');
+## $data_out->write_seq($sequencedbg);
+## die;
 #define hashes to be filled with sequences
 my %cdsH;
 my %proteinH;
@@ -133,7 +148,9 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
   }else{
     #prepare sequence for this entry
     $entriesH{$scaffold} = Bio::Seq->new('-display_id' => $scaffold,
-					 '-format' =>'genbank');
+					 '-format' =>'genbank',
+					 '-accession_number' => $scaffold);
+    $entriesH{$scaffold}->species($speciesO);
     my $sequence = $scaffoldH{$scaffold}->seq();
     $entriesH{$scaffold}->desc($scaffold);#definition
     $entriesH{$scaffold}->alphabet('dna');

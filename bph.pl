@@ -5,7 +5,7 @@ use Bio::SeqIO;
 use Parallel::ForkManager;
 #make sure each protein has unique ID including in which species it belongs
 #concatenate all fasta files to create on big one
-#cat p1.fa s2.fa > combined.fa
+#cat pbiaurelia/biaurelia_V1-4_annotation_v1.protein.fa psexaurelia/sexaurelia_AZ8-4_annotation_v1.protein.fa ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.protein.fa > combined.fa
 
 #make database for all proteins
 #  makeblastdb -in pb.fa -dbtype prot -out combined
@@ -27,6 +27,7 @@ my @tempFiles; #fill array with temporary files to be deleted
 #blast all against all but keep all hits and output in tab file
 #  blastp -query combined.fa -db combined.fa -outfmt 6
 #or ?faster? read fasta file one sequence at a time and blast it against the database
+
 my $file = "/Users/diamantis/data/IES_data/working/combined.fa";
 my $seqF = Bio::SeqIO->new('-file'=>$file,
 			   '-format'=>'fasta');
@@ -59,6 +60,7 @@ for(my $i = 0 ; $i<$fileCounter; $i++){
     print "   $i/$fileCounter\r";
     my $pid = $pm->start and next;
     my $cmdString = 'blastp -query '.$fastaOutPath.'chunk.'.$i.'.fa -db '.$fastaInPath.'combined -outfmt 6';
+#    my $cmdString = '/home/dsellis/tools/ncbi-blast-2.2.29+/bin/blastp -query '.$fastaOutPath.'chunk.'.$i.'.fa -db '.$fastaInPath.'combined -outfmt 6';
     my $result = `$cmdString`;
     my $blastOutFile = $blastOutPath.'blastout.'.$i.'.dat';
     open OUT, '>'.$blastOutFile or die $!;

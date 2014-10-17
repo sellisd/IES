@@ -12,4 +12,11 @@ identify()
 hist(c(nchar(ps1$V5),nchar(ps1$V5)),breaks=10000,xlim=c(20,200),main = expression(italic("P. sexaurelia")),xlab="IES length (bp)")
 hist(nchar(pt$V5),breaks=10000,xlim=c(20,200),main = expression(italic("P. tetraurelia")),xlab="IES length (bp)")
 
-#also read files and make genebank format
+#also extract sequencies and make blastdb and all against all alignment and run them on silix to see how similar they are
+#length distribution
+#gc% vs length
+#?assemble
+
+#make fasta files with proteins in each group from silix output
+run t_coffee to align them
+t_coffee foo.seq -mode accurate
