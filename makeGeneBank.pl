@@ -77,13 +77,6 @@ if ($speciesAbr eq 'PBI'){
 push @lineage, $species;
 @lineage = reverse(@lineage);
 my $speciesO = Bio::Species->new(-classification => \@lineage);
-#my $taxonO = Bio::DB::Taxonomy->new(-source => 'list',
-#				    -names =>\@lineage);
-# #my $sequencedbg = Bio::Seq->new('-display_id' => 'test',
-# #				'-format' =>'genbank',
-# #				'-accession_number' => 'SFAD1423');
-## $sequencedbg->species($speciesO);
-## $sequencedbg->species->binomial('Paramecium dokimi');
 
 #output file
 my $data_out = Bio::SeqIO->new('-file' => '>'.$outputFile,

@@ -18,6 +18,8 @@ my $iesgffF = $ARGV[0];#'/Users/diamantis/data/IES_data/pbiaurelia/internal_elim
 my $genbank = $ARGV[1]; 
 my $genBankOut = $genbank;
 $genBankOut =~ s/\.gnbk/.IES.gnbk/;
+my $iesgnbkOutF = $genBankOut;
+$iesgnbkOutF =~ s/.IES.gnbk/.ies/;
 my $IESgff = Bio::Tools::GFF->new('-file' => $iesgffF,
 				  '-format' => 'gff3');
 # parse gff3 with annotations
@@ -50,7 +52,8 @@ while (my $line = <IN>){
 	       'start' => $start,
 	       'end'   => $end,
 	       'score' => $score,
-	       'sequence' => $sequence};
+	       'sequence' => $sequence,
+	       'alt_sequence' => $alt_seq};
   if(defined($IESH{$scaffold})){
       push @{$IESH{$scaffold}}, $entry;
   }else{
@@ -67,10 +70,13 @@ my $gnbkIn = Bio::SeqIO->new('-file' => $genbank,
 
 my $gnbkOut = Bio::SeqIO->new('-file'=> '>'.$genBankOut,
 			      '-format' => 'genbank');
+my $iesgnbkOut = Bio::SeqIO->new('-file' => '>'.$iesgnbkOutF,
+			      '-format'=> 'genbank');
+
 while(my $seqO = $gnbkIn -> next_seq()){
-  my $scaffold = $seqO->display_id();
+    my $scaffold = $seqO->display_id();
 #loop through iess in this scaffold
-  foreach my $ies (@{$IESH{$scaffold}}){
+    foreach my $ies (@{$IESH{$scaffold}}){
       my $newFeature = new Bio::SeqFeature::Generic(-start => $ies->{'start'},
 						    -end   => $ies->{'end'},
 						    -primary_tag   => "IES_junction",
@@ -80,9 +86,31 @@ while(my $seqO = $gnbkIn -> next_seq()){
 						    }
 	  );
       $seqO->add_SeqFeature($newFeature);
-  }
-  $gnbkOut->write_seq($seqO);
-  #find which ones are in this scaffold
-#make features
-#add feature to scaffold
+      my $iesSeqO = Bio::Seq->new('-display_id' => $ies->{'id'},
+				  '-format' =>'genbank',
+				  '-accession_number' => $ies->{'id'},
+				  '-start' => $ies->{'start'},
+				  '-end' => $ies->{'end'},
+				  '-alphabet' => 'dna',
+				  '-accession_number' => $ies->{'id'},
+		#		  '-species' => 'not implememted yet!',
+				  '-seq' => $ies->{'sequence'}
+	  );
+      my $iesFeature = new Bio::SeqFeature::Generic(-start => $ies->{'start'},
+						    -end   => $ies->{'end'},
+						    -primary_tag => 'IES',
+						    -tag   => {'score' => $ies->{'score'},
+							       'id'  => $ies->{'id'},
+							       'scaffold' => $scaffold}
+	  );
+      if(defined($ies->{'alt_sequence'})){
+	  $iesFeature->add_tag_value('alternative sequence',$ies->{'alt_sequence'});
+      }
+      $iesSeqO->add_SeqFeature($iesFeature);
+#TODO add species and make ACCESSION valid (check also restrictions for LOCUS)
+#make a string with species abr.scaffold and incrementing number
+      $iesgnbkOut->write_seq($iesSeqO);
+    }
+    $gnbkOut->write_seq($seqO);
+
 }
