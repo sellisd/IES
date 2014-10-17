@@ -29,7 +29,7 @@ my @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligo
 # Paremecium tetraurelia PTET.51.
 # Paramecium biaurelia PBI
 # Paramecium sexaurelia PSEX
-my $speciesAbr = 'PTET.51.';
+my $speciesAbr = 'PBI';
 my $species;
 my $taxonId;
 #file and paths for input
@@ -40,10 +40,18 @@ my $gff3;
 my $scaffoldsF;
 my $outputFile;
 my $iesgffF;
+my $species3abr; #consistent species abreviations, these are not the same with the abbreviations provided in the sequence files
+# Ppr Paramecium primaurelia
+# Pbi Paramecium biaurelia
+# Pte Paramecium tetraurelia
+# Ppe Paramecium pentaurelia
+# Pse Paramecium sexaurelia
+
 #load defaults
 if ($speciesAbr eq 'PBI'){
     $species = 'Paramecium biaurelia';
     $taxonId = 65126;
+    $species3abr = 'Pbi';
     $cds = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.cds.fa';
     $protein = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.protein.fa';
     $gene = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.gene.fa';
@@ -54,6 +62,7 @@ if ($speciesAbr eq 'PBI'){
 }elsif($speciesAbr eq 'PSEX'){
     $species = 'Paramecium sexaurelia';
     $taxonId = 65128;
+    $species3abr = 'Pse';
     $cds = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.cds.fa';
     $protein = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.protein.fa';
     $gene = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.gene.fa';
@@ -64,6 +73,7 @@ if ($speciesAbr eq 'PBI'){
 }elsif($speciesAbr eq 'PTET.51.'){
     $species = 'Paramecium tetraurelia';
     $taxonId = 5888;
+    $species3abr = 'Pte';
     $cds = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.cds.fa';
     $protein = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.protein.fa';
     $gene = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.gene.fa';
@@ -224,8 +234,8 @@ $gff3In->close;
 
 #call postProcess.pl for adding the IES information
 print "adding IES information postProcess.pl:\n";
-print "  ./postProcess.pl $iesgffF $outputFile\n";
-exec "./postProcess.pl $iesgffF $outputFile";
+print "  ./postProcess.pl -species $species3abr $iesgffF $outputFile\n";
+exec "./postProcess.pl -species $species3abr $iesgffF $outputFile";
 
 sub deparseNumber{
     my $string = shift @_;
