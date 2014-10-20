@@ -3,6 +3,9 @@ use warnings;
 use strict;
 use Bio::SeqIO;
 use Parallel::ForkManager;
+
+#script runs all-against-all blast of proteins after filtering low complexity regions and performs silix grouping
+
 #make sure each protein has unique ID including in which species it belongs
 #concatenate all fasta files to create on big one
 #cat pbiaurelia/biaurelia_V1-4_annotation_v1.protein.fa psexaurelia/sexaurelia_AZ8-4_annotation_v1.protein.fa ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.protein.fa > combined.fa
@@ -80,7 +83,9 @@ system($cmdString);
 
 # run silix for clustering
 #silix fastafile blastfile > silix.output
-
+#silix working/combined.fa working/4silix.dat > working/silix.output
+#
 #delete intermidiate files
 print "deleting temp files\n";
 unlink @tempFiles or die $!;
+

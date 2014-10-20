@@ -29,7 +29,7 @@ my @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligo
 # Paremecium tetraurelia PTET.51.
 # Paramecium biaurelia PBI
 # Paramecium sexaurelia PSEX
-my $speciesAbr = 'PBI';
+my $speciesAbr = 'PTET.51.';
 my $species;
 my $taxonId;
 #file and paths for input
