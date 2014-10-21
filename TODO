@@ -1,5 +1,8 @@
 make two genbank files
 one with only gene, CDS and IES_junction features in MAC coordinates
 and the other with the IES seqeuences and related information
-I can't print out join() coordinates from Bio perl.
-A new script will do the post-processing.
+add gene family as feature in genbank files
+and create ACNUC database
+
+
+for each subfamily select subtree based on a pattern
