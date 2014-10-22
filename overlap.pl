@@ -10,9 +10,13 @@ use Bio::Tools::GFF;
 #./makeBed.pl creates bed files for IES and CDS from the IES.gnbk file
 #using bedtools calculate overlap, which genes have an IES in them
 # bedtools intersect -a PTET.CDS.bed -b PTET.IES.bed -wo > Pte.overlap
+
+# parse overlap and load CDSs overlapping an IES
+#$hash{$scaffold}{$CDS.id => [IES.id,...]}
 my %overlapH;
+my $dataPath = '/Users/diamantis/data/IES_data/ptetraurelia/';
 my $overlapF = 'Pte.overlap';
-open OR, $overlapF or die $!;
+open OR, $dataPath.$overlapF or die $!;
 while(my $line = <OR>){
     chomp $line;
     my @ar = split " ", $line;
@@ -26,48 +30,76 @@ while(my $line = <OR>){
     }
 }
 close OR;
-print Dumper %overlapH; die;
 
-# parse overlap and load CDSs overlapping an IES
-#$hash{$scaffold}{$CDS.id => [IES.id,...]}
-
-#find where in proteins IES are located
-#read IES locations
-#read CDS file
-#calculate overlap
-#print protein index and IES name
-# read genbank file
-#foreach scaffold
-#  foreach CDS loop through segments
-
-#read IES locations make $hash{scaffold}->{start => id}
+#read IES files and build
+#$iesH{$iesid} = [start,end]
+my $iesF = 'PTET.IES.bed';
 my %iesH;
-my $iesgffF = '/Users/diamantis/data/IES_data/ptetraurelia/internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
-
-my $iesgffO = Bio::Tools::GFF->new('-file' => $iesgffF,
-				  '-gff_version' => 3);
-
-while(my $feature = $iesgffO->next_feature()){
-    my $scaffold = $feature->seq_id(); #print out the scaffold
-    my $start = $feature->start();
-    my $name = $feature->get_tag_values('ID');
-    $iesH{$scaffold}{$start}=$name;
+open IES, $dataPath.$iesF or die $!;
+while(my $line = <IES>){
+    chomp $line;
+    (my $scaffold, my $start, my $end, my $iesid) = split " ", $line;
+    $iesH{$scaffold}{$iesid} = $start;
 }
+close IES;
 
-my $gnbkIn = Bio::SeqIO->new('-file' => $ARGV[0],
+
+#read genbank file
+#and for each CDS that has an IES add up length up until the appropriate position
+my $genbankF = 'PTET.IES.gnbk';
+my $gnbkIn = Bio::SeqIO->new('-file' => $dataPath.$genbankF,
 			     '-format' => 'genbank');
+
 while(my $seqO = $gnbkIn->next_seq()){
+    my $scaffold = $seqO->accession_number();
     foreach my $featureO ($seqO->get_SeqFeatures()){
 	if($featureO->primary_tag() eq 'CDS'){
-	    my $locationO = $featureO->location();
-	    my $index = 0;
-	    foreach my $locations ($locationO->each_Location()){
-		my $start = $locations->start;
-		my $end = $locations->end;
-#if there is an IES between start end
+	    my @geneName = $featureO->get_tag_values('gene');
+	    if(defined($overlapH{$scaffold}{$geneName[0]})){
+		my $iesInCDS = $overlapH{$scaffold}{$geneName[0]};
+		#this gene has at least one IES
+#usually there are few IES in each gene so checking all should not be too slow
+		my $locationO = $featureO->location();
+		my $complement =  $locationO->strand();
+		my $index = 0;
+		my @iesIndexProt; #location of IES in protein coordinates
+		foreach my $locations ($locationO->each_Location()){
+		    my $start = $locations->start;
+		    my $end = $locations->end;
+		    foreach my $iesInCDSName (@{$iesInCDS}){
+			my $IESstart = $iesH{$scaffold}{$iesInCDSName};
 
-		#print gene IES name index+ (IES location - CDS start+1)
-		$index += ($end-$start+1) #length of each CDS
+			if($IESstart >= $start and $IESstart <= $end){
+			    #this IES is in this CDS
+			   # print $geneName[0], ' ', $iesInCDSName, ' ', $IESstart,' ',$start,' ',$end,' ',$index+($IESstart-$start+1),"\n";
+			    push @iesIndexProt, $index+($IESstart-$start+1);
+			}
+		    }
+		    #if there is an IES between start end
+		    #print gene IES name index+ (IES location - CDS start+1)
+		    $index += ($end-$start+1) #length of each CDS
+		}
+		my $counter = 0;
+		foreach my $iesIP (@iesIndexProt){
+		    print $geneName[0], ' ', ${$iesInCDS}[$counter], ' ';
+		    my $pCoo; #protein coordinates
+		    if($complement == -1){
+			$pCoo = $index - $iesIP; # IES has length 2
+		    }elsif($complement == 1){
+			$pCoo = $iesIP;
+		    }else{
+			die $complement;
+		    }
+
+		    my $aaCoo = int(($pCoo - 1)/3) + 1; #position in amino-acid coordinates
+		    my $frame = ($pCoo - 1) % 3 + 1;
+		    print $aaCoo, ' ',$frame, "\n";
+# nt 1 2 3 4 5 6 7
+#make zero-based and add back 1 to the result
+# aa 0 0 0 1 1 1 2 (a-1) / 3 + 1
+# p  1 2 0 1 2 0 1 (a-1) % 3 +1
+		    $counter++;
+		}
 	    }
 	}
     }
