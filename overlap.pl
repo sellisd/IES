@@ -6,7 +6,53 @@ use Bio::Seq;
 use Bio::SeqFeature::Generic;
 use Data::Dumper;
 use Bio::Tools::GFF;
-#alternative approach:
+use Getopt::Long;
+my $usage = <<HERE;
+
+Reads
+  - the output of bedtools intersect with the -wo option (which genes contain IE)
+  - the .bed file with IES coordinates
+  - master genbank file
+ and produces an	output file with the following columns
+  - geneId
+  - IESid
+  - 1-based index of IES location in aa coordinates (including start codon as M)
+  - frame of insertion (counting	as start the point closest to the origin of the	protein, which depends on the strand of	the protein) 0 1 2
+
+Usage:
+ overlap.pl [OPTIONS]
+
+where options can be:
+ - help|?   this help screen
+ - species  species abreviation: Ppr, Pbi, Pte, Pen, Pse
+HERE
+my $help;
+my $speciesAbr;
+
+die $usage unless (GetOptions('help|?' => \$help,
+			      'species=s' => \$speciesAbr));
+die $usage if $help;
+my $dataPath = '/Users/diamantis/data/IES_data/';
+my $subdir;
+my $oldAbr;
+if($speciesAbr eq 'Ppr'){
+    $subdir = 'pprimaurelia/';
+}elsif($speciesAbr eq 'Pbi'){
+    $subdir = 'pbiaurelia/';
+    $oldAbr = 'PBI';
+}elsif($speciesAbr eq 'Pte'){
+    $subdir = 'ptetraurelia/';
+    $oldAbr  = 'PTET';
+}elsif($speciesAbr eq 'Pen'){
+    $subdir = 'ppentaurelia/';
+}elsif($speciesAbr eq 'Pse'){
+    $subdir = 'psexaurelia/';
+    $oldAbr  = 'PSEX';
+}else{
+    print 'Not known species abreviation: $speciesAbr',"\n";
+    die $usage;
+}
+
 #./makeBed.pl creates bed files for IES and CDS from the IES.gnbk file
 #using bedtools calculate overlap, which genes have an IES in them
 # bedtools intersect -a PTET.CDS.bed -b PTET.IES.bed -wo > Pte.overlap
@@ -14,8 +60,9 @@ use Bio::Tools::GFF;
 # parse overlap and load CDSs overlapping an IES
 #$hash{$scaffold}{$CDS.id => [IES.id,...]}
 my %overlapH;
-my $dataPath = '/Users/diamantis/data/IES_data/ptetraurelia/';
-my $overlapF = 'Pte.overlap';
+$dataPath = $dataPath.$subdir;
+my $overlapF = $speciesAbr.'.overlap';
+my $output = $dataPath.$speciesAbr.'.IESinCDS';
 open OR, $dataPath.$overlapF or die $!;
 while(my $line = <OR>){
     chomp $line;
@@ -33,8 +80,9 @@ close OR;
 
 #read IES files and build
 #$iesH{$iesid} = [start,end]
-my $iesF = 'PTET.IES.bed';
+my $iesF = $oldAbr.'.IES.bed';
 my %iesH;
+
 open IES, $dataPath.$iesF or die $!;
 while(my $line = <IES>){
     chomp $line;
@@ -43,13 +91,12 @@ while(my $line = <IES>){
 }
 close IES;
 
-
 #read genbank file
 #and for each CDS that has an IES add up length up until the appropriate position
-my $genbankF = 'PTET.IES.gnbk';
+my $genbankF = $oldAbr.'.IES.gnbk';
 my $gnbkIn = Bio::SeqIO->new('-file' => $dataPath.$genbankF,
 			     '-format' => 'genbank');
-
+open OUT, '>'.$output or die $!;
 while(my $seqO = $gnbkIn->next_seq()){
     my $scaffold = $seqO->accession_number();
     foreach my $featureO ($seqO->get_SeqFeatures()){
@@ -81,7 +128,7 @@ while(my $seqO = $gnbkIn->next_seq()){
 		}
 		my $counter = 0;
 		foreach my $iesIP (@iesIndexProt){
-		    print $geneName[0], ' ', ${$iesInCDS}[$counter], ' ';
+		    print OUT $geneName[0], ' ', ${$iesInCDS}[$counter], ' ';
 		    my $pCoo; #protein coordinates
 		    if($complement == -1){
 			$pCoo = $index - $iesIP; # IES has length 2
@@ -93,7 +140,7 @@ while(my $seqO = $gnbkIn->next_seq()){
 
 		    my $aaCoo = int(($pCoo - 1)/3) + 1; #position in amino-acid coordinates
 		    my $frame = ($pCoo - 1) % 3 + 1;
-		    print $aaCoo, ' ',$frame, "\n";
+		    print OUT $aaCoo, ' ',$frame, "\n";
 # nt 1 2 3 4 5 6 7
 #make zero-based and add back 1 to the result
 # aa 0 0 0 1 1 1 2 (a-1) / 3 + 1
@@ -104,3 +151,4 @@ while(my $seqO = $gnbkIn->next_seq()){
 	}
     }
 }
+close OUT;

@@ -12,8 +12,6 @@ use Bio::Location::Split;
 #use Bio::Taxon;
 use Bio::Species;
 
-
-#TODO: cannot read the p. tetraurelia files!!!
 #everything should be in MAC coordinates
 # IES_junction 122..123
 # idx_ref = NAME (unique)

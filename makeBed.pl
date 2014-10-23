@@ -6,8 +6,8 @@ use Bio::SeqFeature::Generic;
 
 # make bed files for CDS and IES from genbank file
 
-my $dataPath = '/Users/diamantis/data/IES_data/ptetraurelia/';
-my $inputF = 'PTET.IES.gnbk';
+my $dataPath = '/Users/diamantis/data/IES_data/pbiaurelia/';
+my $inputF = 'PBI.IES.gnbk';
 my $gnbkIn = Bio::SeqIO->new('-file' => $dataPath.$inputF,
 			     '-format' => 'genbank');
 my $cdsout = $inputF;
