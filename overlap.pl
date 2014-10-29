@@ -34,20 +34,16 @@ die $usage unless (GetOptions('help|?' => \$help,
 die $usage if $help;
 my $dataPath = '/Users/diamantis/data/IES_data/';
 my $subdir;
-my $oldAbr;
 if($speciesAbr eq 'Ppr'){
     $subdir = 'pprimaurelia/';
 }elsif($speciesAbr eq 'Pbi'){
     $subdir = 'pbiaurelia/';
-    $oldAbr = 'PBI';
 }elsif($speciesAbr eq 'Pte'){
     $subdir = 'ptetraurelia/';
-    $oldAbr  = 'PTET';
 }elsif($speciesAbr eq 'Pen'){
     $subdir = 'ppentaurelia/';
 }elsif($speciesAbr eq 'Pse'){
     $subdir = 'psexaurelia/';
-    $oldAbr  = 'PSEX';
 }else{
     print 'Not known species abreviation: $speciesAbr',"\n";
     die $usage;
@@ -80,7 +76,7 @@ close OR;
 
 #read IES files and build
 #$iesH{$iesid} = [start,end]
-my $iesF = $oldAbr.'.IES.bed';
+my $iesF = $speciesAbr.'.IES.bed';
 my %iesH;
 
 open IES, $dataPath.$iesF or die $!;
@@ -93,7 +89,7 @@ close IES;
 
 #read genbank file
 #and for each CDS that has an IES add up length up until the appropriate position
-my $genbankF = $oldAbr.'.IES.gnbk';
+my $genbankF = $speciesAbr.'.IES.gnbk';
 my $gnbkIn = Bio::SeqIO->new('-file' => $dataPath.$genbankF,
 			     '-format' => 'genbank');
 open OUT, '>'.$output or die $!;
