@@ -3,11 +3,20 @@ use warnings;
 use strict;
 use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
+use Getopt::Long;
+my $help;
+my $usage = <<HERE;
 
-# make bed files for CDS and IES from genbank file
+make .bed files for CDS and IES from genbank file
+usage: makeBed.pl PATH/Pab.IES.gnbk
+HERE
 
-my $dataPath = '/Users/diamantis/data/IES_data/pbiaurelia/';
-my $inputF = 'PBI.IES.gnbk';
+die $usage unless (GetOptions('help|?' => \$help));
+die $usage if $help;
+die $usage unless $#ARGV>=0;
+$ARGV[0] =~ /(.*\/)?([^\/]*)/;
+my $dataPath = $1;
+my $inputF = $2;
 my $gnbkIn = Bio::SeqIO->new('-file' => $dataPath.$inputF,
 			     '-format' => 'genbank');
 my $cdsout = $inputF;
