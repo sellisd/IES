@@ -8,8 +8,31 @@ use Data::Dumper;
 use Bio::SeqFeature::Gene::Exon;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::Location::Split;
-#use Bio::Taxon;
+use Getopt::Long;
 use Bio::Species;
+my $help;
+my $species3abr;
+my $dataPath;
+my $usage = <<HERE;
+
+make genebank file from gff3 files
+usage makeGeneBank.pl -species Pab -datapath PATH
+
+#consistent species abreviations, these are not the same with the abbreviations provided in the sequence files
+# Ppr Paramecium primaurelia
+# Pbi Paramecium biaurelia
+# Pte Paramecium tetraurelia
+# Ppe Paramecium pentaurelia
+# Pse Paramecium sexaurelia
+
+HERE
+
+die $usage unless (GetOptions('help|?' => \$help,
+			      'datapath=s' => \$dataPath,
+			      'species=s' => \$species3abr));
+die $usage if $help;
+$dataPath = '/Users/diamantis/data/IES_data/'; #default for local run
+#$dataPath = '/pandata/IES_data'; #default for cluster
 
 #everything should be in MAC coordinates
 # IES_junction 122..123
@@ -22,11 +45,8 @@ use Bio::Species;
 #then for ies and then find in which genes they are in
 #make one big file for each species in genbank format with one entry per contig
 my @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligohymenophorea','Peniculida','Parameciidae','Paramecium');
-#species abreviations
-# Paremecium tetraurelia PTET.51.
-# Paramecium biaurelia PBI
-# Paramecium sexaurelia PSEX
-my $speciesAbr = 'PTET.51.';
+
+my $speciesAbr;
 my $species;
 my $taxonId;
 #file and paths for input
@@ -37,47 +57,44 @@ my $gff3;
 my $scaffoldsF;
 my $outputFile;
 my $iesgffF;
-my $species3abr; #consistent species abreviations, these are not the same with the abbreviations provided in the sequence files
-# Ppr Paramecium primaurelia
-# Pbi Paramecium biaurelia
-# Pte Paramecium tetraurelia
-# Ppe Paramecium pentaurelia
-# Pse Paramecium sexaurelia
 
 #load defaults
-if ($speciesAbr eq 'PBI'){
+if ($species3abr eq 'Pbi'){
     $species = 'Paramecium biaurelia';
     $taxonId = 65126;
-    $species3abr = 'Pbi';
-    $cds = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.cds.fa';
-    $protein = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.protein.fa';
-    $gene = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.gene.fa';
-    $gff3 = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_annotation_v1.gff3';
-    $scaffoldsF = '/Users/diamantis/data/IES_data/pbiaurelia/biaurelia_V1-4_assembly_v1.fasta';
-    $outputFile = '/Users/diamantis/data/IES_data/pbiaurelia/PBI.gnbk';
-    $iesgffF = '/Users/diamantis/data/IES_data/pbiaurelia/internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
-}elsif($speciesAbr eq 'PSEX'){
+    $speciesAbr = 'PBI';
+    $dataPath = $dataPath.'pbiaurelia/';
+    $cds = $dataPath.'biaurelia_V1-4_annotation_v1.cds.fa';
+    $protein = $dataPath.'biaurelia_V1-4_annotation_v1.protein.fa';
+    $gene = $dataPath.'biaurelia_V1-4_annotation_v1.gene.fa';
+    $gff3 = $dataPath.'biaurelia_V1-4_annotation_v1.gff3';
+    $scaffoldsF = $dataPath.'biaurelia_V1-4_assembly_v1.fasta';
+    $outputFile = $dataPath.'Pbi.gnbk';
+    $iesgffF = $dataPath.'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
+}elsif($species3abr eq 'Pse'){
     $species = 'Paramecium sexaurelia';
     $taxonId = 65128;
-    $species3abr = 'Pse';
-    $cds = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.cds.fa';
-    $protein = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.protein.fa';
-    $gene = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.gene.fa';
-    $gff3 = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.gff3';
-    $scaffoldsF = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_assembly_v1.fasta';
-    $outputFile = '/Users/diamantis/data/IES_data/psexaurelia/PSEX.gnbk';
-    $iesgffF = '/Users/diamantis/data/IES_data/psexaurelia/internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
-}elsif($speciesAbr eq 'PTET.51.'){
+    $speciesAbr = 'PSEX';
+    $dataPath = $dataPath.'pbiaurelia/';
+    $cds = $dataPath.'sexaurelia_AZ8-4_annotation_v1.cds.fa';
+    $protein = $dataPath.'sexaurelia_AZ8-4_annotation_v1.protein.fa';
+    $gene = $dataPath.'sexaurelia_AZ8-4_annotation_v1.gene.fa';
+    $gff3 = $dataPath.'sexaurelia_AZ8-4_annotation_v1.gff3';
+    $scaffoldsF = $dataPath.'sexaurelia_AZ8-4_assembly_v1.fasta';
+    $outputFile = $dataPath.'Pse.gnbk';
+    $iesgffF = $dataPath.'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
+}elsif($species3abr eq 'Pte'){
     $species = 'Paramecium tetraurelia';
     $taxonId = 5888;
-    $species3abr = 'Pte';
-    $cds = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.cds.fa';
-    $protein = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.protein.fa';
-    $gene = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.gene.fa';
-    $gff3 = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.4.gff3';
-    $scaffoldsF = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51.fa';
-    $outputFile = '/Users/diamantis/data/IES_data/ptetraurelia/PTET.gnbk';
-    $iesgffF = '/Users/diamantis/data/IES_data/ptetraurelia/internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
+    $speciesAbr = 'PTET.51.';
+    $dataPath = $dataPath.'ptetraurelia/';
+    $cds = $dataPath.'ptetraurelia_mac_51_annotation_v2.0.4.cds.fa';
+    $protein = $dataPath.'ptetraurelia_mac_51_annotation_v2.0.4.protein.fa';
+    $gene = $dataPath.'ptetraurelia_mac_51_annotation_v2.0.4.gene.fa';
+    $gff3 = $dataPath.'ptetraurelia_mac_51_annotation_v2.0.4.gff3';
+    $scaffoldsF = $dataPath.'ptetraurelia_mac_51.fa';
+    $outputFile = $dataPath.'Pte.gnbk';
+    $iesgffF = $dataPath.'internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
 }else{
     die "unknown species";
 }
@@ -102,6 +119,7 @@ my %geneFeatureH;
 my %CDSH;
 
 #open sequence files and fill hashes
+print "read scaffolds from $scaffoldsF\n";
 my $scaffoldIn = Bio::SeqIO->new('-file' => $scaffoldsF,
 				 '-format' => 'fasta');
 while(my $scaffoldSeq = $scaffoldIn->next_seq){
@@ -110,12 +128,13 @@ while(my $scaffoldSeq = $scaffoldIn->next_seq){
   $scaffoldH{$1} = $scaffoldSeq;
 }
 
+print "read CDS from $cds\n";
 my $cdsIn = Bio::SeqIO->new('-file' => $cds,
  			    '-format' => 'fasta');
 while(my $cdsSeq = $cdsIn->next_seq){
   $cdsH{$cdsSeq->display_id} = $cdsSeq;
 }
-
+print "read proteins from $protein\n";
 my $proteinIn = Bio::SeqIO->new('-file' => $protein,
  			    '-format' => 'fasta');
 while(my $proteinSeq = $proteinIn->next_seq){
@@ -127,6 +146,7 @@ while(my $proteinSeq = $proteinIn->next_seq){
 	$proteinH{$idNo} = $proteinSeq;
     }
 }
+print "read genes from $gene\n";
 my $geneIn = Bio::SeqIO->new('-file' => $gene,
  			    '-format' => 'fasta');
 while(my $geneSeq = $geneIn->next_seq){
@@ -139,6 +159,7 @@ my $gff3In = Bio::Tools::GFF->new('-file' => $gff3,
 my $curGene;
 my $scaffold;
 my $prevScaffold;
+print "parse gff3 features\n";
 #read gff3 file and build genbank entries
 while(my $feature = $gff3In->next_feature()){ # one line at a time
   $prevScaffold = $scaffold;
