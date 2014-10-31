@@ -43,15 +43,13 @@ foreach my $species (@species){
 						'-id' => $id,
 						'-alphabet' => 'dna'
 			);
-		    my $translation = $newSeq->translate(-frame=>$codon_start,
-							 -codontable_id = > 6);
-		    my $newPSeq = Bio::Seq->new('-seq' => $translation,
-						'-id' => $id,
-						'-alphabet' => 'protein'
-			);
+		    my $newPSeq = $newNSeq->translate(-frame=>$codon_start,
+							 -codontable_id => 6);
+		    $newPSeq->id($id);
+		    $newPSeq->alphabet('protein');
 		    $PF->write_seq($newPSeq);
 		    $NF->write_seq($newNSeq);
-		    print TO "$id\t$start\t$stop\t$length\t$codon_start\n";
+		    print TO 'P.'.$species->species()."\t$scaffold\t$gene\t$start\t$end\t$length\t$codon_start\n";
 		}
 	    }
 	}
