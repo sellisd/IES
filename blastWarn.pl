@@ -1,9 +1,9 @@
-#!/usr/bin
+#!/usr/bin/perl
 use warnings;
 use strict;
 
-opendir DH $ARGV[0] or die $!;
-my @files = readir(DH);
+opendir(DH, $ARGV[0]) or die $!;
+my @files = readdir(DH);
 close DH;
 
 print `ls -1 output.* |wc`;
@@ -17,8 +17,12 @@ foreach my $file (@files){
     open ER, $file or die $!;
     my $lineCounter = 0;
     while (my $line = <ER>){
-        unless ($line =~ /^Selenocysteine (U) at position \d+ replaced by X$/){
-            print "Error at $i line $lineCounter\n";
+	chomp $line;
+	if ($line =~/^Selenocysteine \(U\) at position \d+ replaced by X$/){
+	}elsif($line =~ /Warning: One or more U or O characters replaced by X for alignment score calculations at positions/){
+	}elsif($line eq ''){
+	}else{
+	    print "Error at $file line $lineCounter\n";
         }
         $lineCounter++;
     }
