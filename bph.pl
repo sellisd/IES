@@ -2,24 +2,25 @@
 use warnings;
 use strict;
 use Bio::SeqIO;
-use Parallel::ForkManager;
+#use Parallel::ForkManager; not useful in the cluster
 
 #script runs all-against-all blast of proteins after filtering low complexity regions and performs silix grouping
 
 
-my $file = "combined.fa"; #fasta file
-my $blastpBin = 'blastp';
-my $silixBin = 'silix';
+my $file = "/pandata/sellis/combined.fa"; #fasta file
+#my $file = "/pandata/sellis/test.fa"; #fasta file
+my $blastpBin = '/usr/remote/ncbi-blast-2.2.29+/bin/blastp';
+my $silixBin = 'silix/usr/remote/silix-1.2.8/bin/';
 
-my $cores  = 8;
-my $pm = Parallel::ForkManager->new($cores);
+#my $cores  = 48;
+#my $pm = Parallel::ForkManager->new($cores);
 # pipeline for analysis of Paremecium data
 
 #set data paths
-my $blastdbPath = './';
-my $fastaOutPath = 'working/';
-my $blastOutPath = 'working/';
-my $silixOutPath = 'working/';
+my $blastdbPath = '/pandata/sellis/';
+my $fastaOutPath = '/pandata/sellis/';
+my $blastOutPath = '/pandata/sellis/';
+my $silixOutPath = '/pandata/sellis/';
 my @tempFiles; #fill array with temporary files to be deleted
 
 #blast all against all but keep all hits and output in tab file
@@ -50,37 +51,38 @@ while(my $seqO = $seqF->next_seq){
     $seqOut->write_seq($seqO);
     $counter++;
 }
+
 print "   $counter sequences in $fileCounter pieces\n";
 print "     done\n";
 
 print "running blast\n";
 for(my $i = 0 ; $i<$fileCounter; $i++){
     print "   $i/$fileCounter\r";
-    my $pid = $pm->start and next;
-    my $cmdString = $blastpBin.' -query '.$fastaOutPath.'chunk.'.$i.'.fa -db '.$blastdbPath.'combined -outfmt 6';
-    my $result = `$cmdString`;
-    my $blastOutFile = $blastOutPath.'blastout.'.$i.'.dat';
-    open OUT, '>'.$blastOutFile or die $!;
-    print OUT $result;
-    close OUT;
-    push @tempFiles, $blastOutFile;
-    $pm->finish;
+#    my $pid = $pm->start and next;
+#write pbs file
+    open PBS, '>'.$i.'.pbs' or die $!;
+    my $cmdString = $blastpBin.' -query '.$fastaOutPath.'chunk.'.$i.'.fa -db '.$blastdbPath.'combined -outfmt 6 -out '.$blastOutPath.'blastout.'.$i.'.dat -seg yes';
+    print PBS '#PBS -q q1hour',"\n";
+    print PBS '#PBS -N blastp.',$i,"\n";
+    print PBS '#PBS -e error.',$i,"\n";
+    print PBS '#PBS -o output.',$i,"\n";
+    print PBS '#PBS -l nodes=1:dodeca',"\n";
+    print PBS "$cmdString","\n";
+    print PBS 'echo telos',"\n";
+    close PBS;
+
+#submit file
+   # my $result = `$cmdString`;
+    print "qsub ".$i.'.pbs',"\n";
+    system "qsub ".$i.'.pbs';
+   # my $blastOutFile = $blastOutPath.'blastout.'.$i.'.dat';
+   # open OUT, '>'.$blastOutFile or die $!;
+   # print OUT $result;
+   # close OUT;
+#    $pm->finish;
 }
-$pm->wait_all_children;
+#$pm->wait_all_children;
 print "     done\n";
 
-print "stitch output\n";
-my $cmdString = 'cat '.$blastOutPath.'blastout.*.dat > '.$blastOutPath.'4silix.dat';
-system($cmdString);
-#blast one chunk at a time (on a different core 8) ) 
-#output in tabular format for Silix
 
-# run silix for clustering
-#silix fastafile blastfile > silix.output
-my $cmdl = $silixBin.' '.$file.' '.$blastOutPath.'4silix.dat > '.$silixOutPath.'silix.output';
-system $cmdl;
-#
-#delete intermidiate files
-print "deleting temp files\n";
-unlink @tempFiles or die $!;
 
