@@ -212,6 +212,8 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
   }elsif($feature->primary_tag() eq 'CDS'){
       my $parent = ($feature->get_tag_values('Parent'))[0];
       $parent = deparseNumber($parent);
+      my $geneId = ($feature->get_tag_values('Parent'))[0];
+      $geneId =~s/(.*)T(\d+)/$1G$2/;
       if(defined($CDSH{$parent})){
 	  my $location = $CDSH{$parent}->location(); #if already seen find the location of CDS
 	  # and add the new one to the list
@@ -224,20 +226,21 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 	  $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
 								   -end    => $feature->end(),
 								   -strand => $feature->strand()));
-      
-      $CDSH{$parent} = new Bio::SeqFeature::Generic(-location => $location,
-						    -strand => $feature->strand(),
-						    -primary_tag => $feature->primary_tag(),
-						    -tag => { gene => $feature->get_tag_values('Parent'),
-							      translation => $proteinH{$number}->seq()}
-	  );
-    }
+	  $CDSH{$parent} = new Bio::SeqFeature::Generic(-location => $location,
+							-strand => $feature->strand(),
+							-primary_tag => $feature->primary_tag(),
+							-tag => { gene => $geneId,
+								  translation => $proteinH{$number}->seq()}
+	      );
+      }
   }elsif($feature->primary_tag() eq 'exon'){
+      my $geneId = ($feature->get_tag_values('Parent'))[0];
+      $geneId =~s/(.*)T(\d+)/$1G$2/;
       $geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
 							   -end         => $feature->end(),
 							   -strand      => $feature->strand(),
 							   -primary_tag => $feature->primary_tag(),
-							   -tag => {gene     => ($feature->get_tag_values('Parent'))[0],
+							   -tag => {gene     => $geneId,
 								    codon_start => $feature->frame()});
       $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
   }
