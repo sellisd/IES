@@ -4,6 +4,9 @@ use strict;
 use Bio::SeqIO;
 use Bio::Tools::GFF;
 
+# find in which silix groups the exons with length 102pb are
+
+#   find for each gene the number of strange exons
 my %strangeExons;
 my @species = qw/Pbi Pte Pse/;
 foreach my $species (@species){
@@ -41,13 +44,38 @@ foreach my $species (@species){
     }
 }
 
+#   for each group find how many genes with strange exons and how many total
+#loop through group gene allele
+
+my %countExons;
+my %geneGroups;
 open SLX, '/Users/diamantis/data/IES_data/working/silix.output' or die $!;
 while(my $line = <SLX>){
     chomp $line;
     (my $group, my $gene) = split " ", $line;
+    if(defined($geneGroups{$group})){
+	$geneGroups{$group}++;
+    }else{
+	$geneGroups{$group}=1;
+    }
     if(defined($strangeExons{$gene})){
-	print $group,"\n";
+	if(defined($countExons{$group})){
+	    $countExons{$group}++;
+	}else{
+	    $countExons{$group}=1;
+	}
     }
 }
 close SLX;
+
+foreach my $group (sort {$a<=>$b} keys %geneGroups){
+    print $group,"\t";
+    if(defined($countExons{$group})){
+	print $countExons{$group};
+    }else{
+	print 0;
+    }
+    print "\t";
+    print $geneGroups{$group},"\n";
+}
 

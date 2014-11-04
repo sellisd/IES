@@ -110,10 +110,6 @@ my $iesgnbkOut = Bio::SeqIO->new('-file' => '>'.$iesgnbkOutF,
 
 while(my $seqO = $gnbkIn -> next_seq()){
     my $scaffold = $seqO->display_id();
-    #add species
-    #accession
-#locus
-    
 #loop through iess in this scaffold
     foreach my $ies (@{$IESH{$scaffold}}){
 	$scaffold =~ /scaffold.*?_(\d+)/;
