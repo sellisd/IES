@@ -120,7 +120,7 @@ while(my $seqO = $gnbkIn -> next_seq()){
 						      -end   => $ies->{'end'},
 						      -primary_tag   => "IES_junction",
 						      -tag   => {'score' => $ies->{'score'},
-								 'sequence' => $ies->{'sequence'},
+#								 'sequence' => $ies->{'sequence'}, #do not include sequence, it will be part of a separate file
 								 'id'  => $ies->{'id'},
 								 'db_xref' => $accNumber
 						      }

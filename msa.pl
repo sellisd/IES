@@ -13,7 +13,7 @@ my $logfilePath = $dataPath.'msas/log/';
 my $alnfilePath = $dataPath.'msas/aln/';
 my $dndfilePath = $dataPath.'msas/dnd/';
 my $htmlfilePath = $dataPath.'msas/html/';
-my $block = 500;
+my $block = 30;
 #make required directories
 mkdir $logfilePath unless (-d $logfilePath);
 mkdir $dndfilePath unless (-d $dndfilePath);
@@ -49,14 +49,15 @@ for(my $i = 0; $i < $#files ; $i+=$block){
     print PBS "mv *.html $htmlfilePath\n";
     print PBS 'echo telos',"\n";
     close PBS;
-    $counter++;
     system "qsub msa.".$counter.".pbs";
-    my $waiting = `qstat |grep q1hour|awk '\$5!="C"'|wc`;
-    while((split " ", $waiting)[0] > 2900){ #buffer of 100
- 	$waiting = `qstat |grep q1hour|awk '\$5!="C"'|wc`;
- 	print "waiting for queue to clean up $waiting\n";
- 	sleep 1;
-    }
+#    print "qsub msa.".$counter.".pbs\n";
+    $counter++;
+ #   my $waiting = `qstat |grep q1hour|awk '\$5!="C"'|wc`;
+ #   while((split " ", $waiting)[0] > 2900){ #buffer of 100
+ #	$waiting = `qstat |grep q1hour|awk '\$5!="C"'|wc`;
+ #	print "waiting for queue to clean up $waiting\n";
+ #	sleep 1;
+ #   }
 }
 
 
