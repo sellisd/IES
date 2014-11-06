@@ -127,18 +127,6 @@ while(my $scaffoldSeq = $scaffoldIn->next_seq){
   $scId =~ /(scaffold_?[_\d]+)/ or die $scId; #Everything is in MAC coordinates (without IES) scaffold names are not consistent across species
   $scaffoldH{$1} = $scaffoldSeq;
 }
-#rename scaffolds with acnuc compatible names
-my $NumberOfScaffolds = scalar keys %scaffoldH;
-my $NumberOfDigits = length($NumberOfScaffolds + 1);
-
-my %renamedScaffoldH;
-foreach my $scname (keys %scaffoldH){
-    $scname =~ /scaffold.*?_(\d+)/;
-    my $number = $1;
-    my $printString = '%0'.$NumberOfDigits.'d';
-    my $Padded = sprintf($printString,$number);
-    $renamedScaffoldH{$scname} = $species3abr.'_'.$Padded;
-}
 
 print "read CDS from $cds\n";
 my $cdsIn = Bio::SeqIO->new('-file' => $cds,
@@ -180,9 +168,9 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 	
     }else{
 	#prepare sequence for this entry
-	$entriesH{$scaffold} = Bio::Seq->new('-display_id' => $renamedScaffoldH{$scaffold},
+	$entriesH{$scaffold} = Bio::Seq->new('-display_id' => $scaffold,
 					     '-format' =>'genbank',
-					     '-accession_number' => $renamedScaffoldH{$scaffold});
+					     '-accession_number' => $scaffold);
 	$entriesH{$scaffold}->species($speciesO);
 	my $sequence = $scaffoldH{$scaffold}->seq();
 	$entriesH{$scaffold}->desc($scaffold);#definition

@@ -56,44 +56,44 @@ $genBankOut =~ s/\.gnbk/.IES.gnbk/;
 my $iesgnbkOutF = $genBankOut;
 $iesgnbkOutF =~ s/.IES.gnbk/.ies/;
 my $IESgff = Bio::Tools::GFF->new('-file' => $iesgffF,
-    '-format' => 'gff3');
+				  '-format' => 'gff3');
 # parse gff3 with annotations
 my %IESH;
 open IN, $iesgffF;
 while (my $line = <IN>){
     chomp $line;
-my @ar = split "\t", $line;
-my $scaffold = $ar[0];
-my $start = $ar[3];
-my $end = $ar[4];
-my $score = $ar[5];
-my $annotation = $ar[8];
-my $id;
-my $sequence;
-my $alt_seq;
-my @annotations = split ';', $annotation;
-my $counter = 0;
-foreach my $annot (@annotations){
-    if ($annot =~ /ID=(.*)/){
-	$id = $1;
-    }elsif($annot =~ /sequence=(.*)/){
-	$sequence = $1;
-    }elsif($annot =~ /alternative_IES_seq=(.*)/){
-	$alt_seq = $1;
+    my @ar = split "\t", $line;
+    my $scaffold = $ar[0];
+    my $start = $ar[3];
+    my $end = $ar[4];
+    my $score = $ar[5];
+    my $annotation = $ar[8];
+    my $id;
+    my $sequence;
+    my $alt_seq;
+    my @annotations = split ';', $annotation;
+    my $counter = 0;
+    foreach my $annot (@annotations){
+	if ($annot =~ /ID=(.*)/){
+	    $id = $1;
+	}elsif($annot =~ /sequence=(.*)/){
+	    $sequence = $1;
+	}elsif($annot =~ /alternative_IES_seq=(.*)/){
+	    $alt_seq = $1;
+	}
+	$counter++;
     }
-    $counter++;
-}
-my $entry = {'id' => $id,
-	     'start' => $start,
-	     'end'   => $end,
-	     'score' => $score,
-	     'sequence' => $sequence,
-	     'alt_sequence' => $alt_seq};
-if(defined($IESH{$scaffold})){
-    push @{$IESH{$scaffold}}, $entry;
-}else{
-    $IESH{$scaffold} = [$entry];
-}
+    my $entry = {'id' => $id,
+		 'start' => $start,
+		 'end'   => $end,
+		 'score' => $score,
+		 'sequence' => $sequence,
+		 'alt_sequence' => $alt_seq};
+    if(defined($IESH{$scaffold})){
+	push @{$IESH{$scaffold}}, $entry;
+    }else{
+	$IESH{$scaffold} = [$entry];
+    }
 }
 close IN;
 
@@ -112,7 +112,7 @@ while(my $seqO = $gnbkIn -> next_seq()){
     my $scaffold = $seqO->display_id();
 #loop through iess in this scaffold
     foreach my $ies (@{$IESH{$scaffold}}){
-	$scaffold =~ /scaffold.*?_(\d+)/;
+	$scaffold =~ /.*?_(\d+)/;
 	my $scaffoldNo = $1 or die $scaffold;
 	my $accNumber = $speciesAbr.$scaffoldNo.'_'.$ies->{'start'};
 	
