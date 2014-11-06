@@ -127,6 +127,18 @@ while(my $scaffoldSeq = $scaffoldIn->next_seq){
   $scId =~ /(scaffold_?[_\d]+)/ or die $scId; #Everything is in MAC coordinates (without IES) scaffold names are not consistent across species
   $scaffoldH{$1} = $scaffoldSeq;
 }
+#rename scaffolds with acnuc compatible names
+my $NumberOfScaffolds = scalar keys %scaffoldH;
+my $NumberOfDigits = length($NumberOfScaffolds + 1);
+
+my %renamedScaffoldH;
+foreach my $scname (keys %scaffoldH){
+    $scname =~ /scaffold.*?_(\d+)/;
+    my $number = $1;
+    my $printString = '%0'.$NumberOfDigits.'d';
+    my $Padded = sprintf($printString,$number);
+    $renamedScaffoldH{$scname} = $species3abr.'_'.$Padded;
+}
 
 print "read CDS from $cds\n";
 my $cdsIn = Bio::SeqIO->new('-file' => $cds,
@@ -162,88 +174,88 @@ my $prevScaffold;
 print "parse gff3 features\n";
 #read gff3 file and build genbank entries
 while(my $feature = $gff3In->next_feature()){ # one line at a time
-  $prevScaffold = $scaffold;
-  $scaffold = $feature->seq_id(); #print out the scaffold
-  if(defined($entriesH{$scaffold})){
-
-  }else{
-    #prepare sequence for this entry
-    $entriesH{$scaffold} = Bio::Seq->new('-display_id' => $scaffold,
-					 '-format' =>'genbank',
-					 '-accession_number' => $scaffold);
-    $entriesH{$scaffold}->species($speciesO);
-    my $sequence = $scaffoldH{$scaffold}->seq();
-    $entriesH{$scaffold}->desc($scaffold);#definition
-    $entriesH{$scaffold}->alphabet('dna');
-    $entriesH{$scaffold}->seq($sequence);
-    my $length = $scaffoldH{$scaffold}->length();
-    my $sourceFeat = new Bio::SeqFeature::Generic(
-	-primary_tag => 'source',
-	-start       => 1,
-	-end         => $length,
-	-tag         => {organism => $species,
-			 db_xref  => 'taxon:'.$taxonId}
-	#organism taxonID number
-	);
-    $entriesH{$scaffold}->add_SeqFeature($sourceFeat);
-  }
-  my @id = $feature->get_tag_values('ID');
-  $id[0] =~ /$speciesAbr.+?(\d+):?/;
-  my $number = $1;
-  if ($feature->primary_tag() eq 'gene'){
-      if(defined($curGene)){
-	if(defined($CDSH{$curGene})){
-	$entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene});
-	$curGene = $number; #set the current gene
-	}else{
-	    $curGene = $number; #for a gene without CDS
-	}
+    $prevScaffold = $scaffold;
+    $scaffold = $feature->seq_id(); #print out the scaffold
+    if(defined($entriesH{$scaffold})){
+	
     }else{
-	$curGene = $number;
+	#prepare sequence for this entry
+	$entriesH{$scaffold} = Bio::Seq->new('-display_id' => $renamedScaffoldH{$scaffold},
+					     '-format' =>'genbank',
+					     '-accession_number' => $renamedScaffoldH{$scaffold});
+	$entriesH{$scaffold}->species($speciesO);
+	my $sequence = $scaffoldH{$scaffold}->seq();
+	$entriesH{$scaffold}->desc($scaffold);#definition
+	$entriesH{$scaffold}->alphabet('dna');
+	$entriesH{$scaffold}->seq($sequence);
+	my $length = $scaffoldH{$scaffold}->length();
+	my $sourceFeat = new Bio::SeqFeature::Generic(
+	    -primary_tag => 'source',
+	    -start       => 1,
+	    -end         => $length,
+	    -tag         => {organism => $species,
+			     db_xref  => 'taxon:'.$taxonId}
+	    #organism taxonID number
+	    );
+	$entriesH{$scaffold}->add_SeqFeature($sourceFeat);
     }
-    #build features
-    #find all entries that are in the same scaffold
-    $geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
-							 -end         => $feature->end(),
-							 -strand      => $feature->strand(),
-							 -primary_tag => $feature->primary_tag(),
-							 -tag => {gene     => $id[0]});
-    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
-  }elsif($feature->primary_tag() eq 'CDS'){
-      my $parent = ($feature->get_tag_values('Parent'))[0];
-      $parent = deparseNumber($parent);
-      my $geneId = ($feature->get_tag_values('Parent'))[0];
-      $geneId =~s/(.*)T(\d+)/$1G$2/;
-      if(defined($CDSH{$parent})){
-	  my $location = $CDSH{$parent}->location(); #if already seen find the location of CDS
-	  # and add the new one to the list
-	  $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
-								   -end    => $feature->end(),
+    my @id = $feature->get_tag_values('ID');
+    $id[0] =~ /$speciesAbr.+?(\d+):?/;
+    my $number = $1;
+    if ($feature->primary_tag() eq 'gene'){
+	if(defined($curGene)){
+	    if(defined($CDSH{$curGene})){
+		$entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene});
+		$curGene = $number; #set the current gene
+	    }else{
+		$curGene = $number; #for a gene without CDS
+	    }
+	}else{
+	    $curGene = $number;
+	}
+	#build features
+	#find all entries that are in the same scaffold
+	$geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
+							     -end         => $feature->end(),
+							     -strand      => $feature->strand(),
+							     -primary_tag => $feature->primary_tag(),
+							     -tag => {gene     => $id[0]});
+	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+    }elsif($feature->primary_tag() eq 'CDS'){
+	my $parent = ($feature->get_tag_values('Parent'))[0];
+	$parent = deparseNumber($parent);
+	my $geneId = ($feature->get_tag_values('Parent'))[0];
+	$geneId =~s/(.*)T(\d+)/$1G$2/;
+	if(defined($CDSH{$parent})){
+	    my $location = $CDSH{$parent}->location(); #if already seen find the location of CDS
+	    # and add the new one to the list
+	    $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
+								     -end    => $feature->end(),
+								     -strand => $feature->strand()));
+	    $CDSH{$parent}->set_attributes(-location => $location); #update location
+	}else{
+	    my $location = Bio::Location::Split->new();
+	    $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
+								     -end    => $feature->end(),
 								   -strand => $feature->strand()));
-	  $CDSH{$parent}->set_attributes(-location => $location); #update location
-      }else{
-	  my $location = Bio::Location::Split->new();
-	  $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
-								   -end    => $feature->end(),
-								   -strand => $feature->strand()));
-	  $CDSH{$parent} = new Bio::SeqFeature::Generic(-location => $location,
-							-strand => $feature->strand(),
-							-primary_tag => $feature->primary_tag(),
-							-tag => { gene => $geneId,
-								  translation => $proteinH{$number}->seq()}
-	      );
-      }
-  }elsif($feature->primary_tag() eq 'exon'){
-      my $geneId = ($feature->get_tag_values('Parent'))[0];
-      $geneId =~s/(.*)T(\d+)/$1G$2/;
-      $geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
-							   -end         => $feature->end(),
-							   -strand      => $feature->strand(),
-							   -primary_tag => $feature->primary_tag(),
-							   -tag => {gene     => $geneId,
+	    $CDSH{$parent} = new Bio::SeqFeature::Generic(-location => $location,
+							  -strand => $feature->strand(),
+							  -primary_tag => $feature->primary_tag(),
+							  -tag => { gene => $geneId,
+								    translation => $proteinH{$number}->seq()}
+		);
+	}
+    }elsif($feature->primary_tag() eq 'exon'){
+	my $geneId = ($feature->get_tag_values('Parent'))[0];
+	$geneId =~s/(.*)T(\d+)/$1G$2/;
+	$geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
+							     -end         => $feature->end(),
+							     -strand      => $feature->strand(),
+							     -primary_tag => $feature->primary_tag(),
+							     -tag => {gene     => $geneId,
 								    codon_start => $feature->frame()});
-      $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
-  }
+	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+    }
 }
 $entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene}); #add the last CDS
 
