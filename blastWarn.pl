@@ -10,10 +10,16 @@ print `ls -1 output.* |wc`;
 print `ls -1 error.* |wc`;
 print `ls -1 *.pbs|wc`;
 print `echo telos> 4comp; diff --from-file=4comp output.*; rm 4comp`;
-
+my %output;
+my %pbs;
 
 foreach my $file (@files){
-    next unless $file =~ /error.(\d+)/;
+    if ($file =~ /output\.(\d+)/){
+	$output{$1} = $file;
+    }elsif($file =~ /(\d+).pbs/){
+	$pbs{$1} = $file;
+    }
+    next unless $file =~ /error\.(\d+)/;
     open ER, $file or die $!;
     my $lineCounter = 0;
     while (my $line = <ER>){
@@ -27,4 +33,9 @@ foreach my $file (@files){
         $lineCounter++;
     }
     close ER;
+}
+foreach my $run (keys %pbs){
+    unless(defined($output{$run})){
+	print "Warning: ", $run, "did not finish\n";
+    }
 }
