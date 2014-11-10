@@ -15,13 +15,15 @@ mkdir $blastOutPath unless -d $blastOutPath;
 opendir(DH, $dataPath) or die $!;
 my @files = readdir(DH);
 close DH;
-my $fileCounter = 0;
 foreach my $file (@files){
     next unless -f $dataPath.$file;
     print $file,"\n";
+    $file =~ /chunk.(\d+).fa/;
+    my $fileCounter = $1;
     open PBS, '>'.$fileCounter.'.pbs' or die $!;
     my $cmdString = $blastpBin.' -query '.$nodeDataPath.$file.' -db '.$blastdbPath.'combined -outfmt 6 -out '.$blastOutPath.'blastout.'.$file.'.dat -seg yes';
     #write pbs file
+    print PBS 'date',"\n";
     print PBS '#PBS -q q1hour',"\n";
     print PBS '#PBS -N blastp.',$fileCounter,"\n";
     print PBS '#PBS -e error.',$fileCounter,"\n";
@@ -29,6 +31,7 @@ foreach my $file (@files){
     print PBS '#PBS -l nodes=1:dodeca',"\n";
     print PBS "$cmdString","\n";
     print PBS 'echo telos',"\n";
+    print PBS 'date',"\n";
     close PBS;
     print "qsub ".$fileCounter.'.pbs',"\n";
     system "qsub ".$fileCounter.'.pbs';
