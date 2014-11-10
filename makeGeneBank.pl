@@ -230,20 +230,32 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 							  -strand => $feature->strand(),
 							  -primary_tag => $feature->primary_tag(),
 							  -tag => { gene => $geneId,
+								    codon_start => $feature->frame(),
 								    translation => $proteinH{$number}->seq()}
 		);
 	}
     }elsif($feature->primary_tag() eq 'exon'){
-	my $geneId = ($feature->get_tag_values('Parent'))[0];
-	$geneId =~s/(.*)T(\d+)/$1G$2/;
-	$geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
-							     -end         => $feature->end(),
-							     -strand      => $feature->strand(),
-							     -primary_tag => $feature->primary_tag(),
-							     -tag => {gene     => $geneId,
-								    codon_start => $feature->frame()});
-	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+     	my $geneId = ($feature->get_tag_values('Parent'))[0];
+     	$geneId =~s/(.*)T(\d+)/$1G$2/;
+     	$geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
+     							     -end         => $feature->end(),
+     							     -strand      => $feature->strand(),
+     							     -primary_tag => $feature->primary_tag(),
+     							     -tag => {gene     => $geneId,
+								      codon_start => $feature->frame()});
+     	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+    }else{
+     	my $geneId = ($feature->get_tag_values('Parent'))[0];
+     	$geneId =~s/(.*)T(\d+)/$1G$2/;
+     	$geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
+     							     -end         => $feature->end(),
+     							     -strand      => $feature->strand(),
+     							     -primary_tag => $feature->primary_tag(),
+     							     -tag => {gene     => $geneId,
+							     });
+     	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
     }
+    
 }
 $entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene}); #add the last CDS
 
