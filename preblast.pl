@@ -9,7 +9,7 @@ mkdir $fastaOutPath unless -d $fastaOutPath;
 my $seqF = Bio::SeqIO->new('-file'=>$file,
 			   '-format'=>'fasta');
 #split fasta file in chunkcs
-my $batch = 100;
+my $batch = 200;
 my $counter = 0;
 my $fileCounter = 0;
 my $fastaOutFile = $fastaOutPath.'chunk.'.$fileCounter.'.fa';
