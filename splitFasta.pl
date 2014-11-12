@@ -5,7 +5,7 @@ use Bio::SeqIO;
 use File::Path qw(make_path);
 
 my $dataPath = '/Users/diamantis/data/IES_data/';
-my $fastaOutPath = '/Users/diamantis/data/IES_data/msa/groups/';
+my $fastaOutPath = '/Users/diamantis/data/IES_data/msas/fasta/';
 
 #creates one fasta file for each silix group to be used for the multiple sequence alignments
 #load groupings in memory
@@ -42,11 +42,13 @@ while (my $seqO = $fastaFile->next_seq){
     }
 }
 
-# for each family print proteins
+# for each family print proteins, but only if family has 2 or more members
 foreach my $cluster (keys %hash){
-    my $fastaOutF = Bio::SeqIO->new(-file => '>'.$fastaOutPath.'cluster.'.$cluster.'.fa',
-				   -format => 'Fasta');
-    foreach my $protein (@{$hash{$cluster}}){
-	$fastaOutF->write_seq($seqH{$protein});
+    if($#{$hash{$cluster}}>1){
+	my $fastaOutF = Bio::SeqIO->new(-file => '>'.$fastaOutPath.'cluster.'.$cluster.'.fa',
+					-format => 'Fasta');
+	foreach my $protein (@{$hash{$cluster}}){
+	    $fastaOutF->write_seq($seqH{$protein});
+	}
     }
 }

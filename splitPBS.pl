@@ -10,6 +10,7 @@ my $step = 10;
 foreach my $file(@files){
     next unless -s $file;
     next unless $file =~ /error.(\d+)/; #keep only error files
+    print $file;
     my $number = $1;
     open PBS, 'msa.'.$number.'.pbs' or die $!;
     my @head;
@@ -24,12 +25,26 @@ foreach my $file(@files){
 	    push @tail, $line;
 	}
     }
-    cloes PBS;
+    close PBS;
 #split file in pieces
-    for(my $i = 0; $i<$#commands, $i+=$step){
-	print @header;
-	print @commands[$i..($i+$chunk)];
-	print @tail;
+    my $counter = 0;
+    for(my $i = 0; $i<$#commands; $i+=$step){
+	my $fileName = "msa.".$number.'.'.$counter.".pbs";
+	print $fileName,"\n";
+	open NBPS, '>'.$fileName or die $!;
+	foreach my $header (@head){
+	    if($header =~/#PBS(.+)\.$number/){
+		$header = $header.'.'.$counter;
+	    }
+	    print NBPS $header;
+	}
+	my $to = ($i+$step>$#commands?$#commands:$i+$step);
+	my @slice = @commands[$i..$to];
+	print NBPS @slice;
+	print NBPS @tail;
+	$counter++;
+	close NBPS;
+	print $fileName,"\n";
+#	system "qsub $fileName";
     }
-    print "\n";
 }

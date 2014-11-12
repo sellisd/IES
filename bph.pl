@@ -23,12 +23,12 @@ foreach my $file (@files){
     open PBS, '>'.$fileCounter.'.pbs' or die $!;
     my $cmdString = $blastpBin.' -query '.$nodeDataPath.$file.' -db '.$blastdbPath.'combined -outfmt 6 -out '.$blastOutPath.'blastout.'.$file.'.dat -seg yes';
     #write pbs file
-    print PBS 'date',"\n";
     print PBS '#PBS -q q1hour',"\n";
     print PBS '#PBS -N blastp.',$fileCounter,"\n";
     print PBS '#PBS -e error.',$fileCounter,"\n";
     print PBS '#PBS -o output.',$fileCounter,"\n";
     print PBS '#PBS -l nodes=1:dodeca',"\n";
+    print PBS 'date',"\n";
     print PBS "$cmdString","\n";
     print PBS 'echo telos',"\n";
     print PBS 'date',"\n";
