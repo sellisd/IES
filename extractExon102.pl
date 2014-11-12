@@ -78,7 +78,6 @@ foreach my $species (@species){
 		}else{
 		    die;
 		}
-
 		$newPSeq->id($id);
 		$newPSeq->alphabet('protein');	
 		$PF->write_seq($newPSeq);

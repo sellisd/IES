@@ -21,7 +21,7 @@ foreach my $file (@files){
 	while(my $line = <OUT>){
 	    if ($lineCounter == 1){
 		chomp $line;
-		print "Warning, strange output at $file\n" unless $line = 'telos';
+		print "Warning, strange output at $file\n" unless $line eq 'telos';
 	    }
 	    $lineCounter++;
 	}
