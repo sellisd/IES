@@ -7,7 +7,7 @@ my $path = $ARGV[0];
 opendir(DH, $path) or die $!;
 my @files = readdir(DH);
 close DH;
-my $step = 2;
+my $step = 1;
 my @files2sub;
 foreach my $file (@files){
     next unless -s $path.$file;
@@ -40,7 +40,7 @@ foreach my $file (@files){
 		print NBPS $header;
 	    }
 	}
-	my $to = ($i+$step>$#commands?$#commands:$i+$step);
+	my $to = ($i+$step-1>$#commands?$#commands:$i+$step-1);
 	my @slice = @commands[$i..$to];
 	print NBPS @slice;
 	print NBPS @tail;

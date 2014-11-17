@@ -10,7 +10,7 @@ my $dataPathNode = '/data/sellis/';
 my $dataPath = '/pandata/sellis/';
 #my $dataPath = '/Users/diamantis/data/IES_data/';
 my $fastaPath = $dataPath.'fasta/';
-my $block = 30;
+my $block = 10;
 
 opendir(DH, $fastaPath) or die $!;
 my @files = readdir(DH);
