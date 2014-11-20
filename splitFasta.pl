@@ -3,9 +3,31 @@ use strict;
 use warnings;
 use Bio::SeqIO;
 use File::Path qw(make_path);
-
-my $dataPath = '/Users/diamantis/data/IES_data/';
+use Getopt::Long;
+my $help;
+#default values
 my $fastaOutPath = '/Users/diamantis/data/IES_data/msas/fasta/';
+my $silixGroups = '/Users/diamantis/data/IES_data/working/silix.output';
+my $fastaAll = '/Users/diamantis/data/IES_data/working/combined.fa';
+
+my $usage = <<HERE;
+Splits a fasta file to groups based on clustering from silix
+Usage
+./splitFasta.pl [OPTIONS]
+where OPTIONS can be:
+  out    : directory where output fasta files will be created
+  silix  : path and filename of silix output file
+  in     : path and filename of fasta files containing all sequences
+  help   : this help screen
+
+HERE
+
+die $usage unless (GetOptions('help|?' => \$help,
+			      'out=s' => \$fastaOutPath,
+			      'silix=s' => \$silixGroups,
+			      'in=s' =>\$fastaAll));
+die $usage if $help;
+
 
 #creates one fasta file for each silix group to be used for the multiple sequence alignments
 #load groupings in memory
@@ -14,9 +36,8 @@ make_path($fastaOutPath) unless -d $fastaOutPath;
 
 print "loading silix output in memory\n";
 my %hash;
-my $silixOutput = $dataPath.'working/silix.output';
 
-open IN, $silixOutput or die $!;
+open IN, $silixGroups or die $!;
 while (my $line = <IN>){
     chomp $line;
     (my $group, my $id) = split " ", $line;
@@ -31,7 +52,7 @@ close IN;
 # read combined.fa
 my %seqH;
 print "loading protein sequencies in memory\n";
-my $fastaFile = Bio::SeqIO->new(-file => $dataPath.'working/combined.fa',
+my $fastaFile = Bio::SeqIO->new(-file => $fastaAll,
 				-format => 'Fasta');
 while (my $seqO = $fastaFile->next_seq){
     my $name = $seqO->display_id;

@@ -8,9 +8,9 @@ my $dir = $ARGV[0];
 opendir(DH, $dir) or die $!;
 @files = grep { /aln/ } readdir(DH);
 #print @files," \n";die;
-my @iesF = ('/Users/dsellis/data/IES_data/pbiaurelia/Pbi.IESinCDS',
-	    '/Users/dsellis/data/IES_data/ptetraurelia/Pte.IESinCDS',
-	    '/Users/dsellis/data/IES_data/psexaurelia/Pse.IESinCDS');
+my @iesF = ('/Users/diamantis/data/IES_data/pbiaurelia/Pbi.IESinCDS',
+	    '/Users/diamantis/data/IES_data/ptetraurelia/Pte.IESinCDS',
+	    '/Users/diamantis/data/IES_data/psexaurelia/Pse.IESinCDS');
 foreach my $file (@iesF){
   open IN, $file or die $!;
   while (my $line = <IN>){
@@ -33,14 +33,19 @@ foreach my $file (@iesF){
   }
   close IN;
 }
- use Data::Dumper;
- #print Dumper %hash;
- #die;
+
 my $dbg = 0;
-foreach my $alnF (@files){ 
-  my $alnIO = Bio::AlignIO->new(-file => $dir.$alnF,
-				-format=>'clustalw');
-  
+#foreach my $alnF (@files){ 
+#  my $alnIO = Bio::AlignIO->new(-file => $dir.$alnF,
+#				-format=>'clustalw');
+my $alnF =  '/Users/diamantis/data/IES_data/working/102Nclusters/cluster.15.fa';
+my $alnIO = Bio::AlignIO->new(-file => $alnF,
+				-format=>'Fasta');
+
+ 
+  my %frameH;
+  my @characterL;
+  my @characterN;
   while(my $alnO = $alnIO->next_aln){
     my $seqNo = $alnO->num_sequences;
     print $alnF,' ',$seqNo,"\t";
@@ -48,24 +53,53 @@ foreach my $alnF (@files){
     next if ($seqNo < 3);
     #for each sequence in alignment
     foreach my $seq ($alnO->each_seq()) {     #find which genes
-      #do something with $seq
       my $id = $seq->id();
+      $id =~s/P.._scaffold.*?(P.*)T(\d+)_.*/$1G$2/;
       print $id,"\t";
       if (defined($hash{$id})){      #find if it has IES
 	foreach my $ies (@{$hash{$id}}){
 	  my $aaLoc = $ies->{'aaLoc'}; 
 	  my $msaLoc = $alnO->column_from_residue_number($id,$aaLoc);     #find the location of IES in the alignment
 	  print $msaLoc,'(',$ies->{'frame'},', ',$aaLoc,', ',$ies->{'ies'},")\t";
+	  if(defined($frameH{$id})){
+	      push @{$frameH{$id}}, $ies->{'frame'};
+	  }else{
+	      $frameH{$id}=[$ies->{'frame'}];
+	  }
+	  push @characterL,$msaLoc;
+	  push @characterN,$ies->{'ies'};
 	}
       }
-      print "\n"
+      print "\n";
     }
 
+    # use Data::Dumper;
+    # print Dumper %frameH;
+#frame
+#length
     #make character matrix and print
+#     print "@characterN\n";
+#     foreach my $seq ($alnO->each_seq()) {     #find which genes
+# 	my $id = $seq->id();
+# 	print $id,' ';
+# 	foreach my $charL (@characterL){
+# 	    if(defined($frameH{$id})){
+		
+# 	    }else{
+
+# 	    }
+# 	}
+#     }
+#     for each sequence $frame{$sequence} = [iesloc]
+# 	push @characters, $iesloc;
+# foreach sequence
+# foreach location
+#   print if present
+
   }
   if ($dbg>10){die;}
 $dbg++;
-}
+#}
   #read IESinCDS file build hash
 #read alignment file(s)
 #for each sequence find if there are IES and which are the locations (and frames)
