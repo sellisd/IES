@@ -18,7 +18,7 @@ my @geneFiles = qw{
 
 my $outputPFile = '>/Users/diamantis/data/IES_data/working/genes102P.fa';
 my $outputNFile = '>/Users/diamantis/data/IES_data/working/genes102N.fa';
-my $groupTarget = '15';
+my $groupTarget = '84';
 my %genes;
 my %proteins; #same data but (?)faster access
 #select a group from a silix clustering file and extract its protein sequence in a fasta file

@@ -4,16 +4,6 @@ library("ape")
 a<-read.alignment(file="/Users//diamantis/data//IES_data/working//102Pclusters/cluster.1.fa",format="fasta")
 # calculate the matrix of pairwise identity
 m<-dist.alignment(a,matrix="identity")
-#tr<-nj(m)
-#colorCodes<-c("Pbi"=2,"Pte"=4,"Pse"=6)
-#plot.phylo(tr,tip.color=colorCodes[substr(tr$tip.label,0,3)],cex=0.1)
-#write.tree(tr,file="/Users/diamantis/data/IES_data//working/sp102.tre")
-#geneNames<-sub("P.._scaffold.*T(\\d+).*","\\1",tr$tip.label,perl=TRUE)
-#cr<-rainbow(length(geneNames))
-#plot.phylo(tr,tip.color=cr,cex=0.1)
-#subet distance matrix to calculate hist and average pairwise identities
-# calulate the identity of 102pb exons within weach species
-# and within each gene
 l<-length(labels(m))
 mm <- as.matrix(m)
 #make vector of species

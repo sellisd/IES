@@ -4,19 +4,43 @@ use strict;
 use Bio::SeqIO;
 use Bio::Tools::GFF;
 
+#find genes in a silix cluster and extract them to a fasta file
+
+#use Parallel::ForkManager;
+#my $cores = 4;
+#my $pm = Parallel::ForkManager->new($cores);
+
 # find in genes with multiple exons with length 102pb are
 
 #   find for each gene the number of strange exons
 my %strangeExons;
 my @species = qw/Pbi Pte Pse/;
+my $proteinF;
+my $geneF;
+print "# reading gff files\n";
+# for(my $p = 1; $p <4; $p++){
+#     my $pid = $pm->start and next;
+#     $pm->finish;
+# }
+# $pm->wait_all_children;
+
+my %nseq;
+my %pseq;
+
 foreach my $species (@species){
     my $gff3;
     if($species eq 'Pbi'){
 	$gff3 = '/Users/diamantis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gff3';
+	$proteinF = '/Users/diamantis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.protein.fa';
+	$geneF = '/Users/diamantis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gene.fa';
     }elsif($species eq 'Pte'){
 	$gff3 = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gff3';
+	$proteinF = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.protein.fa';
+	$geneF = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gene.fa';
     }elsif($species eq 'Pse'){
 	$gff3 = '/Users/diamantis/data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.gff3';
+  	$proteinF = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.protein.fa';
+	$geneF = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.gene.fa';
     }else{
 	die;
     }
@@ -42,19 +66,50 @@ foreach my $species (@species){
 	    }
 	}
     }
+    
+    my $NF = Bio::SeqIO->new('-file' => $geneF,
+			     '-format' => 'Fasta');
+    my $PF = Bio::SeqIO->new('-file' => $proteinF,
+			     '-format' => 'Fasta');
+
+    print "# reading genes for $species\n";
+    while(my $seq = $NF->next_seq()){
+	my $id = $seq->primary_id();
+	$id =~ s/(P.+)G(\d+)/$1T$2/;
+	$nseq{$id} = $seq->seq();
+    }
+    print "# reading proteins for $species\n";
+    while(my $seq = $PF->next_seq()){
+	my $id = $seq->primary_id();
+	$id =~ s/(P.+)P(\d+)/$1T$2/;
+	$pseq{$id} = $seq->seq();
+    }
+
 }
 #   for each group find how many genes with strange exons and how many total
 #loop through group gene allele
 #load genes in memory
 #load proteins in memory
+# my $a = (keys %strangeExons)[0];
+# my $b =  (keys %nseq)[0];
+# print "$a $b\n";die;
+# print "locating 102 genes\n";
+open NF, '>/Users/diamantis/data/IES_data/working/genes102N.fa' or die $!;
+open PF, '>/Users/diamantis/data/IES_data/working/genes102P.fa' or die $!;
 foreach my $gene (keys %strangeExons){
-    print $gene,' ',$strangeExons{$gene},"\n";
-    if($strangeExon{$gene}>3){
-	#print N
-#print P
-    }
+  print $gene,' ',$strangeExons{$gene},"\n";
+     if($strangeExons{$gene}>3){
+ 	if(defined($nseq{$gene})){
+ 	    print NF '>',$gene, "\n",$nseq{$gene},"\n";
+ 	}
+ 	if(defined($pseq{$gene})){
+ 	    print PF '>',$gene, "\n",$pseq{$gene},"\n";
+ 	}
+     }
 }
 
+close NF;
+close PF;
 # my %countExons;
 # my %geneGroups;
 # open SLX, '/Users/diamantis/data/IES_data/working/silix.output' or die $!;

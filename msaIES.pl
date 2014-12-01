@@ -4,9 +4,10 @@ use strict;
 use Bio::AlignIO;
 my %hash;
 my @files;
-my $dir = $ARGV[0];
-opendir(DH, $dir) or die $!;
-@files = grep { /aln/ } readdir(DH);
+#my $dir = $ARGV[0];
+#opendir(DH, $dir) or die $!;
+#@files = grep { /aln/ } readdir(DH);
+
 #print @files," \n";die;
 my @iesF = ('/Users/diamantis/data/IES_data/pbiaurelia/Pbi.IESinCDS',
 	    '/Users/diamantis/data/IES_data/ptetraurelia/Pte.IESinCDS',
@@ -19,7 +20,7 @@ foreach my $file (@iesF){
     $gene =~ /(.*)G(\d+)/;
     my $speciesAbr = $1;
     my $number = $2;
-    $gene = $speciesAbr.'P'.$number; #to match the proteins
+    $gene = $speciesAbr.'G'.$number; # replace with P for proteins 
     my $entry = {'ies' => $ies,
 		 'species' => $speciesAbr,
 		 'aaLoc' => $aaLoc,
@@ -33,14 +34,14 @@ foreach my $file (@iesF){
   }
   close IN;
 }
-
+#use Data::Dumper; print Dumper %hash;die;
 my $dbg = 0;
 #foreach my $alnF (@files){ 
 #  my $alnIO = Bio::AlignIO->new(-file => $dir.$alnF,
 #				-format=>'clustalw');
-my $alnF =  '/Users/diamantis/data/IES_data/working/102Nclusters/cluster.15.fa';
+my $alnF =  '/Users/diamantis/data/IES_data/working/genes102N.aln';
 my $alnIO = Bio::AlignIO->new(-file => $alnF,
-				-format=>'Fasta');
+				-format=>'clustalw');
 
  
   my %frameH;
@@ -60,7 +61,8 @@ my $alnIO = Bio::AlignIO->new(-file => $alnF,
 	foreach my $ies (@{$hash{$id}}){
 	  my $aaLoc = $ies->{'aaLoc'}; 
 	  my $msaLoc = $alnO->column_from_residue_number($id,$aaLoc);     #find the location of IES in the alignment
-	  print $msaLoc,'(',$ies->{'frame'},', ',$aaLoc,', ',$ies->{'ies'},")\t";
+#	  print $msaLoc,'(',$ies->{'frame'},', ',$aaLoc,', ',$ies->{'ies'},")\t";
+	  print $msaLoc,"\t";
 	  if(defined($frameH{$id})){
 	      push @{$frameH{$id}}, $ies->{'frame'};
 	  }else{
