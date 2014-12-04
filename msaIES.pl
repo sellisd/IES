@@ -4,16 +4,16 @@ use strict;
 use Bio::AlignIO;
 my %hash;
 my @files;
-
+my $home = '/home/dsellis/';
 #read alignment file and overlap file and print character matrices with IES locations and frames
 
 my $dir = $ARGV[0]; #start with one alignment file, then modify to use all alignment files in a directory
 opendir(DH, $dir) or die $!;
 @files = grep { /aln/ } readdir(DH);
 #print @files," \n";die;
-my @iesF = ('/Users/diamantis/data/IES_data/pbiaurelia/Pbi.IESinCDS',
-	    '/Users/diamantis/data/IES_data/ptetraurelia/Pte.IESinCDS',
-	    '/Users/diamantis/data/IES_data/psexaurelia/Pse.IESinCDS');
+my @iesF = ($home.'data/IES_data/pbiaurelia/Pbi.IESinCDS',
+	    $home.'data/IES_data/ptetraurelia/Pte.IESinCDS',
+	    $home.'data/IES_data/psexaurelia/Pse.IESinCDS');
 foreach my $file (@iesF){
   open IN, $file or die $!;
   while (my $line = <IN>){
@@ -41,8 +41,8 @@ my $dbg = 0;
 foreach my $alnF (@files){ 
     my $alnIO = Bio::AlignIO->new(-file => $dir.$alnF,
 				  -format=>'clustalw');
-    #my $alnF =  '/Users/diamantis/data/IES_data/msas/alignments/cluster*_pbil-deb_pbil-deb10-local/cluster.9990.aln';
-    #'/Users/diamantis/data/IES_data/working/genes102N.aln';
+    #my $alnF =  $home.'data/IES_data/msas/alignments/cluster*_pbil-deb_pbil-deb10-local/cluster.9990.aln';
+    #$home.'data/IES_data/working/genes102N.aln';
 #    my $alnIO = Bio::AlignIO->new(-file => $alnF,
     #				-format=>'clustalw');
     

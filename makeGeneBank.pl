@@ -31,7 +31,8 @@ die $usage unless (GetOptions('help|?' => \$help,
 			      'datapath=s' => \$dataPath,
 			      'species=s' => \$species3abr));
 die $usage if $help;
-$dataPath = '/Users/diamantis/data/IES_data/'; #default for local run
+my $home = '/home/dsellis/';
+$dataPath = $home.'data/IES_data/'; #default for local run
 #$dataPath = '/pandata/IES_data'; #default for cluster
 
 #everything should be in MAC coordinates

@@ -5,13 +5,13 @@ use Bio::SeqIO;
 use Bio::Tools::GFF;
 
 #Alternative approach: alternatively from gff3 get all 102CDS from annotation get their sequence and translate
-
+my $home = '/home/dsellis/';
 my @species = qw/Pbi Pte Pse/;
-my $PF = Bio::SeqIO->new('-file' => '>/Users/diamantis/data/IES_data/working/exon102P.fa',
+my $PF = Bio::SeqIO->new('-file' => '>'.$home.'data/IES_data/working/exon102P.fa',
 			   '-format' => 'fasta');
-my $NF = Bio::SeqIO->new('-file' => '>/Users/diamantis/data/IES_data/working/exon102N.fa',
+my $NF = Bio::SeqIO->new('-file' => '>'.$home.'data/IES_data/working/exon102N.fa',
 			   '-format' => 'fasta');
-my $tabOutF = '>/Users/diamantis/data/IES_data/working/exon102.tab';
+my $tabOutF = '>'.$home.'data/IES_data/working/exon102.tab';
 
 #find the 102 exons and print a summary file with
 #id start stop length coding frame
@@ -19,7 +19,7 @@ my $tabOutF = '>/Users/diamantis/data/IES_data/working/exon102.tab';
 #open TO, $tabOutF or die $!;
 my %scaffoldH;
 foreach my $species (@species){
-    my $dataPath = '/Users/diamantis/data/IES_data/';
+    my $dataPath = $home.'data/IES_data/';
     print $species,"\n";
     my $gff3;
     my $scaffoldsF;

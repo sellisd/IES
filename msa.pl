@@ -2,13 +2,13 @@
 use strict;
 use warnings;
 use Bio::SeqIO;
-
+my $home = '/home/dsellis/';
 #create multiple sequence alignments of silix groups
 my $t_coffeeBin = '/panhome/sellis/tools/tcoffee/Version_11.00.8cbe486/bin/t_coffee';
 #my $t_coffeeBin = 't_coffee';
 my $dataPathNode = '/data/sellis/';
 my $dataPath = '/pandata/sellis/';
-#my $dataPath = '/Users/diamantis/data/IES_data/';
+#my $dataPath = $home.'data/IES_data/';
 my $fastaPath = $dataPath.'fasta/';
 my $block = 10;
 

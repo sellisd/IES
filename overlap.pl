@@ -7,6 +7,7 @@ use Bio::SeqFeature::Generic;
 use Data::Dumper;
 use Bio::Tools::GFF;
 use Getopt::Long;
+my $home = '/home/dsellis/';
 my $usage = <<HERE;
 
 Reads
@@ -32,7 +33,7 @@ my $speciesAbr;
 die $usage unless (GetOptions('help|?' => \$help,
 			      'species=s' => \$speciesAbr));
 die $usage if $help;
-my $dataPath = '/Users/diamantis/data/IES_data/';
+my $dataPath = $home.'data/IES_data/';
 my $subdir;
 if($speciesAbr eq 'Ppr'){
     $subdir = 'pprimaurelia/';

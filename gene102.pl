@@ -13,6 +13,7 @@ use Bio::Tools::GFF;
 # find in genes with multiple exons with length 102pb are
 
 #   find for each gene the number of strange exons
+my $home = '/home/dsellis/';
 my %strangeExons;
 my @species = qw/Pbi Pte Pse/;
 my $proteinF;
@@ -30,17 +31,17 @@ my %pseq;
 foreach my $species (@species){
     my $gff3;
     if($species eq 'Pbi'){
-	$gff3 = '/Users/diamantis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gff3';
-	$proteinF = '/Users/diamantis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.protein.fa';
-	$geneF = '/Users/diamantis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gene.fa';
+	$gff3 = $home.'data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gff3';
+	$proteinF = $home.'data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.protein.fa';
+	$geneF = $home.'data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gene.fa';
     }elsif($species eq 'Pte'){
-	$gff3 = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gff3';
-	$proteinF = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.protein.fa';
-	$geneF = '/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gene.fa';
+	$gff3 = $home.'data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gff3';
+	$proteinF = $home.'data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.protein.fa';
+	$geneF = $home.'data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gene.fa';
     }elsif($species eq 'Pse'){
-	$gff3 = '/Users/diamantis/data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.gff3';
-  	$proteinF = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.protein.fa';
-	$geneF = '/Users/diamantis/data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.gene.fa';
+	$gff3 = $home.'data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.gff3';
+  	$proteinF = $home.'data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.protein.fa';
+	$geneF = $home.'data/IES_data/psexaurelia/sexaurelia_AZ8-4_annotation_v1.gene.fa';
     }else{
 	die;
     }
@@ -94,8 +95,8 @@ foreach my $species (@species){
 # my $b =  (keys %nseq)[0];
 # print "$a $b\n";die;
 # print "locating 102 genes\n";
-open NF, '>/Users/diamantis/data/IES_data/working/genes102N.fa' or die $!;
-open PF, '>/Users/diamantis/data/IES_data/working/genes102P.fa' or die $!;
+open NF, '>'.$home.'data/IES_data/working/genes102N.fa' or die $!;
+open PF, '>'.$home.'data/IES_data/working/genes102P.fa' or die $!;
 foreach my $gene (keys %strangeExons){
   print $gene,' ',$strangeExons{$gene},"\n";
      if($strangeExons{$gene}>3){
@@ -112,7 +113,7 @@ close NF;
 close PF;
 # my %countExons;
 # my %geneGroups;
-# open SLX, '/Users/diamantis/data/IES_data/working/silix.output' or die $!;
+# open SLX, $home.'data/IES_data/working/silix.output' or die $!;
 # while(my $line = <SLX>){
 #     chomp $line;
 #     (my $group, my $gene) = split " ", $line;

@@ -23,8 +23,9 @@ HERE
 die $usage unless (GetOptions('help|?' => \$help,
 			      'species=s' => \$species3abr));
 die $usage if $help;
-my $dataPath = '/Users/diamantis/data/IES_data/';
-my $silixOutF = '/Users/diamantis/data/IES_data/working/silix.output';
+my $home = '/home/dsellis/';
+my $dataPath = $home.'data/IES_data/';
+my $silixOutF = $home.'data/IES_data/working/silix.output';
 
 if ($species3abr eq 'Pbi'){
     $dataPath = $dataPath.'pbiaurelia/';

@@ -2,22 +2,22 @@
 use warnings;
 use strict;
 use Bio::SeqIO;
-
-my $silixFile = '/Users/diamantis/data/IES_data/working/102N.silix';
+my $home = '/home/dsellis/';
+my $silixFile = $home.'data/IES_data/working/102N.silix';
 my @proteinFiles = qw{
-/Users/diamantis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.protein.fa
-/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.protein.fa
-/Users/diamantis/data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.protein.fa
+data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.protein.fa
+data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.protein.fa
+data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.protein.fa
 } ;
 
 my @geneFiles = qw{
-/Users/diamantis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gene.fa
-/Users/diamantis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gene.fa
-/Users/diamantis/data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.gene.fa
+data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gene.fa
+data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gene.fa
+data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.gene.fa
 } ;
 
-my $outputPFile = '>/Users/diamantis/data/IES_data/working/genes102P.fa';
-my $outputNFile = '>/Users/diamantis/data/IES_data/working/genes102N.fa';
+my $outputPFile = '>'.$home.'data/IES_data/working/genes102P.fa';
+my $outputNFile = '>'.$home.'data/IES_data/working/genes102N.fa';
 my $groupTarget = '84';
 my %genes;
 my %proteins; #same data but (?)faster access
@@ -40,6 +40,7 @@ my $OUTP = Bio::SeqIO->new('-file' => $outputPFile,
 			  '-format' => 'Fasta');
 #read protein file(s)
 foreach my $file (@proteinFiles){
+    $file = $home.$file;
     my $PF = Bio::SeqIO->new('-file' => $file,
 			     '-format' => 'Fasta');
     while(my $seq = $PF->next_seq()){
@@ -58,6 +59,7 @@ my $OUTN = Bio::SeqIO->new('-file' => $outputNFile,
 			  '-format' => 'Fasta');
 #read gene file(s)
 foreach my $file (@geneFiles){
+    $file = $home.$file;
     my $NF = Bio::SeqIO->new('-file' => $file,
 			     '-format' => 'Fasta');
     while(my $seq = $NF->next_seq()){

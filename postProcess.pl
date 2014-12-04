@@ -49,7 +49,7 @@ push @lineage, $speciesName;
 @lineage = reverse(@lineage);
 my $speciesO = Bio::Species->new(-classification => \@lineage);
 
-my $iesgffF = $ARGV[0];#'/Users/diamantis/data/IES_data/pbiaurelia/internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
+my $iesgffF = $ARGV[0];
 my $genbank = $ARGV[1]; 
 my $genBankOut = $genbank;
 $genBankOut =~ s/\.gnbk/.IES.gnbk/;

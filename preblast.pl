@@ -2,8 +2,9 @@
 use warnings;
 use strict;
 use Bio::SeqIO;
-my $file = "/Users/diamantis/data/IES_data/working/combined.fa"; #fasta file
-my $fastaOutPath = '/Users/diamantis/data/IES_data/working/fasta/';
+my $home = '/home/dsellis/';
+my $file = $home.'data/IES_data/working/combined.fa'; #fasta file
+my $fastaOutPath = $home.'data/IES_data/working/fasta/';
 mkdir $fastaOutPath unless -d $fastaOutPath;
 #prepare fasta files for running blast on cluster
 my $seqF = Bio::SeqIO->new('-file'=>$file,

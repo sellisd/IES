@@ -5,10 +5,11 @@ use Bio::SeqIO;
 use File::Path qw(make_path);
 use Getopt::Long;
 my $help;
+my $home = '/home/dsellis/';
 #default values
-my $fastaOutPath = '/Users/diamantis/data/IES_data/msas/fasta/';
-my $silixGroups = '/Users/diamantis/data/IES_data/working/silix.output';
-my $fastaAll = '/Users/diamantis/data/IES_data/working/combined.fa';
+my $fastaOutPath = $home.'data/IES_data/msas/fasta/';
+my $silixGroups = $home.'data/IES_data/working/silix.output';
+my $fastaAll = $home.'data/IES_data/working/combined.fa';
 
 my $usage = <<HERE;
 Splits a fasta file to groups based on clustering from silix

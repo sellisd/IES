@@ -2,9 +2,9 @@
 use strict;
 use warnings;
 use Bio::SeqIO;
-
-my $dataPath = '/Users/diamantis/data/IES_data/';
-my $fastaOutPath = '/Users/diamantis/data/IES_data/msas/fasta/';
+my $home = '/home/dsellis/';
+my $dataPath = $home.'data/IES_data/';
+my $fastaOutPath = $home.'data/IES_data/msas/fasta/';
 
 #make required directories
 mkdir $fastaOutPath unless (-d $fastaOutPath);
