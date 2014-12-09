@@ -76,23 +76,27 @@ foreach my $alnF (@files){
 	next unless ((scalar(keys %charM)) > 0);
 	#print "IES presence character matrix \n";
 	#second pass to print
-	print "geneName\t";
+	my $charMatrixF = $alnF;
+	$charMatrixF =~ s/\.aln/\.dat/;
+	open OUT, '>'.$dir.$charMatrixF or die $!;
+	print OUT "geneName\t";
 	foreach my $state (sort {$a<=>$b} keys %charM){
-	    print $state,"\t";
+	    print OUT $state,"\t";
 	}
-	print "\n";
+	print OUT "\n";
 	foreach my $seq ($alnO->each_seq()){
-	    print $seq->id(),"\t";
+	    print OUT $seq->id(),"\t";
 	    my $id = $seq->id();
 	    foreach my $state (sort {$a<=>$b} keys %charM){
 #	    print $charM{$state},"\n";
 		if (defined($charM{$state}{$id})){
-		    print $charM{$state}{$id},"\t";
+		    print OUT $charM{$state}{$id},"\t";
 		}else{
-		    print ".\t";
+		    print OUT "0\t";
 		}
 	    }
-	    print "\n";
+	    print OUT "\n";
 	}
+	close OUT;
     }
 }
