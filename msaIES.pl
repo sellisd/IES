@@ -10,7 +10,7 @@ my $home = '/home/dsellis/';
 my $dir = $ARGV[0]; #start with one alignment file, then modify to use all alignment files in a directory
 opendir(DH, $dir) or die $!;
 @files = grep { /aln/ } readdir(DH);
-#print @files," \n";die;
+
 my @iesF = ($home.'data/IES_data/pbiaurelia/Pbi.IESinCDS',
 	    $home.'data/IES_data/ptetraurelia/Pte.IESinCDS',
 	    $home.'data/IES_data/psexaurelia/Pse.IESinCDS');
