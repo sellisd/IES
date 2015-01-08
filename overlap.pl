@@ -13,8 +13,7 @@ my $usage = <<HERE;
 Reads
   - the output of bedtools intersect with the -wo option (which genes contain IE)
   - the .bed file with IES coordinates
-  - master genbank file
- and produces an	output file with the following columns
+  - master genbank file and produces an output file with the following columns
   - geneId
   - IESid
   - 1-based index of IES location in aa coordinates (including start codon as M)
@@ -34,17 +33,21 @@ die $usage unless (GetOptions('help|?' => \$help,
 			      'species=s' => \$speciesAbr));
 die $usage if $help;
 my $dataPath = $home.'data/IES_data/';
+my $iesLengthF;
 my $subdir;
 if($speciesAbr eq 'Ppr'){
     $subdir = 'pprimaurelia/';
 }elsif($speciesAbr eq 'Pbi'){
     $subdir = 'pbiaurelia/';
+    $iesLengthF = 'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
 }elsif($speciesAbr eq 'Pte'){
     $subdir = 'ptetraurelia/';
+    $iesLengthF = 'internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
 }elsif($speciesAbr eq 'Pen'){
     $subdir = 'ppentaurelia/';
 }elsif($speciesAbr eq 'Pse'){
     $subdir = 'psexaurelia/';
+    $iesLengthF = 'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
 }else{
     print 'Not known species abreviation: $speciesAbr',"\n";
     die $usage;
@@ -88,6 +91,30 @@ while(my $line = <IES>){
 }
 close IES;
 
+#Make hash with IES lengths
+my %iesLengthsH;
+open IESL, $dataPath.$iesLengthF or die $!;
+while (my $line = <IESL>){
+    chomp $line;
+    my @ar = split " ", $line;
+    my $scaffold = $ar[0];
+    my $string = $ar[8];
+    my @details = split ';', $string;
+    my $id;
+    my $name;
+    my $length;
+    foreach my $pairs (@details){
+	if($pairs =~ /^ID=(.*)$/){
+	    $id = $1;
+	}elsif($pairs =~ /^Name=(.*)$/){
+	    $name = $1;
+	}elsif($pairs =~ /^sequence=(.*)$/){
+	    $length = length($1);
+	}
+    }
+    $iesLengthsH{$scaffold.$id} = $length;
+}
+close IESL;
 #read genbank file
 #and for each CDS that has an IES add up length up until the appropriate position
 my $genbankF = $speciesAbr.'.IES.gnbk';
@@ -112,7 +139,6 @@ while(my $seqO = $gnbkIn->next_seq()){
 		    my $end = $locations->end;
 		    foreach my $iesInCDSName (@{$iesInCDS}){
 			my $IESstart = $iesH{$scaffold}{$iesInCDSName};
-
 			if($IESstart >= $start and $IESstart <= $end){
 			    #this IES is in this CDS
 			   # print $geneName[0], ' ', $iesInCDSName, ' ', $IESstart,' ',$start,' ',$end,' ',$index+($IESstart-$start+1),"\n";
@@ -125,7 +151,8 @@ while(my $seqO = $gnbkIn->next_seq()){
 		}
 		my $counter = 0;
 		foreach my $iesIP (@iesIndexProt){
-		    print OUT $geneName[0], ' ', ${$iesInCDS}[$counter], ' ';
+		    my $iesID = ${$iesInCDS}[$counter];
+		    print OUT $geneName[0], ' ', $iesID, ' ';
 		    my $pCoo; #protein coordinates
 		    if($complement == -1){
 			$pCoo = $index - $iesIP; # IES has length 2
@@ -134,10 +161,10 @@ while(my $seqO = $gnbkIn->next_seq()){
 		    }else{
 			die $complement;
 		    }
-
+		    my $length = $iesLengthsH{$scaffold.$iesID};
 		    my $aaCoo = int(($pCoo - 1)/3) + 1; #position in amino-acid coordinates
 		    my $frame = ($pCoo - 1) % 3 + 1;
-		    print OUT $aaCoo, ' ',$frame, "\n";
+		    print OUT $aaCoo, ' ',$frame, ' ', $length,"\n";
 # nt 1 2 3 4 5 6 7
 #make zero-based and add back 1 to the result
 # aa 0 0 0 1 1 1 2 (a-1) / 3 + 1
