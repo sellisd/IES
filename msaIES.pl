@@ -18,7 +18,7 @@ foreach my $file (@iesF){
   open IN, $file or die $!;
   while (my $line = <IN>){
     chomp $line;
-    (my $gene, my $ies, my $aaLoc, my $frame) = split " ",$line;
+    (my $gene, my $ies, my $aaLoc, my $frame, my $length) = split " ",$line;
     $gene =~ /(.*)G(\d+)/;
     my $speciesAbr = $1;
     my $number = $2;
@@ -27,6 +27,7 @@ foreach my $file (@iesF){
 		 'species' => $speciesAbr,
 		 'aaLoc' => $aaLoc,
 		 'frame' =>$frame,
+		 'length' => $length
 		};
       if(defined($hash{$gene})){
       push @{$hash{$gene}},$entry;
@@ -67,7 +68,7 @@ foreach my $alnF (@files){
 		    my $msaLoc = $alnO->column_from_residue_number($id,$aaLoc);     #find the location of IES in the alignment
 		    #	  print $msaLoc,'(',$ies->{'frame'},', ',$aaLoc,', ',$ies->{'ies'},")\t";
 	#	    print $msaLoc,"\t";
-		    $charM{$msaLoc}{$id} = $ies->{'frame'};
+		    $charM{$msaLoc}{$id} = [$ies->{'frame'}, $ies->{'length'}];
 		}
 	    }
 	 #   print "\n";
@@ -76,27 +77,38 @@ foreach my $alnF (@files){
 	next unless ((scalar(keys %charM)) > 0);
 	#print "IES presence character matrix \n";
 	#second pass to print
-	my $charMatrixF = $alnF;
-	$charMatrixF =~ s/\.aln/\.dat/;
-	open OUT, '>'.$dir.$charMatrixF or die $!;
-	print OUT "geneName\t";
+	my $charMatrixFrameF = $alnF;
+	my $charMatrixLengthF = $alnF;
+	$charMatrixFrameF =~ s/\.aln/\.F.dat/;
+	$charMatrixLengthF =~ s/\.aln/\.L.dat/;
+	open OUTF, '>'.$dir.$charMatrixFrameF or die $!;
+	open OUTL, '>'.$dir.$charMatrixLengthF or die $!;
+	print OUTF "geneName\t";
+	print OUTL "geneName\t";
 	foreach my $state (sort {$a<=>$b} keys %charM){
-	    print OUT $state,"\t";
+	    print OUTF $state,"\t";
+	    print OUTL $state,"\t";
 	}
-	print OUT "\n";
+	print OUTF "\n";
+	print OUTL "\n";
 	foreach my $seq ($alnO->each_seq()){
-	    print OUT $seq->id(),"\t";
+	    print OUTF $seq->id(),"\t";
+	    print OUTL $seq->id(),"\t";
 	    my $id = $seq->id();
 	    foreach my $state (sort {$a<=>$b} keys %charM){
 #	    print $charM{$state},"\n";
 		if (defined($charM{$state}{$id})){
-		    print OUT $charM{$state}{$id},"\t";
+		    print OUTF ${$charM{$state}{$id}}[0],"\t"; #frame
+		    print OUTL ${$charM{$state}{$id}}[1],"\t"; #length
 		}else{
-		    print OUT "0\t";
+		    print OUTF "0\t";
+		    print OUTL "0\t";
 		}
 	    }
-	    print OUT "\n";
+	    print OUTF "\n";
+	    print OUTL "\n";
 	}
-	close OUT;
+	close OUTF;
+	close OUTL;
     }
 }
