@@ -1,6 +1,7 @@
 args<-commandArgs(TRUE);
 alnFile <- args[1]
 group <- args[2]
+output <- args[2]
 # trees.R: estimate tree with maximum likelihood
 # load libraries
 library(ape)
@@ -8,7 +9,7 @@ library(phangorn)
 library(methods)
 # set input output
 aln <- read.phyDat(alnFile,type="DNA", format="fasta")
-outputF <- paste("/pandata/sellis/msas/trees/cluster.",group,".tre",sep="")
+outputF <- paste(output,sep="")
 
 dM <- dist.dna(as.DNAbin(aln)) # calculate distance matrix
 njT <- njs(dM) # calculate NJ tree
