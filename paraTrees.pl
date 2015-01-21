@@ -4,7 +4,7 @@ use strict;
 # wrapper for trees.R
 my $inputPath = $ARGV[0];
 my $outputPath = $ARGV[1];
-my $cluster = 0; # TRUE if run on the cluster
+my $cluster = 1; # TRUE if run on the cluster
 opendir(DH, $inputPath) or die "$inputPath $!";
 my @files = readdir(DH);
 close DH;

@@ -1,7 +1,7 @@
 args<-commandArgs(TRUE);
 alnFile <- args[1]
 group <- args[2]
-output <- args[2]
+output <- args[3]
 # trees.R: estimate tree with maximum likelihood
 # load libraries
 library(ape)

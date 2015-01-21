@@ -22,7 +22,7 @@ print "running t_coffee for each group\n";
 #run $block instances in each PBS file as each one is usualy too fast
 
 my $counter = 0;
-for(my $i = 0; $i < $#files ; $i+=$block){
+for(my $i = 0; $i <= $#files ; $i+=$block){
     open PBS, '>msa.'.$counter.'.pbs' or die $!;
     print PBS '#PBS -q q1hour',"\n";
     print PBS '#PBS -N msa.',$counter,"\n";
