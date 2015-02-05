@@ -115,6 +115,7 @@ while (my $line = <IESL>){
     $iesLengthsH{$scaffold.$id} = $length;
 }
 close IESL;
+
 #read genbank file
 #and for each CDS that has an IES add up length up until the appropriate position
 my $genbankF = $speciesAbr.'.IES.gnbk';
