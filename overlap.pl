@@ -17,7 +17,7 @@ Reads
   - geneId
   - IESid
   - 1-based index of IES location in aa coordinates (including start codon as M)
-  - frame of insertion (counting	as start the point closest to the origin of the	protein, which depends on the strand of	the protein) 0 1 2
+  - frame of insertion (counting as start the point closest to the origin of the	protein, which depends on the strand of	the protein) 0 1 2
 
 Usage:
  overlap.pl [OPTIONS]

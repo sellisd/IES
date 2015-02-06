@@ -16,8 +16,8 @@ my @iesF = ($home.'data/IES_data/pbiaurelia/Pbi.IESinCDS',
 	    $home.'data/IES_data/ptetraurelia/Pte.IESinCDS',
 	    $home.'data/IES_data/psexaurelia/Pse.IESinCDS');
 foreach my $file (@iesF){
-  open IN, $file or die $!;
-  while (my $line = <IN>){
+    open IN, $file or die $!;
+    while (my $line = <IN>){
     chomp $line;
     (my $gene, my $ies, my $aaLoc, my $frame, my $length) = split " ",$line;
     $gene =~ /(.*)G(\d+)/;
@@ -42,7 +42,6 @@ foreach my $file (@iesF){
 foreach my $alnF (@files){ 
     my $alnIO = Bio::AlignIO->new(-file => $dir.$alnF,
 				  -format=>'clustalw');
-    
     my %frameH;
     my @characterL;
     my @characterN;
@@ -64,7 +63,7 @@ foreach my $alnF (@files){
 		    my $msaLoc = $alnO->column_from_residue_number($id,$aaLoc);     #find the location of IES in the alignment
 		    #	  print $msaLoc,'(',$ies->{'frame'},', ',$aaLoc,', ',$ies->{'ies'},")\t";
 	#	    print $msaLoc,"\t";
-		    $charM{$msaLoc}{$id} = [$ies->{'frame'}, $ies->{'length'}];
+		    $charM{$msaLoc}{$id} = [$ies->{'frame'}, $ies->{'length'}, $ies->{'ies'}];
 		}
 	    }
 	 #   print "\n";
@@ -95,7 +94,8 @@ foreach my $alnF (@files){
 #	    print $charM{$state},"\n";
 		if (defined($charM{$state}{$id})){
 		    print OUTF ${$charM{$state}{$id}}[0],"\t"; #frame
-		    print OUTL ${$charM{$state}{$id}}[1],"\t"; #length
+		    print OUTL ${$charM{$state}{$id}}[2],"\t"; #name
+
 		}else{
 		    print OUTF "0\t";
 		    print OUTL "0\t";
