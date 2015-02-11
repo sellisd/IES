@@ -158,7 +158,7 @@ while(my $seqO = $gnbkIn->next_seq()){
 #		    my $pCoo; #protein coordinates
 		    if($complement == -1){
 			# if gene in - strand location is counding from the end
-			$gCoo = [$index - ${$iesIP}[1], $index - ${$iesIP}[0]];
+			$gCoo = [$index - ${$iesIP}[1] + 1, $index - ${$iesIP}[0] + 1];
 #			$pCoo = $index - $iesIP; # IES has length 2
 		    }elsif($complement == 1){
 			$gCoo = $iesIP;
