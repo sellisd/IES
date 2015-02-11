@@ -58,7 +58,7 @@ foreach my $alnF (@files){
 		}
 	    }
 	    my $newSeqO = Bio::Seq->new('-display_id' => $id,
-					'-seq'              => $newseq);
+					'-seq'        => $newseq);
 	    $outputStream->write_seq($newSeqO);
 	    }
 	}
