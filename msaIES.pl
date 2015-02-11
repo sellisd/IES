@@ -43,18 +43,6 @@ foreach my $file (@iesF){
 foreach my $alnF (sort @files){
     my $alnIO = Bio::AlignIO->new(-file => $dir.$alnF,
 				  -format=>'fasta'); # for the nucleotide alignments
-#   while(my $alnO = $alnIO->next_aln){
-# 	my $seqNo = $alnO->num_sequences;
-# 	print $alnF,' ',$seqNo,"\t";
-# 	print $alnO->percentage_identity(),"\n";
-# 	foreach my $seq ($alnO->each_seq()) {     #find which genes
-# 	    my $id = $seq->id();
-# 	    print '   ', $id,"\n";
-# 	}
-#    }
-# }
-# die;
-# if(0){my $alnIO;my $alnO;my $alnF;
     my %frameH;
     my @characterL;
     my @characterN;
@@ -91,8 +79,8 @@ foreach my $alnF (sort @files){
 	#second pass to print
 	my $charMatrixFrameF = $alnF;
 	my $charMatrixLengthF = $alnF;
-	$charMatrixFrameF =~ s/\.aln/\.F.dat/;
-	$charMatrixLengthF =~ s/\.aln/\.L.dat/;
+	$charMatrixFrameF =~ s/\.nucl\.fa/\.F.dat/;
+	$charMatrixLengthF =~ s/\.nucl\.fa/\.L.dat/;
 	open OUTF, '>'.$dir.$charMatrixFrameF or die $!;
 	open OUTL, '>'.$dir.$charMatrixLengthF or die $!;
 	print OUTF "geneName\t";
@@ -112,8 +100,8 @@ foreach my $alnF (sort @files){
 	    foreach my $state (sort keys %charM){
 #	    print $charM{$state},"\n";
 		if (defined($charM{$state}{$id})){
-		    print OUTF ${$charM{$state}{$id}}[1],"\t"; # length
-		    print OUTL ${$charM{$state}{$id}}[1],"\t"; # name
+		    print OUTF ${$charM{$state}{$id}}[1],"\t"; # name
+		    print OUTL ${$charM{$state}{$id}}[0],"\t"; # length
 		}else{
 		    print OUTF "0\t";
 		    print OUTL "0\t";
