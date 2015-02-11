@@ -87,7 +87,7 @@ open IES, $dataPath.$iesF or die $!;
 while(my $line = <IES>){
     chomp $line;
     (my $scaffold, my $start, my $end, my $iesid) = split " ", $line;
-    $iesH{$scaffold}{$iesid} = $start;
+    $iesH{$scaffold}{$iesid} = [$start,$end];
 }
 close IES;
 
@@ -139,10 +139,10 @@ while(my $seqO = $gnbkIn->next_seq()){
 		    my $start = $locations->start;
 		    my $end = $locations->end;
 		    foreach my $iesInCDSName (@{$iesInCDS}){
-			my $IESstart = $iesH{$scaffold}{$iesInCDSName};
+			my $IESstart = @{$iesH{$scaffold}{$iesInCDSName}}[0];
+			my $IESend = @{$iesH{$scaffold}{$iesInCDSName}}[1];
 			if($IESstart >= $start and $IESstart <= $end){
-			    #this IES is in this CDS
-			   # print $geneName[0], ' ', $iesInCDSName, ' ', $IESstart,' ',$start,' ',$end,' ',$index+($IESstart-$start+1),"\n";
+			    #this IES is (at least partially) in this CDS
 			    push @iesIndexProt, $index+($IESstart-$start+1);
 			}
 		    }
@@ -165,7 +165,7 @@ while(my $seqO = $gnbkIn->next_seq()){
 		    my $length = $iesLengthsH{$scaffold.$iesID};
 		    my $aaCoo = int(($pCoo - 1)/3) + 1; #position in amino-acid coordinates
 		    my $frame = ($pCoo - 1) % 3 + 1;
-		    print OUT $aaCoo, ' ',$frame, ' ', $length,"\n";
+		    print OUT $aaCoo, ' ',$frame, ' ', $length,' ',$pCoo,"\n";
 # nt 1 2 3 4 5 6 7
 #make zero-based and add back 1 to the result
 # aa 0 0 0 1 1 1 2 (a-1) / 3 + 1
