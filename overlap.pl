@@ -143,7 +143,7 @@ while(my $seqO = $gnbkIn->next_seq()){
 			my $IESend = @{$iesH{$scaffold}{$iesInCDSName}}[1];
 			if($IESstart >= $start and $IESstart <= $end){
 			    #this IES is (at least partially) in this CDS
-			    push @iesIndexProt, $index+($IESstart-$start+1);
+			    push @iesIndexProt, [$index+($IESstart-$start+1),$index+($IESend-$start + 1)];
 			}
 		    }
 		    #if there is an IES between start end
@@ -154,18 +154,23 @@ while(my $seqO = $gnbkIn->next_seq()){
 		foreach my $iesIP (@iesIndexProt){
 		    my $iesID = ${$iesInCDS}[$counter];
 		    print OUT $geneName[0], ' ', $iesID, ' ';
-		    my $pCoo; #protein coordinates
+		    my $gCoo; # gene coordinates
+#		    my $pCoo; #protein coordinates
 		    if($complement == -1){
-			$pCoo = $index - $iesIP; # IES has length 2
+			# if gene in - strand location is counding from the end
+			$gCoo = [$index - ${$iesIP}[1], $index - ${$iesIP}[0]];
+#			$pCoo = $index - $iesIP; # IES has length 2
 		    }elsif($complement == 1){
-			$pCoo = $iesIP;
+			$gCoo = $iesIP;
+#			$pCoo = $iesIP;
 		    }else{
 			die $complement;
 		    }
 		    my $length = $iesLengthsH{$scaffold.$iesID};
-		    my $aaCoo = int(($pCoo - 1)/3) + 1; #position in amino-acid coordinates
-		    my $frame = ($pCoo - 1) % 3 + 1;
-		    print OUT $aaCoo, ' ',$frame, ' ', $length,' ',$pCoo,"\n";
+#		    my $aaCoo = int(($pCoo - 1)/3) + 1; #position in amino-acid coordinates
+#		    my $frame = ($pCoo - 1) % 3 + 1;
+#		    print OUT $aaCoo, ' ',$frame, ' ', $length,' ',$pCoo,"\n";
+		    print OUT ${$gCoo}[0], ' ',${$gCoo}[1], ' ', $length,"\n";
 # nt 1 2 3 4 5 6 7
 #make zero-based and add back 1 to the result
 # aa 0 0 0 1 1 1 2 (a-1) / 3 + 1
