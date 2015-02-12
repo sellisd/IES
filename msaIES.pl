@@ -54,28 +54,22 @@ foreach my $alnF (sort @files){
 	next if($alnO->percentage_identity() < 80);
 	#for each sequence in alignment
 	my %charM;
+	my %sortH; # for easy sorting by start
 	foreach my $seq ($alnO->each_seq()) {     #find which genes
 	    my $id = $seq->id();
-#	    $id =~s/P.._scaffold.*?(P.*)T(\d+)_.*/$1G$2/;
 	    if (defined($hash{$id})){      #find if it has IES
 		foreach my $ies (@{$hash{$id}}){
-#		    my $aaLoc = $ies->{'aaLoc'}; 
-##		    my $ntLoc = $ies->{'start'};
 		    my $start = $ies->{'start'};
 		    my $end   = $ies->{'end'};
 		    my $msaLocStart = $alnO->column_from_residue_number($id,$start);     #find the location of IES in the alignment
 		    my $msaLocEnd   = $alnO->column_from_residue_number($id,$end);     #find the location of IES in the alignment
-		    #	  print $msaLoc,'(',$ies->{'frame'},', ',$aaLoc,', ',$ies->{'ies'},")\t";
-	#	    print $msaLoc,"\t";
-#		    $charM{$msaLoc}{$id} = [$ies->{'frame'}, $ies->{'length'}, $ies->{'ies'}];
 		    $charM{$msaLocStart.'.'.$msaLocEnd}{$id} = [$ies->{'length'}, $ies->{'ies'}];
+		    $sortH{$msaLocStart.'.'.$msaLocEnd} = $msaLocStart; #sort by start
 		}
 	    }
-	 #   print "\n";
 	}
 	#only print if at least 1 IES is present
 	next unless ((scalar(keys %charM)) > 0);
-	#print "IES presence character matrix \n";
 	#second pass to print
 	my $charMatrixFrameF = $alnF;
 	my $charMatrixLengthF = $alnF;
@@ -85,8 +79,7 @@ foreach my $alnF (sort @files){
 	open OUTL, '>'.$dir.$charMatrixLengthF or die $!;
 	print OUTF "geneName\t";
 	print OUTL "geneName\t";
-#	foreach my $geneName (sort {$a<=>$b} keys %charM){
-	foreach my $character (sort keys %charM){ # unsorted
+	foreach my $character (sort{$sortH{$a} <=> $sortH{$b}} keys %sortH){ # sort by start the IES locations
 	    print OUTF $character,"\t";
 	    print OUTL $character,"\t";
 	}
@@ -96,9 +89,7 @@ foreach my $alnF (sort @files){
 	    print OUTF $seq->id(),"\t";
 	    print OUTL $seq->id(),"\t";
 	    my $id = $seq->id();
-#	    foreach my $state (sort {$a<=>$b} keys %charM){
-	    foreach my $state (sort keys %charM){
-#	    print $charM{$state},"\n";
+	    foreach my $state (sort {$sortH{$a} <=> $sortH{$b}} keys %sortH){
 		if (defined($charM{$state}{$id})){
 		    print OUTF ${$charM{$state}{$id}}[1],"\t"; # name
 		    print OUTL ${$charM{$state}{$id}}[0],"\t"; # length
