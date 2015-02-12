@@ -7,6 +7,7 @@ my $path = $ARGV[0];
 opendir(DH, $path) or die $!;
 my @files = grep { /-gb.htm/ } readdir(DH);
 foreach my $file (@files){
+    print $file,"\n";
     open IN, $path.$file or die $!;
     my $output = $file;
     $output =~ s/-gb\.htm/.gblocks/ or die $!; # make sure it changes the name
@@ -29,6 +30,8 @@ foreach my $file (@files){
     }
     close OUT;
     close IN;
-    unlink $path.$file.'-gb';
-    unlink $path.$file.'-gb.htm';
+    my $gbf = $file;
+    $gbf =~ s/-gb.htm/-gb/;
+    unlink $path.$gbf;
+    unlink $path.$file;
 }
