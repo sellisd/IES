@@ -73,8 +73,8 @@ foreach my $alnF (sort @files){
 	#second pass to print
 	my $charMatrixFrameF = $alnF;
 	my $charMatrixLengthF = $alnF;
-	$charMatrixFrameF =~ s/\.nucl\.fa/\.F.dat/;
-	$charMatrixLengthF =~ s/\.nucl\.fa/\.L.dat/;
+	$charMatrixFrameF =~ s/\.nucl\.fa/\.F.dat/ or die $!;
+	$charMatrixLengthF =~ s/\.nucl\.fa/\.L.dat/ or die $!;
 	open OUTF, '>'.$dir.$charMatrixFrameF or die $!;
 	open OUTL, '>'.$dir.$charMatrixLengthF or die $!;
 	print OUTF "geneName\t";
