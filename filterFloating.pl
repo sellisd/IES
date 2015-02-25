@@ -26,7 +26,7 @@ my %IESH;
 foreach my $file (@iesFiles){
     my $species = substr($file,0,3);
 # parse gff3 with annotations
-    open IN, $path.$file or die $!;;
+    open IN, $path.$file or die $!;
     while (my $line = <IN>){
 	chomp $line;
 	my @ar = split "\t", $line;
@@ -83,125 +83,189 @@ while (my $line =<IN>){
 }
 close IN;
 
-
-# foreach my $id (sort keys %IESH){
-#     unless(defined($IESH{$id}{'mac_seq'})){
-# 	die;
-#     }
-#     print $id,"\t";
-#     print $IESH{$id}{'species'},"\t";
-#     print $IESH{$id}{'mac_seq'},"\t";
-#     print $IESH{$id}{'sequence'},"\t";
-#     if (defined($IESH{$id}{'alt_sequence'})){
-# 	print $IESH{$id}{'alt_sequence'},"\t";
-#     }else{
-# 	print "NA\t";
-#     }
-#     print "\n";
-# }
-
+my $floatingCounter = 0;
+my $floatAlignCounter = 0;
 # read character matrices
-my $charM = '/home/dsellis/data/IES_data/msas/alignments/aln/cluster.2719.F.dat';
-my $gBlocks = '/home/dsellis/data/IES_data/msas/alignments/aln/cluster.2719.nucl.fa.gblocks';
-
-open GB, $gBlocks or die $!;
-my @gbStart;
-my @gbEnd;
-while (my $line = <GB>){
-    chomp $line;
-    (my $start, my $end) = split " ", $line;
-    push @gbStart, $start;
-    push @gbEnd, $end;
-}
-close GB;
-open CM, $charM or die $!;
-my @start;
-my @end;
-my $line = readline(CM);
-chomp $line;
-my @ar = split " ", $line;
-shift @ar; #remove geneName
-foreach my $se (@ar){
-    $se =~ /(\d+)\.(\d+)/ or die $se;
-    my $start = $1;
-    my $end = $2;
-    push @start, $start;
-    push @end, $end;
-}
-# do not close until we are sure we don't need to read the rest
-
-my @within; # index of IES start whithin gblocks
-my @wStart; # copies with only IES of interest
-my @wEnd;
-# include only IES that are not within GBlocks
-for (my $i = 0; $i <= $#gbStart; $i++){
-    for (my $j = 0; $j <= $#start; $j++){
-	if($start[$j] >= $gbStart[$i] and $end[$j] <= $gbEnd[$i]){
-	    # within
-	    push @wStart, $start[$j];
-	    push @wEnd, $end[$j];
-	    push @within, $j;
-	}
-    } 
-}
-print "@wStart\n";
-print "@wEnd\n";
-
-# calculate distances
-my %closeDist; # suspiciously close distance
-for (my $i = 1; $i <= $#within; $i++){
-    my $distances = $start[$within[$i]] - $end[$within[$i - 1]];
-    if ($distances <= $minDist){
-	$closeDist{$i} = $distances; #index of distance = value of distance
+my $alnPath = '/home/dsellis/data/IES_data/msas/alignments/aln/';
+opendir(DH,$alnPath) or die $!;
+my @charMFs = grep{/\.F\.dat/} readdir(DH);
+foreach my $charMfile (@charMFs){
+    my $floatAlignFlag = 0;
+    $charMfile =~/cluster\.(\d+)\.F\.dat/;
+    my $cluster = $1;
+    my $gBlocksF = 'cluster.'.$cluster.'.nucl.fa.gblocks';
+#my $charM = '/home/dsellis/data/IES_data/msas/alignments/aln/cluster.2719.F.dat';
+#my $gBlocks = '/home/dsellis/data/IES_data/msas/alignments/aln/cluster.2719.nucl.fa.gblocks';
+    my $charM = $alnPath.$charMfile;
+    my $gBlocks = $alnPath.$gBlocksF;
+    open GB, $gBlocks or die $!;
+    my @gbStart;
+    my @gbEnd;
+    while (my $line = <GB>){
+	chomp $line;
+	(my $start, my $end) = split " ", $line;
+	push @gbStart, $start;
+	push @gbEnd, $end;
     }
-}
-my $distancesNo = keys %closeDist;
-
-if ($distancesNo >= 0){
+    close GB;
+    open CM, $charM or die $!;
+    my @start;
+    my @end;
+    my $line = readline(CM);
+    chomp $line;
+    my @ar = split " ", $line;
+    shift @ar; #remove geneName
+    foreach my $se (@ar){
+	$se =~ /(\d+)\.(\d+)/ or die $se;
+	my $start = $1;
+	my $end = $2;
+	push @start, $start;
+	push @end, $end;
+    }
+# do not close until we are sure we don't need to read the rest
+    
+    my @within; # index of IES start whithin gblocks
+    my @wStart; # copies with only IES of interest
+    my @wEnd;
+    # include only IES that are within GBlocks
+    for (my $i = 0; $i <= $#gbStart; $i++){
+	for (my $j = 0; $j <= $#start; $j++){
+	    if($start[$j] >= $gbStart[$i] and $end[$j] <= $gbEnd[$i]){
+		# within
+		push @wStart, $start[$j];
+		push @wEnd, $end[$j];
+		push @within, $j;
+	    }
+	} 
+    }
+    
+# calculate distances
+    my %closeDist; # suspiciously close distance
+    for (my $i = 1; $i <= $#within; $i++){
+	my $distances = $start[$within[$i]] - $end[$within[$i - 1]];
+	if ($distances <= $minDist){
+	    $closeDist{$i} = $distances; #index of distance = value of distance
+	}
+    }
+    my $distancesNo = keys %closeDist;
+    
+    if ($distancesNo >= 0){
 # if suspicious distances read the rest of the char matrix
 # find which IESs are suspiciously close to each other
 # check their MAC_sequences and IES ends
-    my @upstream;
-    my @downstream;
-    while (my $line = <CM>){
-	chomp $line;
-	my @iesIDs = split " ", $line;
-	my $geneName = shift @iesIDs;
-	for(my $i = 0; $i <= $#iesIDs; $i++){
-	    my $state = $iesIDs[$i];
-	    if(defined($closeDist{$i})){ # downstream
-		if($state ne '0'){  # unless absent
+	my @upstream;
+	my @downstream;
+	my @geneNames;
+	while (my $line = <CM>){
+	    chomp $line;
+	    my @iesIDs = split " ", $line;
+	    my $geneName = shift @iesIDs;
+	    push @geneNames, $geneName;
+	    for(my $i = 0; $i <= $#iesIDs; $i++){
+		my $state = $iesIDs[$i];
+		my $mac_seq = $IESH{$state}->{'mac_seq'};
+		if(defined($closeDist{$i})){ # downstream
+		    if($state ne '0'){  # unless absent
 		    push @downstream, $state;
-		}
-		my $upstreamState = $iesIDs[$i-1]; # upstream
-		if($upstreamState ne '0'){
-		    push @upstream, $upstreamState;
+		    }
+		    my $upstreamState = $iesIDs[$i-1]; # upstream
+		    if($upstreamState ne '0'){
+			push @upstream, $upstreamState;
+		    }
 		}
 	    }
 	}
-    }
 #is floating?
-#if floating adjust location
-    print "upstream\n";
-    foreach my $upIES (@upstream){
-	my $mac_seq = $IESH{$upIES}->{'mac_seq'};
-	$mac_seq=~/([actg]+)([ACTG]+)[actg]+/ or die;
-	my $window = length($1);
-	my $ies_junction = length($2);
-	my $macBorders = substr($mac_seq,$window-2, $ies_junction + 4);
-	my $seq = $IESH{$upIES}->{'sequence'};
-	print substr($seq,0,4), '...',substr($seq,-4,4),"\t". $macBorders,"\n";
+# bounded by TATA: 
+#   substr($mac_seq,$window-2,2)
+#   annotated in the first TA? (NOT the same with upstream necessarily upstream)
+#     IESseq starts with TATA => floating, new boundaries
+#   annotated in the second TA? (downstream)
+#     IESseq ends with TATA => floating, new boundaries
+	
+#if TATA bupstream AND starts
+#	print "upstream\n";
+	foreach my $upIES (@upstream){
+	    my $floatingFlag = 0;
+	    my $mac_seq = $IESH{$upIES}->{'mac_seq'};
+	    $mac_seq=~/([actg]+)([ACTG]+)[actg]+/ or die;
+	    my $window = length($1);
+	    my $ies_junction = length($2);
+	    my $macBorders = substr($mac_seq,$window-2, $ies_junction + 4);
+	    my $seq = $IESH{$upIES}->{'sequence'};
+	    my $TAta; # bounded by TATA:
+	    my $taTA;
+	    if(substr($mac_seq, $window-2,2) eq 'ta'){
+		$taTA = 1;
+	    }
+	    if(substr($mac_seq, $window+$ies_junction,2) eq 'ta'){
+		$TAta = 1;
+	    }
+	    if($taTA){ #floating candidate
+		if(substr($seq,-4,4) eq 'TATA'){
+		    $floatingCounter++;
+		    $floatingFlag = 1;
+		    $floatAlignFlag = 1; 
+#floating IES should start 2bp upstream
+		}
+	    }
+	    if($TAta){
+		if(substr($seq,0,4) eq 'TATA'){
+		    $floatingCounter++;
+		    $floatingFlag = 1;
+		    $floatAlignFlag = 1;
+
+		}
+		
+	    }
+	    print $upIES,"\t",substr($seq,0,4), '...',substr($seq,-4,4),"\t". $macBorders,"\t",(($floatingFlag==1)?'*':''),"\n";
+	}
+#	print "downstream\n";
+	foreach my $doIES (@downstream){
+	    my $floatingFlag = 0;
+	    my $mac_seq = $IESH{$doIES}->{'mac_seq'};
+	    $mac_seq=~/([actg]+)([ACTG]+)[actg]+/ or die;
+	    my $window = length($1);
+	    my $ies_junction = length($2);
+	    my $macBorders = substr($mac_seq,$window-2, $ies_junction + 4);
+	    my $seq = $IESH{$doIES}->{'sequence'};
+	    my $TAta; # bounded by TATA:
+	    my $taTA;
+	    if(substr($mac_seq, $window-2,2) eq 'ta'){
+		$taTA = 1;
+	    }
+	    if(substr($mac_seq, $window+$ies_junction,2) eq 'ta'){
+		$TAta = 1;
+	    }
+	    if($taTA){ #floating candidate
+		if(substr($seq,-4,4) eq 'TATA'){
+		    $floatingCounter++;
+		    $floatingFlag = 1;
+		    $floatAlignFlag = 1;
+		}
+	    }
+	    if($TAta){
+		if(substr($seq,0,4) eq 'TATA'){
+		    $floatingCounter++;
+		    $floatingFlag = 1;
+		    $floatAlignFlag = 1;
+		}
+		
+	    }
+	    print $doIES,"\t",substr($seq,0,4), '...',substr($seq,-4,4),"\t". $macBorders,"\t",(($floatingFlag==1)?'*':''),"\n";
+	}
     }
-    print "downstream\n";
-    foreach my $doIES (@downstream){
-	my $mac_seq = $IESH{$doIES}->{'mac_seq'};
-	$mac_seq=~/([actg]+)([ACTG]+)[actg]+/ or die;
-	my $window = length($1);
-	my $ies_junction = length($2);
-	my $macBorders = substr($mac_seq,$window-2, $ies_junction + 4);
-	my $seq = $IESH{$doIES}->{'sequence'};
-	print substr($seq,0,4), '...',substr($seq,-4,4),"\t". $macBorders,"\n";
+    close CM;
+    if ($floatAlignFlag == 1){
+	print $cluster,"\n";
+	my $charMLfile = $charMfile;
+	$charMLfile =~ s/\.F\./.L./;
+	system "cat $alnPath$charMLfile";
+	system "cat $alnPath$charMfile";
+#	use Data::Dumper;
+#	print Dumper %closeDist;
+	$floatAlignCounter++;
     }
 }
-close CM;
-
+print $floatingCounter,"\n";
+print $floatAlignCounter,"\n";
