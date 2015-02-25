@@ -40,18 +40,16 @@ foreach my $file (@iesFiles){
 	my $alt_seq;
 	my $mac_seq;
 	my @annotations = split ';', $annotation;
-	my $counter = 0;
 	foreach my $annot (@annotations){
-	if ($annot =~ /ID=(.*)/){
-	    $id = $1;
-	}elsif($annot =~ /sequence=(.*)/){
-	    $sequence = $1;
-	}elsif($annot =~ /alternative_IES_seq=(.*)/){
-	    $alt_seq = $1;
-	}elsif($annot =~ /mac_seq=(.*)/){
-	    $mac_seq = $1;	    
-	}
-	$counter++;
+	    if ($annot =~ /ID=(.*)/){
+		$id = $1;
+	    }elsif($annot =~ /sequence=(.*)/){
+		$sequence = $1;
+	    }elsif($annot =~ /alternative_IES_seq=(.*)/){
+		$alt_seq = $1;
+	    }elsif($annot =~ /mac_seq=(.*)/){
+		$mac_seq = $1;	    
+	    }
 	}
 	unless(defined($species) and defined($scaffold) and defined($start) and defined($end) and defined($score) and defined($sequence)){
 	    die $id;
