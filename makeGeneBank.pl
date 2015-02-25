@@ -71,7 +71,7 @@ if ($species3abr eq 'Pbi'){
     $gff3 = $dataPath.'pbiaurelia_V1-4_annotation_v2.0.gff3';
     $scaffoldsF = $dataPath.'biaurelia_V1-4_assembly_v1.fasta';
     $outputFile = $dataPath.'Pbi.gnbk';
-    $iesgffF = $dataPath.'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
+    $iesgffF = $dataPath.'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.fl.gff3';
 }elsif($species3abr eq 'Pse'){
     $species = 'Paramecium sexaurelia';
     $taxonId = 65128;
@@ -83,7 +83,7 @@ if ($species3abr eq 'Pbi'){
     $gff3 = $dataPath.'psexaurelia_AZ8-4_annotation_v2.0.gff3';
     $scaffoldsF = $dataPath.'sexaurelia_AZ8-4_assembly_v1.fasta';
     $outputFile = $dataPath.'Pse.gnbk';
-    $iesgffF = $dataPath.'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
+    $iesgffF = $dataPath.'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.fl.gff3';
 }elsif($species3abr eq 'Pte'){
     $species = 'Paramecium tetraurelia';
     $taxonId = 5888;
@@ -95,7 +95,7 @@ if ($species3abr eq 'Pbi'){
     $gff3 = $dataPath.'ptetraurelia_mac_51_annotation_v2.0.gff3';
     $scaffoldsF = $dataPath.'ptetraurelia_mac_51.fa';
     $outputFile = $dataPath.'Pte.gnbk';
-    $iesgffF = $dataPath.'internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
+    $iesgffF = $dataPath.'internal_eliminated_sequence_PGM_IES51.pt_51.fl.gff3';
 }else{
     die "unknown species";
 }

@@ -39,15 +39,15 @@ if($speciesAbr eq 'Ppr'){
     $subdir = 'pprimaurelia/';
 }elsif($speciesAbr eq 'Pbi'){
     $subdir = 'pbiaurelia/';
-    $iesLengthF = 'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
+    $iesLengthF = 'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.fl.gff3';
 }elsif($speciesAbr eq 'Pte'){
     $subdir = 'ptetraurelia/';
-    $iesLengthF = 'internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
+    $iesLengthF = 'internal_eliminated_sequence_PGM_IES51.pt_51.fl.gff3';
 }elsif($speciesAbr eq 'Pen'){
     $subdir = 'ppentaurelia/';
 }elsif($speciesAbr eq 'Pse'){
     $subdir = 'psexaurelia/';
-    $iesLengthF = 'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
+    $iesLengthF = 'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.fl.gff3';
 }else{
     print 'Not known species abreviation: $speciesAbr',"\n";
     die $usage;

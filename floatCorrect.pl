@@ -75,7 +75,7 @@ foreach my $file (@iesFiles){
 	$ar[3] = $start;
 	$ar[4] = $end;
 	my $newLine = join "\t", @ar;
-	print OUT $newLine;
+	print OUT $newLine,"\n";
     }
     close IN;
 }
