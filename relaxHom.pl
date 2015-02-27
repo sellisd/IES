@@ -7,27 +7,6 @@ my $pathOut = '/home/dsellis/data/IES_data/msas/alignments/charMat/';
 opendir(DH, $path) or die $!;
 my @charMF = grep {/\.F\.dat$/} readdir(DH);
 
-#find which IES are within a Gblocks cluster
-foreach my $file (@charMF){
-    $file =~ /cluster\.(\d+)/;
-    my $cluster = $1;
-    my $bdF = 'cluster.'.$cluster.'.bed';
-    my $gbF = 'cluster.'.$cluster.'.nucl.fa.gblocks';
-    my $iesInBlocksCMD = 'bedtools intersect -wb -a '.$path.$gbF.' -b '.$path.$bdF.' > '.$path.'cluster.'.$cluster.'.inblocks.bed';
-    system "$iesInBlocksCMD\n";
-}
-
-# find which IES are overlaping
-foreach my $file (@charMF){
-    $file =~ /cluster\.(\d+)/;
-    my $cluster = $1;
-    my $inBlocksF = 'cluster.'.$cluster.'.inblocks.bed';
-    unless(-e $path.$inBlocksF){ # if no IES in a block do nothing
-	my $ies2mergeCMD = 'bedtools merge -o collapse -c 7 -i '.$path.$inBlocksF.' > '.$path.'cluster.'.$cluster.'.2merge.bed';
-	system $ies2mergeCMD;
-    }
-}
-
 #read 2merge files and character matrices
 foreach my $file (@charMF){
     $file =~ /cluster\.(\d+)/;
@@ -49,22 +28,25 @@ foreach my $file (@charMF){
 	$rowCounter++;
     }
     close CM;
-# #print Matrix
-#     print "M:\n";
-#     print join("\t",@colNames),"\n";
-#     for(my $i = 0; $i <= $#M; $i++){ # new matrix has the same number of rows
-# 	print $rowNames[$i],"\t";
-# 	for(my $j = 0; $j <= $#{$M[0]}; $j++){
-# 	    print $M[$i][$j],"\t";
-# 	}
-# 	print "\n";
-#     }
 
     my @NM;
     my $mergeF = 'cluster.'.$cluster.'.2merge.bed';
     my @NMcolNames;
-    unless(-z $path.$mergeF){
+    if(-s $path.$mergeF){
 	print $path.$mergeF,"\n";
+
+# #print Matrix
+	print "M:\n";
+	print join("\t",@colNames),"\n";
+	for(my $i = 0; $i <= $#M; $i++){ # new matrix has the same number of rows
+	    print $rowNames[$i],"\t";
+	    for(my $j = 0; $j <= $#{$M[0]}; $j++){
+		print $M[$i][$j],"\t";
+	    }
+	    print "\n";
+	}
+
+
 	open IN, $path.$mergeF or die $!;
 	while(my $line = <IN>){
 	    chomp $line;
@@ -100,11 +82,16 @@ foreach my $file (@charMF){
 	for(my $i = 0; $i <= $#M; $i++){ # new matrix has the same number of rows
 	    print OUT $rowNames[$i],"\t";
 	    for(my $j = 0; $j <= $#{$NM[0]}; $j++){
+		if(!defined($NM[$i][$j])){
+		    print $cluster,"\n";
+		    use Data::Dumper;
+		    print Dumper @NM;
+		    die;
+}
 		print OUT $NM[$i][$j],"\t";
 	    }
 	    print OUT "\n";
 	}
 	close OUT;
     }
-
 }
