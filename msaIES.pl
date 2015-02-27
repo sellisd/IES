@@ -10,7 +10,7 @@ my $home = '/home/dsellis/';
 my $dir = $ARGV[0];
 
 opendir(DH, $dir) or die $!;
-@files = grep { /nucl.fa/ } readdir(DH);
+@files = grep { /nucl.fa$/ } readdir(DH);
 
 my @iesF = ($home.'data/IES_data/pbiaurelia/Pbi.IESinCDS',
 	    $home.'data/IES_data/ptetraurelia/Pte.IESinCDS',
@@ -69,9 +69,10 @@ foreach my $alnF (sort @files){  # find IES coordinates in alignments
 	    }
 	}
 
-	# only print if at least 1 IES is present
-	next unless ((scalar(keys %charM)) > 0);
-
+	# only print character matrix if at least 1 IES is present
+	my $colNo = scalar(keys %charM);
+	next unless ($colNo > 0);
+       
 	# second pass to print
 	my $charMatrixFrameF = $alnF;
 	my $charMatrixLengthF = $alnF;
@@ -84,15 +85,17 @@ foreach my $alnF (sort @files){  # find IES coordinates in alignments
 	open BED, '>'.$dir.$bedF or die $!;
 	print OUTF "geneName\t";
 	print OUTL "geneName\t";
-	my $columnId = 0;
+	$bedF =~ /cluster\.(\d+)\./;
+	my $cluster = $1;
+	my $colId = 0;
 	foreach my $character (sort{$sortH{$a} <=> $sortH{$b}} keys %sortH){ # sort by start the IES locations
 	    print OUTF $character,"\t";
 	    print OUTL $character,"\t";
 	    $character =~ /(\d+)\.(\d+)/;
 	    my $start = $1;
 	    my $end = $2;
-	    print BED 'Column_'.$columnId,"\t",$start,"\t", $end,"\n";
-	    $columnId++;
+	    print BED $cluster,"\t",$start,"\t", $end,"\t",$colId,"\n";
+	    $colId++;
 	}
 	print OUTF "\n";
 	print OUTL "\n";
