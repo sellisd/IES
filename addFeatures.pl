@@ -79,7 +79,7 @@ while(my $seqO = $gnbkIn -> next_seq()){
     my $species = $seqO->species();
     print "  scaffold ", $scaffold,"\n";
     foreach my $featureO ($seqO->get_SeqFeatures()){
-	if($featureO->primary_tag() eq 'gene'){
+	if($featureO->primary_tag() eq 'CDS'){
 	    my $geneName = ($featureO->get_tag_values('gene'))[0];
 	    if(defined($geneH{$geneName})){
 		$featureO->add_tag_value('gene_family' => $geneH{$geneName}); #add silix grouping
