@@ -18,7 +18,7 @@ foreach my $file (@charMF){
     system "$iesInBlocksCMD";
 }
 
-# find which IES are overlaping
+# find which IES are partially overlaping
 foreach my $file (@charMF){
     $file =~ /cluster\.(\d+)/;
     my $cluster = $1;
@@ -30,3 +30,4 @@ foreach my $file (@charMF){
     }
 }
 
+#or find which IES share either start or an end

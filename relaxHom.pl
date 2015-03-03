@@ -7,7 +7,8 @@ my $pathOut = '/home/dsellis/data/IES_data/msas/alignments/charMat/';
 opendir(DH, $path) or die $!;
 my @charMF = grep {/\.F\.dat$/} readdir(DH);
 
-#read 2merge files and character matrices
+# read 2merge files and character matrices
+# read gblocks and filter
 foreach my $file (@charMF){
     $file =~ /cluster\.(\d+)/;
     my $cluster = $1;
