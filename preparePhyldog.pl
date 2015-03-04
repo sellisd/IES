@@ -73,8 +73,13 @@ foreach my $file (@charMats){
     if(defined($treesH{$cluster})){
 	print TROUT $treesH{$cluster};
     }else{
-# 3 gene tree!
+        # In the case of a 3 gene tree the topology is a star
+	my @leafs;
+	foreach my $geneName(sort keys %linkH){
+	    push @leafs, @{$linkH{$geneName}};
 	}
+	print TROUT '(',join(',',@leafs),');',"\n";
+    }
     close TROUT;
 }
 close DH;
