@@ -42,9 +42,9 @@ foreach my $file (@charMats){
     my $cluster = $1;
     print $cluster,"\n";
     my $fastaFileSource = $inputFasta.'cluster.'.$cluster.'.nucl.fa';
-    my $fastaFileTarget = $outputPath.$fastaPath.'cluster.'.$cluster.'.fasta';
-    my $linkFile = $outputPath.$linkPath.'cluster.'.$cluster.'.link';
-    my $treeFile = $outputPath.$treePath.'cluster.'.$cluster.'.tre';
+    my $fastaFileTarget = $outputPath.$fastaPath.$cluster.'.fasta'; 
+    my $linkFile = $outputPath.$linkPath.$cluster.'.link';
+    my $treeFile = $outputPath.$treePath.$cluster.'.tre';
     open FAI, $fastaFileSource or die $!;
     open FAO, '>'.$fastaFileTarget or die $!;
     my %linkH;
