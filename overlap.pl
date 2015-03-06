@@ -8,6 +8,7 @@ use Data::Dumper;
 use Bio::Tools::GFF;
 use Getopt::Long;
 my $home = '/home/dsellis/';
+my $floating = 1; #by default filter floating IES
 my $usage = <<HERE;
 
 Reads
@@ -25,12 +26,14 @@ Usage:
 where options can be:
  - help|?   this help screen
  - species  species abreviation: Ppr, Pbi, Pte, Pen, Pse
+ - floating if true (default) filter floating
 HERE
 my $help;
 my $speciesAbr;
 
 die $usage unless (GetOptions('help|?' => \$help,
-			      'species=s' => \$speciesAbr));
+			      'species=s' => \$speciesAbr,
+		              'floating=i' => \$floating));
 die $usage if $help;
 my $dataPath = $home.'data/IES_data/';
 my $iesLengthF;
@@ -39,15 +42,27 @@ if($speciesAbr eq 'Ppr'){
     $subdir = 'pprimaurelia/';
 }elsif($speciesAbr eq 'Pbi'){
     $subdir = 'pbiaurelia/';
-    $iesLengthF = 'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.fl.gff3';
+    if($floating){
+	$iesLengthF = 'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.fl.gff3';
+    }else{
+	$iesLengthF = 'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
+    }
 }elsif($speciesAbr eq 'Pte'){
     $subdir = 'ptetraurelia/';
-    $iesLengthF = 'internal_eliminated_sequence_PGM_IES51.pt_51.fl.gff3';
+    if($floating){
+	$iesLengthF = 'internal_eliminated_sequence_PGM_IES51.pt_51.fl.gff3';
+    }else{
+	$iesLengthF = 'internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
+    }
 }elsif($speciesAbr eq 'Pen'){
     $subdir = 'ppentaurelia/';
 }elsif($speciesAbr eq 'Pse'){
     $subdir = 'psexaurelia/';
-    $iesLengthF = 'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.fl.gff3';
+    if($floating){
+	$iesLengthF = 'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.fl.gff3';
+    }else{
+	$iesLengthF = 'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
+    }
 }else{
     print 'Not known species abreviation: $speciesAbr',"\n";
     die $usage;
