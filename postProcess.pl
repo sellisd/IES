@@ -41,6 +41,12 @@ if($speciesAbr eq 'Ppr'){
     $speciesName = 'Paramecium sexaurelia';
     $taxonId = 65128;
 #Paramecium sexaurelia
+}elsif($speciesAbr eq 'Pca'){
+    $speciesName = 'Paramecium caudatum';
+    $taxonId = 5885;
+}elsif($speciesAbr eq 'Tth'){
+    $speciesName = 'Tetrahymena thermophila';
+    $taxonId = 5911;
 }else{
     print 'Not known species abreviation: $speciesAbr',"\n";
     die $usage;

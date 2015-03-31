@@ -20,6 +20,8 @@ make genebank file from gff3 files
 usage makeGeneBank.pl -species Pab -datapath PATH -floating 1
 
 #consistent species abreviations, these are not the same with the abbreviations provided in the sequence files
+# Tth Tetrahymena thermophila
+# Pca Paramecium caudatum
 # Ppr Paramecium primaurelia
 # Pbi Paramecium biaurelia
 # Pte Paramecium tetraurelia
@@ -111,6 +113,38 @@ if ($species3abr eq 'Pbi'){
     }else{
 	$iesgffF = $dataPath.'internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
     }
+}elsif($species3abr eq 'Pca'){
+    $species = 'Paramecium caudatum';
+    $taxonId = 5885;
+    $speciesAbr = 'PCAU.43c3d.1.';
+    $dataPath = $dataPath.'pcaudatum/';
+    $cds = $dataPath.'pcaudatum_43c3d_annotation_v2.0.cds.fa';
+    $protein = $dataPath.'pcaudatum_43c3d_annotation_v2.0.protein.fa';
+    $gene = $dataPath.'pcaudatum_43c3d_annotation_v2.0.gene.fa';
+    $gff3 = $dataPath.'pcaudatum_43c3d_annotation_v2.0.gff3';
+    $scaffoldsF = $dataPath.'caudatum_43c3d_assembly_v1.fasta';
+    $outputFile = $dataPath.'Pca.gnbk';
+    if($floating){ # not yet available
+	$iesgffF = $dataPath.'';
+    }else{
+	$iesgffF = $dataPath.'';
+    }
+}elsif($species3abr eq 'Tth'){
+    $species = 'Tetrahymena thermophila';
+    $taxonId = 5911;
+    $speciesAbr = 'TTHERM_';
+    $dataPath = $dataPath.'tthermophila/';
+    $cds = $dataPath.'T_thermophila_June2014_CDS.fasta';
+    $protein = $dataPath.'T_thermophila_June2014_proteins.fasta';
+    $gene = $dataPath.'T_thermophila_June2014_gene.fasta';
+    $gff3 = $dataPath.'T_thermophila_June2014.gff3';
+    $scaffoldsF = $dataPath.'T_thermophila_June2014_assembly.fasta';
+    $outputFile = $dataPath.'Tth.gnbk';
+    if($floating){ # not available
+	$iesgffF = $dataPath.'';
+    }else{
+	$iesgffF = $dataPath.'';
+     }
 }else{
     die "unknown species";
 }
