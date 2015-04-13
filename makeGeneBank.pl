@@ -4,12 +4,14 @@ use strict;
 use Bio::SeqIO;
 use Bio::Tools::GFF;
 use Bio::SeqFeature::Generic;
-use Data::Dumper;
 use Bio::SeqFeature::Gene::Exon;
 use Bio::SeqFeature::Gene::Transcript;
 use Bio::Location::Split;
 use Getopt::Long;
 use Bio::Species;
+
+use Data::Dumper;
+
 my $help;
 my $species3abr;
 my $dataPath;
@@ -45,7 +47,7 @@ $dataPath = $home.'data/IES_data/'; #default for local run
 # note "in CDS
 # note stopCodon\
 #  score
-# logika ola einai se MAC coordinates
+
 #make genbank file for all the rest first
 #then for ies and then find in which genes they are in
 #make one big file for each species in genbank format with one entry per contig
@@ -54,6 +56,7 @@ my @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligo
 my $speciesAbr;
 my $species;
 my $taxonId;
+
 #file and paths for input
 my $cds;
 my $protein;
@@ -96,7 +99,6 @@ if ($species3abr eq 'Pbi'){
     }else{
 	$iesgffF = $dataPath.'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
     }
-
 }elsif($species3abr eq 'Pte'){
     $species = 'Paramecium tetraurelia';
     $taxonId = 5888;
@@ -144,10 +146,11 @@ if ($species3abr eq 'Pbi'){
 	$iesgffF = $dataPath.'';
     }else{
 	$iesgffF = $dataPath.'';
-     }
+    }
 }else{
     die "unknown species";
 }
+
 push @lineage, $species;
 @lineage = reverse(@lineage);
 my $speciesO = Bio::Species->new(-classification => \@lineage);
@@ -155,8 +158,7 @@ my $speciesO = Bio::Species->new(-classification => \@lineage);
 #output file
 my $data_out = Bio::SeqIO->new('-file' => '>'.$outputFile,
 			       '-format' => 'genbank');
-## $data_out->write_seq($sequencedbg);
-## die;
+
 #define hashes to be filled with sequences
 my %cdsH;
 my %proteinH;
@@ -167,6 +169,9 @@ my %scaffoldH;
 my %entriesH;
 my %geneFeatureH;
 my %CDSH;
+my %otherH; # hash for all the rest of the features
+
+my %rna2geneH; # hash linking mrna to gene ids
 
 #open sequence files and fill hashes
 print "read scaffolds from $scaffoldsF\n";
@@ -174,8 +179,7 @@ my $scaffoldIn = Bio::SeqIO->new('-file' => $scaffoldsF,
 				 '-format' => 'fasta');
 while(my $scaffoldSeq = $scaffoldIn->next_seq){
   my $scId = $scaffoldSeq->display_id;
-  $scId =~ /(scaffold_?[_\d]+)/ or die $scId; #Everything is in MAC coordinates (without IES) scaffold names are not consistent across species
-  $scaffoldH{$1} = $scaffoldSeq;
+  $scaffoldH{$scId} = $scaffoldSeq;
 }
 
 print "read CDS from $cds\n";
@@ -184,31 +188,32 @@ my $cdsIn = Bio::SeqIO->new('-file' => $cds,
 while(my $cdsSeq = $cdsIn->next_seq){
   $cdsH{$cdsSeq->display_id} = $cdsSeq;
 }
+
 print "read proteins from $protein\n";
 my $proteinIn = Bio::SeqIO->new('-file' => $protein,
  			    '-format' => 'fasta');
 while(my $proteinSeq = $proteinIn->next_seq){
     my $id = $proteinSeq->display_id;
-    my $idNo = deparseNumber($id);
-    if(defined($proteinH{$idNo})){
+    if(defined($proteinH{$id})){
 	die;
     }else{
-	$proteinH{$idNo} = $proteinSeq;
+	$proteinH{$id} = $proteinSeq;
     }
 }
+
 print "read genes from $gene\n";
 my $geneIn = Bio::SeqIO->new('-file' => $gene,
  			    '-format' => 'fasta');
 while(my $geneSeq = $geneIn->next_seq){
   $geneH{$geneSeq->display_id} = $geneSeq;
 }
-
 my $gff3In = Bio::Tools::GFF->new('-file' => $gff3,
 				  '-gff_version' => 3);
 
 my $curGene;
 my $scaffold;
 my $prevScaffold;
+my %geneIdNameH;
 print "parse gff3 features\n";
 #read gff3 file and build genbank entries
 while(my $feature = $gff3In->next_feature()){ # one line at a time
@@ -238,18 +243,17 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 	$entriesH{$scaffold}->add_SeqFeature($sourceFeat);
     }
     my @id = $feature->get_tag_values('ID');
-    $id[0] =~ /$speciesAbr.+?(\d+):?/;
-    my $number = $1;
     if ($feature->primary_tag() eq 'gene'){
+	$geneIdNameH{$id[0]}=($feature->get_tag_values('Name'))[0];
 	if(defined($curGene)){
 	    if(defined($CDSH{$curGene})){
 		$entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene});
-		$curGene = $number; #set the current gene
+		$curGene = $id[0]; #set the current gene
 	    }else{
-		$curGene = $number; #for a gene without CDS
+		$curGene = $id[0]; #for a gene without CDS
 	    }
 	}else{
-	    $curGene = $number;
+	    $curGene = $id[0];
 	}
 	#build features
 	#find all entries that are in the same scaffold
@@ -261,44 +265,95 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
     }elsif($feature->primary_tag() eq 'CDS'){
 	my $parent = ($feature->get_tag_values('Parent'))[0];
-	$parent = deparseNumber($parent);
-	my $geneId = ($feature->get_tag_values('Parent'))[0];
-	$geneId =~s/(.*)T(\d+)/$1G$2/;
-	if(defined($CDSH{$parent})){
-	    my $location = $CDSH{$parent}->location(); #if already seen find the location of CDS
+#	$parent = deparseNumber($parent);
+	my $geneId;# = ($feature->get_tag_values('Parent'))[0];
+#	$geneId =~s/(.*)T(\d+)/$1G$2/;
+	if(defined($rna2geneH{$parent})){
+	    $geneId = $rna2geneH{$parent};
+	}else{
+	    die;
+	}
+	if(defined($CDSH{$geneId})){
+	    my $location = $CDSH{$geneId}->location(); #if already seen find the location of CDS
 	    # and add the new one to the list
 	    $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
 								     -end    => $feature->end(),
 								     -strand => $feature->strand()));
-	    $CDSH{$parent}->set_attributes(-location => $location); #update location
+	    $CDSH{$geneId}->set_attributes(-location => $location); #update location
 	}else{
 	    my $location = Bio::Location::Split->new();
 	    $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
 								     -end    => $feature->end(),
-								   -strand => $feature->strand()));
-	    $CDSH{$parent} = new Bio::SeqFeature::Generic(-location => $location,
+								     -strand => $feature->strand()));
+	    my $proteinId = &getProtName($geneId);
+	    $CDSH{$geneId} = new Bio::SeqFeature::Generic(-location => $location,
 							  -strand => $feature->strand(),
 							  -primary_tag => $feature->primary_tag(),
 							  -tag => { gene => $geneId,
 								    codon_start => $feature->frame(),
-								    translation => $proteinH{$number}->seq()}
+								    translation => $proteinH{$proteinId}->seq()
+							  }
 		);
 	}
+    }elsif(($feature->primary_tag() eq 'mRNA')
+	   or ($feature->primary_tag() eq 'ncRNA')){ #link exons to genes through mRNA
+	my $id = ($feature->get_tag_values('ID'))[0];
+	my $parent = ($feature->get_tag_values('Parent'))[0];
+	$rna2geneH{$id} = $parent;
+	$geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start        => $feature->start(),
+							     -end          => $feature->end(),
+							     -strand       => $feature->strand(),
+							     -primary_tag  => $feature->primary_tag(),
+							     -tag => {gene => $parent,
+							     }
+	    );
+	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+    }elsif($feature->primary_tag() eq 'exon'){
+	my $parent = ($feature->get_tag_values('Parent'))[0];
+	if(defined($rna2geneH{$parent})){
+	    $parent = $rna2geneH{$parent};
+	}else{
+	    die "$parent";
+	}
+	$geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start        => $feature->start(),
+							     -end          => $feature->end(),
+							     -strand       => $feature->strand(),
+							     -primary_tag  => $feature->primary_tag(),
+							     -tag => {gene => $parent,
+							     }
+	    );
+	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
     }else{
-     	my $geneId = ($feature->get_tag_values('Parent'))[0];
-     	$geneId =~s/(.*)T(\d+)/$1G$2/;
-     	$geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
-     							     -end         => $feature->end(),
-     							     -strand      => $feature->strand(),
-     							     -primary_tag => $feature->primary_tag(),
-     							     -tag => {gene     => $geneId,
-							     });
-     	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+#get all tags, if it has parent and the parent is a gene
+	my $found = 0;
+	my @tags = $feature->get_all_tags();
+	foreach my $tag(@tags){
+	    if ($tag eq 'Parent'){
+	    $found = 1;
+	    }
+	}
+	if($found){
+	    my $parent = ($feature->get_tag_values('Parent'))[0];
+	    if(defined($rna2geneH{$parent})){
+		$parent = $rna2geneH{$parent};
+	    }else{
+		die "$parent";
+	    }
+	    $geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start        => $feature->start(),
+								 -end          => $feature->end(),
+								 -strand       => $feature->strand(),
+								 -primary_tag  => $feature->primary_tag(),
+								 -tag => {gene => $parent,
+								 }
+		);
+	    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+	}else{
+	    $otherH{$feature->primary_tag()} = 1;	    
+	}
     }
-    
 }
 $entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene}); #add the last CDS
-
+print '  did not include in features: ',join(',', keys(%otherH)),"\n";
 foreach my $entry (sort keys %entriesH){
     $data_out->write_seq($entriesH{$entry});
 }
@@ -314,4 +369,26 @@ sub deparseNumber{
     my $string = shift @_;
     $string =~ /$speciesAbr.*\D(\d+)/ or die; #extract the number regardless of whether it is a gene, exon etc
     return $1;
+}
+
+sub getProtName{
+    # find name of protein from name of gene.
+    # if paramecium
+    #   protein name P<->G
+    # if tetrahymena 
+    #   protein name is gene name
+    my $geneId = shift @_;
+    my $proteinId;
+    if($species3abr eq 'Tth'){
+	$proteinId = $geneIdNameH{$geneId};
+    }elsif(($species3abr eq 'Pca') or
+	   ($species3abr eq 'Pbi') or
+	   ($species3abr eq 'Pte') or
+	   ($species3abr eq 'Pse')){
+	$proteinId = $geneId;
+	$proteinId =~s/(.*)G(\d+)/$1P$2/ or die "$proteinId";
+    }else{
+	die;
+    }
+    return $proteinId;
 }

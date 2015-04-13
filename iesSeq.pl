@@ -111,7 +111,6 @@ foreach my $file (@files){
 		    # do nothing
 		}elsif($strand eq '-'){
 		    #revcomp seq and mac_seq
-		    print $id,' ',$mac_seq,' ',$seq,"\n";
 		    $mac_seq =~ tr/ATGCatgc/TACGtacg/;
 		    $seq =~  tr/ATGCatgc/TACGtacg/;
 		    $mac_seq = reverse($mac_seq);
