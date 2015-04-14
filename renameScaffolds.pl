@@ -26,7 +26,7 @@ print "renaming\n";
 my $NumberOfDigits = length($NumberOfScaffolds + 1);
 while(my $scaffoldSeq = $dataIn->next_seq){
     my $scname = $scaffoldSeq->accession_number();
-    $scname =~ /scaffold.*?_(\d+)/;
+    $scname =~ /sca?ff?o?l?d?.*?_(\d+)/;
     my $number = $1;
     my $printString = '%0'.$NumberOfDigits.'d';
     my $Padded = $species3abr.'_'.sprintf($printString,$number);
