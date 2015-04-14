@@ -33,9 +33,14 @@ if ($species3abr eq 'Pbi'){
     $dataPath = $dataPath.'ptetraurelia/'; 
 }elsif($species3abr eq 'Pse'){
     $dataPath = $dataPath.'psexaurelia/';
+}elsif($species3abr eq 'Pca'){
+    $dataPath = $dataPath.'pcaudatum_43c3d_annotation_v2.0/';
+}elsif($species3abr eq 'Tth'){
+    $dataPath = $dataPath.'tthermophila/';
 }else{
     die;
 }
+
 my $overlapF = $species3abr.'.overlap';
 my $genbankF = $species3abr.'.IES.gnbk';
 my $gnbkOut = $species3abr.'.seq';
@@ -44,21 +49,33 @@ my $iesF = $species3abr.'.ies';
 
 my %iesH;
 my %geneH;
-print "parse ies overlap\n";
-open OV, $dataPath.$overlapF or die $!;
-while(my $line = <OV>){
-    (my $gene, my $ies) = (split " ", $line)[3,7];
-    $iesH{$ies} = $gene;
+
+print "parse ies overlap\n"; #only for species with IES
+if($species3abr eq 'Pbi' or
+   $species3abr eq 'Pte' or
+   $species3abr eq 'Pse'
+    ){
+    open OV, $dataPath.$overlapF or die $!;
+    while(my $line = <OV>){
+	(my $gene, my $ies) = (split " ", $line)[3,7];
+	$iesH{$ies} = $gene;
+    }
+    close OV;
 }
-close OV;
 
 #parse silix.output
 print "parse silix output\n";
 open SO, $silixOutF or die $!;
 while(my $line = <SO>){
     (my $group, my $gene) =  split " ", $line;
-#    from protein to gene
-    $gene =~ s/(.*\.)P(\d+)/$1G$2/;
+#    from protein to gene Paramecium had different naming convension than Tetrahymena
+    if($species3abr eq 'Pbi' or
+       $species3abr eq 'Pte' or
+       $species3abr eq 'Pse' or
+       $species3abr eq 'Pca'
+	){
+	$gene =~ s/(.*\.)P(\d+)/$1G$2/;
+    }
     $geneH{$gene} = $group;
 }
 close SO;

@@ -119,7 +119,7 @@ if ($species3abr eq 'Pbi'){
     $species = 'Paramecium caudatum';
     $taxonId = 5885;
     $speciesAbr = 'PCAU.43c3d.1.';
-    $dataPath = $dataPath.'pcaudatum/';
+    $dataPath = $dataPath.'pcaudatum_43c3d_annotation_v2.0/';
     $cds = $dataPath.'pcaudatum_43c3d_annotation_v2.0.cds.fa';
     $protein = $dataPath.'pcaudatum_43c3d_annotation_v2.0.protein.fa';
     $gene = $dataPath.'pcaudatum_43c3d_annotation_v2.0.gene.fa';
