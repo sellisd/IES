@@ -10,7 +10,7 @@ close DH;
 my $step = 1;
 my @files2sub;
 foreach my $file (@files){
-    next unless -s $path.$file;
+    next unless -s $path.$file; #only error files with not nzero size
     next unless $file =~ /error.(\d+)/; #keep only error files
     my $number = $1;
     open PBS, 'msa.'.$number.'.pbs' or die $!;

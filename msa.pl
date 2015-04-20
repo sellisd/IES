@@ -9,7 +9,7 @@ my $t_coffeeBin = '/panhome/sellis/tools/tcoffee/Version_11.00.8cbe486/bin/t_cof
 my $dataPathNode = '/data/sellis/';
 my $dataPath = '/pandata/sellis/';
 #my $dataPath = $home.'data/IES_data/';
-my $fastaPath = $dataPath.'fasta/';
+my $fastaPath = $dataPath.'msas/fasta/';
 my $block = 10;
 
 opendir(DH, $fastaPath) or die $!;

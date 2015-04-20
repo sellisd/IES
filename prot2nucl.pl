@@ -10,6 +10,7 @@ my @dnaF = qw#
 /home/dsellis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gene.fa
 /home/dsellis/data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.gene.fa
 /home/dsellis/data/IES_data/pcaudatum_43c3d_annotation_v2.0/pcaudatum_43c3d_annotation_v2.0.gene.fa
+/home/dsellis/data/IES_data/tthermophila/T_thermophila_June2014_gene.fasta
 #;
 
 my %seqIndexH;
@@ -34,7 +35,7 @@ foreach my $alnF (@files){
 #my $alnF = '/home/dsellis/data/IES_data/msas/alignments/aln/cluster.66.aln';
     my $outputF = $alnF;
     print "  $outputF\n";
-    $outputF =~ s/\.aln/.nucl.fa/;
+    $outputF =~ s/\.aln/.nucl.fa/ or die $!;
     my $alnStream = Bio::AlignIO->new('-file'   => $alnF,
 				      '-format' => 'clustalw');
     my $outputStream = Bio::SeqIO->new('-file'   => '>'.$outputF,
@@ -46,20 +47,22 @@ foreach my $alnF (@files){
 	    my $newseq = ''; # build here the aligned nucleotide sequence
 	    my $curPos = 0; # pointer to the current location in nucleotide coordinates
 	    if(defined($seqIndexH{$id})){	    
-	    my $nuclSeq = $seqIndexH{$id};
-	    $nuclSeq =~ s/[a-z]+//g; #drop any lowercase introns
-	    # for each aminoacid (unless it is a gap) print three nucleotides
-	    for (my $c = 0; $c < length($seq); $c++){
-		if (substr($seq,$c,1) eq '-'){
-		    $newseq .= '---';
-		}else{
-		    $newseq .= substr($nuclSeq,$curPos,3);
-		    $curPos+=3;
+		my $nuclSeq = $seqIndexH{$id};
+		$nuclSeq =~ s/[a-z]+//g; #drop any lowercase introns
+		# for each aminoacid (unless it is a gap) print three nucleotides
+		for (my $c = 0; $c < length($seq); $c++){
+		    if (substr($seq,$c,1) eq '-'){
+			$newseq .= '---';
+		    }else{
+			$newseq .= substr($nuclSeq,$curPos,3);
+			$curPos+=3;
+		    }
 		}
-	    }
-	    my $newSeqO = Bio::Seq->new('-display_id' => $id,
-					'-seq'        => $newseq);
-	    $outputStream->write_seq($newSeqO);
+		my $newSeqO = Bio::Seq->new('-display_id' => $id,
+					    '-seq'        => $newseq);
+		$outputStream->write_seq($newSeqO);
+	    }else{
+		die;
 	    }
 	}
     }
