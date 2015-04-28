@@ -19,7 +19,12 @@ foreach my $file (@files){
     my @tail;
     while(my $line = <PBS>){
 	if (substr($line,0,1) eq '#'){
-	    push @head,$line;
+#if q1hour make q1week
+	    chomp $line;
+	    if ($line eq '#PBS -q q1hour'){
+		$line = '#PBS -q q1week';
+	    }
+	    push @head,$line."\n";
 	}elsif(substr($line,0,1) eq '/'){
 	    push @commands,$line;
 	}else{
