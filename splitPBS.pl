@@ -13,7 +13,7 @@ foreach my $file (@files){
     next unless -s $path.$file; #only error files with not nzero size
     next unless $file =~ /error.(\d+)/; #keep only error files
     my $number = $1;
-    open PBS, 'msa.'.$number.'.pbs' or die $!;
+    open PBS, $path.'msa.'.$number.'.pbs' or die $!;
     my @head;
     my @commands;
     my @tail;
@@ -34,7 +34,7 @@ foreach my $file (@files){
     close PBS;
 #split file in pieces
     my $counter = 0;
-    for(my $i = 0; $i<$#commands; $i+=$step){
+    for(my $i = 0; $i<=$#commands; $i+=$step){
 	my $fileName = "msa.".$number.'.'.$counter.".pbs";
 	open NBPS, '>'.$fileName or die $!;
 	foreach my $header (@head){
