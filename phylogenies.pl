@@ -16,7 +16,7 @@ foreach my $file (@files){
     push @sizes, $filesize;
 }
 my @indices = sort {$sizes[$a] <=> $sizes[$b]} 0..$#sizes;
-my $block = 100;
+my $block = 50;
 my $pbsCounter = 0;
 
 my @filesSorted; # files sorted by increasing file size

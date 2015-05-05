@@ -6,6 +6,7 @@ use strict;
 # find which ones have non zero error file
 # read their corresponding pbs file
 # find the listfile and split it in pieces, for each piece make a new pbs file
+# delete the partial output of the previous run
 
 my $path = $ARGV[0];
 opendir(DH, $path) or die $!;
@@ -17,6 +18,8 @@ foreach my $file (@files){
     next unless -s $path.$file; #only error files with not nzero size
     next unless $file =~ /error.(\d+)/; #keep only error files
     my $number = $1;
+    my $outputFile = 'output.'.$number;
+    unlink $outputFile;
     open PBS, $path.'phyl.'.$number.'.pbs' or die $!;
     my @head;
     my @commands;
@@ -34,8 +37,8 @@ foreach my $file (@files){
 	    my $number = $1;
 	    open LF, '/pandata/sellis/msas/listfiles/listfiles.'.$number or die $!;
 	    my $lineCounter = 0;
-	    my $newlistfile = '/pandata/sellis/msas/listfiles/listfiles.'.$number.'.'.$lineCounter;
 	    while (my $l = <LF>){
+		my $newlistfile = '/pandata/sellis/msas/listfiles/listfiles.'.$number.'.'.$lineCounter;
 		open LFN, '>'.$newlistfile or die $!;
 		print LFN $l;
 		close LFN;
@@ -56,7 +59,7 @@ foreach my $file (@files){
 		close NBPS;
 		print $fileName,"\n";
 		$lineCounter++;
-#		system "qsub $sub";
+		system "qsub $fileName";
 	    }
 	    close LF;
 	}
