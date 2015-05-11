@@ -48,7 +48,7 @@ foreach my $alnF (sort @files){  # find IES coordinates in alignments
     my @characterN;
     while(my $alnO = $alnIO->next_aln){
 	my $seqNo = $alnO->num_sequences;
-	print $alnF,' ',$seqNo,"\t";
+	print $alnF,"\t",$seqNo,"\t";
 	print $alnO->percentage_identity(),"\n";
 	next if ($seqNo < 3);
 	next if($alnO->percentage_identity() < 80);
@@ -100,16 +100,25 @@ foreach my $alnF (sort @files){  # find IES coordinates in alignments
 	print OUTF "\n";
 	print OUTL "\n";
 	foreach my $seq ($alnO->each_seq()){
-	    print OUTF $seq->id(),"\t";
-	    print OUTL $seq->id(),"\t";
+	    my $geneName = $seq->id();
+	    print OUTF $geneName,"\t";
+	    print OUTL $geneName,"\t";
 	    my $id = $seq->id();
 	    foreach my $state (sort {$sortH{$a} <=> $sortH{$b}} keys %sortH){
 		if (defined($charM{$state}{$id})){
 		    print OUTF ${$charM{$state}{$id}}[1],"\t"; # name
 		    print OUTL ${$charM{$state}{$id}}[0],"\t"; # length
 		}else{
-		    print OUTF "0\t";
-		    print OUTL "0\t";
+		    
+		    if(substr($geneName,0,4) eq 'PBIA' or
+		       substr($geneName,0,4) eq 'PTET' or
+		       substr($geneName,0,4) eq 'PSEX'){
+			print OUTF "0\t";
+			print OUTL "0\t";
+		    }else{ # or unknown
+			print OUTF "NA\t";
+			print OUTL "NA\t";		
+		    }
 		}
 	    }
 	    print OUTF "\n";

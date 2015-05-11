@@ -1,11 +1,13 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use List::Util qw(all);
 
 my $path = '/home/dsellis/data/IES_data/msas/alignments/aln/';
 my $pathOut = '/home/dsellis/data/IES_data/msas/alignments/charMat/';
 opendir(DH, $path) or die $!;
 my @charMF = grep {/\.F\.dat$/} readdir(DH);
+mkdir $pathOut unless -d $pathOut;
 
 # read 2merge files and character matrices
 # read gblocks and filter
@@ -63,7 +65,12 @@ foreach my $file (@charMF){
 		    if($#mergedString == -1){ #if all entries were 0
 			push @mergedString, 0;
 		    }
-		    my $mergedStringS = join (',',@mergedString);
+		    my $mergedStringS;
+ 		    if(all {$_ eq 'NA'} @mergedString){
+			$mergedStringS = 'NA';
+		    }else{
+			$mergedStringS = join (',',@mergedString);
+		    }
                     #new matrix gets merged column entries in place of the first of the merged ones
 		    $NM[$i][$merged[0]-$colCor] = $mergedStringS;
 		}

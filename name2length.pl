@@ -73,6 +73,8 @@ foreach my $charMF (@charMatF){
 		    print OUT $iesH{$entry}{'length'},"\t";
 		}elsif($entry eq '0'){
 		    print OUT '0',"\t";
+		}elsif($entry eq 'NA'){
+		    print OUT 'NA',"\t";
 		}else{
 		    die $entry,"\n";
 		}

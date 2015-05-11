@@ -13,7 +13,7 @@ my $fastaPath = 'FastaFiles/';
 my $linkPath = 'LinkFiles/';
 my $treePath = 'TreeFiles/';
 
-my $speciesTree = '(Paramecium_caudatum:0.3,(Paramecium_sexaurelia:0.15,(Paramecium_tetraurelia:0.1,Paramecium_biaurelia:0.1)):0.2):0.01;';
+my $speciesTree = '(Tetrahymena_thermophila:5,(Paramecium_caudatum:0.3,(Paramecium_sexaurelia:0.15,(Paramecium_tetraurelia:0.1,Paramecium_biaurelia:0.1)):0.2)):0.01;';
 
 #make required folders
 make_path($outputPath.$fastaPath) unless -d $outputPath.$fastaPath;
@@ -97,6 +97,8 @@ sub gene2species{
 	$speciesName = 'Paramecium_tetraurelia';
     }elsif($abr eq 'PBIA'){
 	$speciesName = 'Paramecium_biaurelia';
+    }elsif($abr eq 'TTHE'){
+	$speciesName = 'Tetrahymena_thermophila';
     }else{
 	die "unknown name $abr";
     }
