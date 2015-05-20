@@ -22,6 +22,9 @@ foreach my $file (@files){
 	    foreach my $block (@blocks){
 		next if $block =~ /^\s+$/;
 		(my $start, my $end) =  split " ", $block;
+                #transform start and end to nucleotide coordinates
+		$start = $start*3 -2;
+		$end = $end*3;
 		if(defined($start) and defined($end)){
 		    print OUT $cluster,"\t",$start,"\t",$end,"\n";
 		}else{

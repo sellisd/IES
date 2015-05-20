@@ -17,8 +17,9 @@ Reads
   - master genbank file and produces an output file with the following columns
   - geneId
   - IESid
-  - 1-based index of IES location in aa coordinates (including start codon as M)
-  - frame of insertion (counting as start the point closest to the origin of the	protein, which depends on the strand of	the protein) 0 1 2
+  - IES coordinates (begin)
+  - IES coordinates (end)
+  - IES length
 
 Usage:
  overlap.pl [OPTIONS]
