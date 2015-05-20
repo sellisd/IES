@@ -7,9 +7,9 @@ use strict;
 my $path = $ARGV[0];
 
 opendir(DH, $path) or die $!;
-my @files = grep { /nucl.fa$/ } readdir(DH);
+my @files = grep { /cluster\..*\.fa$/ } readdir(DH);
 foreach my $file (@files){
-    my $cmdl = 'Gblocks '.$path.$file.' -t="codons"';
+    my $cmdl = 'Gblocks '.$path.$file.' -t="protein"';
     print $cmdl,"\n";
     system $cmdl;
 }
