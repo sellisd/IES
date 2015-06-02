@@ -10,8 +10,8 @@ my $to;
 my $msa;
 my $usage = <<HERE;
 
-Change format of files using Bio::SeqIO
-usage a2b.pl [OPTIONS] INPUTFILE OUTPUTFILE
+Change format of files using Bio::SeqIO or Bio::AlignIO from input file format to output.
+usage a2b.pl [OPTIONS] INPUTFILE(S)
 where OPTIONS can be:
   -from:   input file format
   -to:     output file format
@@ -24,27 +24,27 @@ die $usage unless (GetOptions('help|?' => \$help,
 			      'to=s'   => \$to,
 			      'msa'    => \$msa,
 		   ));
-die $usage if $#ARGV < 1;
-my $inputFile = $ARGV[0];
-my $outputFile = $ARGV[1];
-
-if(!$msa){
-    my $in  = Bio::SeqIO->new(-file => $inputFile,
-			      -format => $from);
-    my $out = Bio::SeqIO->new(-file => '>'.$outputFile,
-			      -format => $to);
-    
-    while ( my $seq = $in->next_seq() ) {
-	$out->write_seq($seq);
-    }
-}else{
-    my $in  = Bio::AlignIO->new(-file => $inputFile,
-				-format => $from);
-    my $out = Bio::AlignIO->new(-file => '>'.$outputFile,
-				-format => $to);
-    
-    while ( my $aln = $in->next_aln() ) {
-	$out->write_aln($aln);
+die $usage if $#ARGV < 0;
+foreach my $inputFile (@ARGV){
+    my $outputFile = $inputFile.'.'.$to; 
+    die "$outputFile" if -f $outputFile; #do not overwrite any files
+    if(!$msa){
+	my $in  = Bio::SeqIO->new(-file => $inputFile,
+				  -format => $from);
+	my $out = Bio::SeqIO->new(-file => '>'.$outputFile,
+				  -format => $to);
+	
+	while ( my $seq = $in->next_seq() ) {
+	    $out->write_seq($seq);
+	}
+    }else{
+	my $in  = Bio::AlignIO->new(-file => $inputFile,
+				    -format => $from);
+	my $out = Bio::AlignIO->new(-file => '>'.$outputFile,
+				    -format => $to);
+	
+	while ( my $aln = $in->next_aln() ) {
+	    $out->write_aln($aln);
+	}
     }
 }
-

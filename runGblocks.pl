@@ -7,7 +7,7 @@ use strict;
 my $path = $ARGV[0];
 
 opendir(DH, $path) or die $!;
-my @files = grep { /cluster\..*\.fa$/ } readdir(DH);
+my @files = grep { /cluster\..*\.fasta$/ } readdir(DH);
 foreach my $file (@files){
     my $cmdl = 'Gblocks '.$path.$file.' -t="protein"';
     print $cmdl,"\n";

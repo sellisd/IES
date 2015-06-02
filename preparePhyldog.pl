@@ -13,7 +13,9 @@ my $fastaPath = 'FastaFiles/';
 my $linkPath = 'LinkFiles/';
 my $treePath = 'TreeFiles/';
 
-my $speciesTree = '(Tetrahymena_thermophila:5,(Paramecium_caudatum:0.3,(Paramecium_sexaurelia:0.15,(Paramecium_tetraurelia:0.1,Paramecium_biaurelia:0.1)):0.2)):0.01;';
+# do not use branch lengths
+#my $speciesTree = '(Tetrahymena_thermophila:5,(Paramecium_caudatum:0.3,(Paramecium_sexaurelia:0.15,(Paramecium_tetraurelia:0.1,Paramecium_biaurelia:0.1)):0.2)):0.01;';
+my $speciesTree = '(Tetrahymena_thermophila,(Paramecium_caudatum,(Paramecium_sexaurelia,(Paramecium_tetraurelia,Paramecium_biaurelia))));';
 
 #make required folders
 make_path($outputPath.$fastaPath) unless -d $outputPath.$fastaPath;
