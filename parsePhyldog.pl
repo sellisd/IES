@@ -5,7 +5,6 @@ use Bio::TreeIO;
 # parse PHYLDOG output remove leafs for which we have no IES information (P. caudatum and T. thermophila)
 # Read character matrices, remove the corresponding lines and insert a number of all zero columns equal to the length of the aligned block
 
-
 my $home = "/home/dsellis/";
 my $treeDir = $home.'data/IES_data/msas/phyldog/result';
 opendir DH, $treeDir or die $!;
@@ -19,20 +18,36 @@ foreach my $fileName (@files){
     my $output = $home.'data/IES_data/msas/asr/trees/'.$cluster.'.tre';
     my $input = new Bio::TreeIO(-file => $file, -format => "nhx"); 
     my $tree = $input->next_tree;
-    my @toRemove;  
+    # find leaves to keep
+    my %leavesToKeep;
+#    my @LeavesToRemove;
+    my @toKeepO;
     for my $node ($tree->get_leaf_nodes){
 	my $id = $node->id;
 	my $speciesAbr = substr($id,0,4);
 	if($speciesAbr eq 'PCAU'
 	   or $speciesAbr eq 'TTHE'){
-	    push @toRemove, $id;
+#	    push @toRemove, $id;
+	}else{
+	    $leavesToKeep{$id} = 1;
+	    push @toKeepO, $node;
 	}
     }
-    $tree->splice(-remove_id=>\@toRemove);
-    for my $node ($tree->get_leaf_nodes){
-	#	print $node->id,"\n";
+    my $newRoot = $tree->get_lca(\@toKeepO);
+    $tree->reroot($newRoot);
+    $tree->contract_linear_paths();
+    print $tree->as_text('newick'),"\n";
 
+    my @leavesToRemove;
+    for my $node ($tree->get_leaf_nodes){
+	my $id = $node->id;
+	my $speciesAbr = substr($id,0,4);
+	if($speciesAbr eq 'PCAU'
+	   or $speciesAbr eq 'TTHE'){
+	    push @leavesToRemove, $id;
+	}
     }
+    $tree->splice(-remove_id => \@leavesToRemove);
     my $out = new Bio::TreeIO(-file => ">$output",
 			      -format => 'nhx');
     $out->write_tree($tree);
