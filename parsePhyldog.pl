@@ -62,9 +62,10 @@ foreach my $fileName (@files){
     }
     close GB;
 
-    # read character matrix and add columns of zero
+    # read character matrix and add columns of zero and print to phylip format
     my $charMat = $home.'data/IES_data/msas/alignments/charMat/cluster.'.$cluster.'.L.dat';
-    my $extCharMatF = $home.'data/IES_data/msas/asr/matrices/cluster.'.$cluster.'.tab';
+    my $extCharMatF = $home.'data/IES_data/msas/asr/matrices/cluster.'.$cluster.'.phy';
+    my @matrix;
     open OUTM, '>'.$extCharMatF or die $!;
     open CM, $charMat or die $!;
     my $lineCounter = 0;
@@ -76,31 +77,26 @@ foreach my $fileName (@files){
 	    substr($ar[0],0,4) eq 'TTHE'){
 	    next; #skip rows
 	}
-
 	#print presence absence data
 	if ($lineCounter == 0){
-	    print OUTM join("\t", @ar);
-	    print OUTM "\t";
-	    my @header = (1..$extraColumns);
-	    print OUTM join("\t",@header);
+	    # do not print headers
 	}else{
-	    my $colCounter = 0;
-	    foreach my $entry(@ar){
-		if ($colCounter == 0){
-		    print OUTM $entry;
-		}else{
-		    if($entry ne '0'){
-			print OUTM 1;
+	    for(my $colCounter = 0; $colCounter <= $#ar; $colCounter++){
+		if($colCounter > 0){
+		    if ($ar[$colCounter] ne '0'){
+			$ar[$colCounter] = '1';
 		    }
 		}
-		$colCounter++;
-		print OUTM "\t";
 	    }
-	    print OUTM "0\t"x$extraColumns;
+	    push @ar, "0"x$extraColumns;
+	    my $geneName = shift @ar;
+	    my $string = join('',@ar);
+	    push @matrix, $geneName."\t".$string;
 	}
-	print OUTM "\n";
 	$lineCounter++;
     }
+    print OUTM  $lineCounter-1,"\t",$alignmentLength,"\n";
+    print OUTM join("\n",@matrix),"\n";
     close CM;
     close OUTM;
 }
