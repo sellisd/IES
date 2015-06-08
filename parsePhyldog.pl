@@ -13,12 +13,19 @@ close DH;
 foreach my $fileName (@files){
     $fileName =~ /(\d+)\.ReconciledTree$/;
     my $cluster = $1;
+#    $cluster = 2652;
     print $cluster,"\n";
     my $file = $home.'data/IES_data/msas/phyldog/result/'.$cluster.'.ReconciledTree';
     my $output = $home.'data/IES_data/msas/asr/trees/'.$cluster.'.tre';
     my $input = new Bio::TreeIO(-file => $file, -format => "nhx"); 
     my $tree = $input->next_tree;
-    # find leaves to keep
+
+##########33
+#alt methodology
+#for each leaf to keep
+# get lineage of nodes in hash
+# loop through nodes and remove all that are not in the hash
+############
     my %leavesToKeep;
     my @toKeepO;
     for my $node ($tree->get_leaf_nodes){
@@ -27,28 +34,92 @@ foreach my $fileName (@files){
 	if($speciesAbr eq 'PCAU'
 	   or $speciesAbr eq 'TTHE'){
 	}else{
-	    $leavesToKeep{$id} = 1;
+	    $leavesToKeep{$node->id} = 1; #add things once
 	    push @toKeepO, $node;
 	}
     }
     # move up the root to the MRCA of leaves with IES data
     my $newRoot = $tree->get_lca(\@toKeepO);
     $tree->set_root_node($newRoot);
-    #    print $tree->as_text('newick'),"\n";die;
-    # if there are remaining leaves without data remove them
-    my @leavesToRemove;
-    for my $node ($tree->get_leaf_nodes){
-	my $id = $node->id;
-	my $speciesAbr = substr($id,0,4);
-	if($speciesAbr eq 'PCAU'
-	   or $speciesAbr eq 'TTHE'){
-	    push @leavesToRemove, $id;
+    my %nodesToKeep;
+    my @nodesToRemove;
+    foreach my $leaf (@toKeepO){
+	my @nodes = $tree->get_lineage_nodes($leaf);
+	foreach my $node (@nodes){
+	    #print $node,"\n";
+	    $nodesToKeep{$node} = 1;
 	}
     }
-    $tree->splice(-remove_id => \@leavesToRemove);
-    my $out = new Bio::TreeIO(-file => ">$output",
-			      -format => 'nhx');
-    $out->write_tree($tree);
+    for my $node ($tree->get_nodes()){
+	if(defined($nodesToKeep{$node})){
+#	    print "int keep $node\n";
+            # internal to keep
+	    next;
+	}
+	if(defined($node->id)){
+	    if(defined($leavesToKeep{$node->id})){
+#		print "leaf keep ", $node->id,"\n";
+		#leaf to keep
+		next;
+	    }
+	}
+#	push @nodesToRemove, $node;
+	$node->id("aei sto diaolo");
+#	$tree->remove_Node($node);
+#	print $node->id,"\n";
+    }
+#     for my $node ($tree->get_nodes()){
+# 	if(defined($node->id)){
+# 	    if ($node->id eq 'aei sto diaolo'){
+# 		$tree->remove_Node($node);
+# 		$tree->contract_linear_paths(); # branch lengths are NOT adjusted
+# 	    }
+# 	}
+#     }
+     eval{
+	$tree->splice(-remove_id => "aei sto diaolo");
+	$tree->contract_linear_paths(); # branch lengths are NOT adjusted
+     };
+     if ($@){
+ 	print "plovrima\n";
+	next;
+     }
+
+################
+
+#     # find leaves to keep
+#     my %leavesToKeep;
+#     my @toKeepO;
+#     for my $node ($tree->get_leaf_nodes){
+# 	my $id = $node->id;
+# 	my $speciesAbr = substr($id,0,4);
+# 	if($speciesAbr eq 'PCAU'
+# 	   or $speciesAbr eq 'TTHE'){
+# 	}else{
+# 	    $leavesToKeep{$id} = 1;
+# 	    push @toKeepO, $node;
+# 	}
+#     }
+#     # move up the root to the MRCA of leaves with IES data
+#     my $newRoot = $tree->get_lca(\@toKeepO);
+#     $tree->set_root_node($newRoot);
+# #    $newRoot->id("dokimi");
+#     print $tree->as_text('newick'),"\n";
+#     # if there are remaining leaves without data remove them
+#     my @leavesToRemove;
+#     for my $node ($tree->get_leaf_nodes){
+# 	my $id = $node->id;
+# 	my $speciesAbr = substr($id,0,4);
+# 	if($speciesAbr eq 'PCAU'
+# 	   or $speciesAbr eq 'TTHE'){
+# 	    push @leavesToRemove, $id;
+# 	}
+#     }
+#     $tree->splice(-remove_id => \@leavesToRemove);
+     my $out = new Bio::TreeIO(-file => ">$output",
+ 			      -format => 'newick');
+#    print $tree->as_text('newick'),"\n";die;
+     $out->write_tree($tree);
 
     # read gblocks file and count length of alignment
 

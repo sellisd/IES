@@ -2,7 +2,7 @@
 use warnings;
 use strict;
 
-# run Gblocks on the nucleotide alignments
+# run Gblocks on the protein alignments
 
 my $path = $ARGV[0];
 

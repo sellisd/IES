@@ -77,8 +77,6 @@ foreach my $alnF (sort @files){  # find IES coordinates in alignments
 	    print 0,"\n";
 	    next;
 	}
-
-       
 	# second pass to print
 	my $charMatrixFrameF = $alnF;
 	my $charMatrixLengthF = $alnF;
@@ -115,7 +113,6 @@ foreach my $alnF (sort @files){  # find IES coordinates in alignments
 		    print OUTF ${$charM{$state}{$id}}[1],"\t"; # name
 		    print OUTL ${$charM{$state}{$id}}[0],"\t"; # length
 		}else{
-		    
 		    if(substr($geneName,0,4) eq 'PBIA' or
 		       substr($geneName,0,4) eq 'PTET' or
 		       substr($geneName,0,4) eq 'PSEX'){

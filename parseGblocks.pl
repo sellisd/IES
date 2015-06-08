@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-
+# parse Gblocks output and translate results to nucleotide coordinates
 my $path = $ARGV[0];
 
 opendir(DH, $path) or die $!;
