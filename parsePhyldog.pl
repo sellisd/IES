@@ -87,35 +87,7 @@ foreach my $fileName (@files){
 
 ################
 
-#     # find leaves to keep
-#     my %leavesToKeep;
-#     my @toKeepO;
-#     for my $node ($tree->get_leaf_nodes){
-# 	my $id = $node->id;
-# 	my $speciesAbr = substr($id,0,4);
-# 	if($speciesAbr eq 'PCAU'
-# 	   or $speciesAbr eq 'TTHE'){
-# 	}else{
-# 	    $leavesToKeep{$id} = 1;
-# 	    push @toKeepO, $node;
-# 	}
-#     }
-#     # move up the root to the MRCA of leaves with IES data
-#     my $newRoot = $tree->get_lca(\@toKeepO);
-#     $tree->set_root_node($newRoot);
-# #    $newRoot->id("dokimi");
-#     print $tree->as_text('newick'),"\n";
-#     # if there are remaining leaves without data remove them
-#     my @leavesToRemove;
-#     for my $node ($tree->get_leaf_nodes){
-# 	my $id = $node->id;
-# 	my $speciesAbr = substr($id,0,4);
-# 	if($speciesAbr eq 'PCAU'
-# 	   or $speciesAbr eq 'TTHE'){
-# 	    push @leavesToRemove, $id;
-# 	}
-#     }
-#     $tree->splice(-remove_id => \@leavesToRemove);
+
      my $out = new Bio::TreeIO(-file => ">$output",
  			      -format => 'newick');
 #    print $tree->as_text('newick'),"\n";die;

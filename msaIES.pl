@@ -50,8 +50,6 @@ foreach my $alnF (sort @files){  # find IES coordinates in alignments
 	my $seqNo = $alnO->num_sequences;
 	print $alnF,"\t",$seqNo,"\t";
 	print $alnO->percentage_identity(),"\t";
-#	next if ($seqNo < 3);
-#	next if($alnO->percentage_identity() < 80);
 	#for each sequence in alignment
 	my %charM;
 	my %sortH; # for easy sorting by start
@@ -69,13 +67,12 @@ foreach my $alnF (sort @files){  # find IES coordinates in alignments
 	    }
 	}
 
-	# only print character matrix if at least 1 IES is present
+	# at least 1 IES present?
 	my $colNo = scalar(keys %charM);
 	if ($colNo>0){
 	    print 1,"\n";
 	}else{
 	    print 0,"\n";
-	    next;
 	}
 	# second pass to print
 	my $charMatrixFrameF = $alnF;

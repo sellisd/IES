@@ -5,6 +5,7 @@ use List::Util qw(all);
 
 my $path = '/home/dsellis/data/IES_data/msas/alignments/aln/';
 my $pathOut = '/home/dsellis/data/IES_data/msas/alignments/charMat/';
+
 opendir(DH, $path) or die $!;
 my @charMF = grep {/\.F\.dat$/} readdir(DH);
 mkdir $pathOut unless -d $pathOut;
@@ -35,17 +36,7 @@ foreach my $file (@charMF){
     my $mergeF = 'cluster.'.$cluster.'.2merge.bed';
     my @NMcolNames;
     if(-s $path.$mergeF){
- # #print Matrix
- 	# print "M:\n";
- 	# print join("\t",@colNames),"\n";
- 	# for(my $i = 0; $i <= $#M; $i++){ # new matrix has the same number of rows
- 	#     print $rowNames[$i],"\t";
- 	#     for(my $j = 0; $j <= $#{$M[0]}; $j++){
- 	# 	print $M[$i][$j],"\t";
- 	#     }
- 	#     print "\n";
- 	# }
-#read 2merge file and build NM table
+    #read 2merge file and build NM table
 	open IN, $path.$mergeF or die $!;
 	my $colCor = 0; #keep track of the NM and M column correspondence
 	while(my $line = <IN>){
@@ -81,18 +72,6 @@ foreach my $file (@charMF){
 		}
 	    }
 	}
-	 # for(my $ci = 0; $ci<=$#NM; $ci++){
-	 #     print $ci,"\t";
-	 #     for(my $cj = 0; $cj <= $#{$NM[0]}; $cj++){
-	 # 	my $Dentry = $NM[$ci][$cj];
-	 # 	if(defined($Dentry)){
-	 # 	    print $Dentry,"\t";
-	 # 	}else{
-	 # 	    print "NA","\t";
-	 # 	}
-	 #     }
-	 #     print "\n";
-	 # }
 	close IN;
 	open OUT, '>'.$pathOut.'cluster.'.$cluster.'.dat' or die $!;
 	print "Cluster $cluster\n";
