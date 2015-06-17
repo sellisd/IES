@@ -2,8 +2,7 @@
 use warnings;
 use strict;
 use File::Path qw(make_path);
-
-my $inputFasta = '/home/dsellis/data/IES_data/msas/alignments/aln/';
+use Bio::SeqIO;
 my $inputFiltered = '/home/dsellis/data/IES_data/msas/alignments/filtered/'; 
 #my $inputTreesF = '/home/dsellis/data/IES_data/msas/tree/trees.tre';
 
@@ -43,28 +42,49 @@ foreach my $file (@charMats){
     $file =~ /cluster\.(\d+)\.nucl\.fa/;
     my $cluster = $1;
     print $cluster,"\n";
-    my $fastaFileSource = $inputFasta.'cluster.'.$cluster.'.nucl.fa';
+    my $fastaFileSource = $inputFiltered.'cluster.'.$cluster.'.nucl.fa';
     my $fastaFileTarget = $outputPath.$fastaPath.$cluster.'.fasta'; 
     my $linkFile = $outputPath.$linkPath.$cluster.'.link';
 #    my $treeFile = $outputPath.$treePath.$cluster.'.tre';
-    open FAI, $fastaFileSource or die $!;
-    open FAO, '>'.$fastaFileTarget or die $!;
+    my $IF = Bio::SeqIO->new('-file'   => $fastaFileSource,
+			     '-format' => 'Fasta');
+    my $OF = Bio::SeqIO->new('-file'   => '>'.$fastaFileTarget,
+			     '-format' => 'Fasta');
     my %linkH;
-    while(my $line = <FAI>){
-	print FAO $line;
-	chomp $line;
-	if (substr($line,0,1) eq '>'){
-	    my $geneName = substr($line,1);
-	    my $speciesName = &gene2species($geneName);
-	    if(defined($linkH{$speciesName})){
-		push @{$linkH{$speciesName}}, $geneName;
-	    }else{
-		$linkH{$speciesName} = [$geneName];
-	    }
+    while(my $seqO = $IF->next_seq()){
+	my $geneName = $seqO->display_id();
+	my $speciesName  = &gene2species($geneName);
+	if($speciesName eq 'Paramecium_caudatum' or
+	   $speciesName eq 'Tetrahymena_thermophila'){
+	    next;
 	}
+	if(defined($linkH{$speciesName})){
+	    push @{$linkH{$speciesName}}, $geneName;
+	}else{
+	    $linkH{$speciesName} = [$geneName];
+	}
+	$OF->write_seq($seqO);
     }
-    close FAI;
-    close FAO;
+#    die;	  
+#foreach sequence
+# filter name
+    # open FAI, $fastaFileSource or die $!;
+    # open FAO, '>'.$fastaFileTarget or die $!;
+    # while(my $line = <FAI>){
+    # 	print FAO $line;
+    # 	chomp $line;
+    # 	if (substr($line,0,1) eq '>'){
+    # 	    my $geneName = substr($line,1);
+    # 	    my $speciesName = &gene2species($geneName);
+    # 	    if(defined($linkH{$speciesName})){
+    # 		push @{$linkH{$speciesName}}, $geneName;
+    # 	    }else{
+    # 		$linkH{$speciesName} = [$geneName];
+    # 	    }
+    # 	}
+    # }
+    # close FAI;
+    # close FAO;
     open LIN, '>'.$linkFile or die $!;
     foreach my $speciesName (sort keys %linkH){
 	print LIN $speciesName,':';
