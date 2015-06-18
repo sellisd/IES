@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+
 use Bio::TreeIO;
 # parse PHYLDOG output remove leafs for which we have no IES information (P. caudatum and T. thermophila)
 # Read character matrices, remove the corresponding lines and insert a number of all zero columns equal to the length of the aligned block

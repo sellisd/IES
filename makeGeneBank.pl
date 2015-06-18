@@ -51,7 +51,15 @@ $dataPath = $home.'data/IES_data/'; #default for local run
 #make genbank file for all the rest first
 #then for ies and then find in which genes they are in
 #make one big file for each species in genbank format with one entry per contig
-my @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligohymenophorea','Peniculida','Parameciidae','Paramecium');
+my @lineage;
+if($species3abr eq 'Pca' or
+   $species3abr eq 'Pbi' or
+   $species3abr eq 'Pte' or
+   $species3abr eq 'Pse'){
+    @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligohymenophorea','Peniculida','Parameciidae','Paramecium');
+}elsif($species3abr eq 'Tth'){
+    @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata', 'Oligohymenophorea', 'Hymenostomatida','Tetrahymenina', 'Tetrahymenidae', 'Tetrahymena');
+}
 
 my $speciesAbr;
 my $species;

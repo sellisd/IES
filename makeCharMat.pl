@@ -4,38 +4,48 @@ use strict;
 # read filtered nucleotide alignments
 # read gblock files
 # if present read character matrices and print to phylip format
+# if not create empty character matrix
 
+# INPUT: /alignments/filtered/.aln                filtered protein alignments (>50% prot id)
+#        /alignments/filtered/.aln.fasta.gblocks  gblocks coordinates for the filtered alignments
+
+# OUTPUT: /alignments/charMatphy/.phy             phylip format output character matrices
 
 my $filteredAlnPath = '/home/dsellis/data/IES_data/msas/alignments/filtered/';
 my $gblocksPath =     '/home/dsellis/data/IES_data/msas/alignments/filtered/';
-my $charMatPath =     '/home/dsellis/data/IES_data/msas/alignments/aln/charMat/';
-my $outCharMatPath =  '';
-opendir(DH, $filteredAlnPath) or die $!;
-my @treeF = grep {/cluster\.(\d+)\.aln$/} readdir(DH);
+my $charMatPath =     '/home/dsellis/data/IES_data/msas/alignments/charMat/';
+my $outCharMatPath =  '/home/dsellis/data/IES_data/msas/alignments/charMatphy/';
+
+opendir(DH, $filteredAlnPath) or die $!; 
+my @treeF = grep {/cluster\.(\d+)\.aln$/} readdir(DH); # find all clusters which passed the filtering
 
 foreach my $fileName (@treeF){
     $fileName =~ /cluster\.(\d+)\.aln$/;
-    my $cluster = $1;
+    my $cluster = $1;  # get the name of the cluster from the filename
     print $cluster,"\n";
-   # find Gblock blocks
+    # find Gblock blocks
     my $gblocksF = $gblocksPath.'cluster.'.$cluster.'.aln.fasta.gblocks';
     open IN, $gblocksF or die "$!: $gblocksF";
     my $alignmentLength = 0;
-    while(my $line = <IN>){
+    while(my $line = <IN>){  # find how many columns are in the gblock
 	chomp $line;
 	(my $cl, my $start, my $end) = split " ", $line;
 	$alignmentLength += $end - $start + 1;
     }
     close IN;
-
+    if($alignmentLength == 0){
+	next; #skip files that have no conserved blocks
+    }
     # find if there is a character matrix (alignment has IES in gblocks)
     my $iesCharMatF = $charMatPath.'cluster.'.$cluster.'.dat';
-    my $extCharMatF = $charMatPath.'cluster.'.$cluster.'.phy';
+    my $extCharMatF = $outCharMatPath.'cluster.'.$cluster.'.phy';
     my @matrix;
     open OUTM, '>'.$extCharMatF or die "$! $extCharMatF";
+
     my @genes;    
     my $lineCounter = 0;
-    if(-e $iesCharMatF){
+
+    if(-e $iesCharMatF){ # if the cluster has IES
 	open CM, $iesCharMatF or die $!;
 	while(my $line = <CM>){
 	    chomp $line;
@@ -63,7 +73,7 @@ foreach my $fileName (@treeF){
 	    $lineCounter++;
 	}
 	close CM;
-    }else{
+    }else{ # if not
 	# from alignment find name of genes
 	open FASTA, $filteredAlnPath.'cluster.'.$cluster.'.nucl.fa' or die $!;
 	while(my $line = <FASTA>){
@@ -76,14 +86,16 @@ foreach my $fileName (@treeF){
 		    next; #skip rows
 		}
 		my $string = join('',"0"x$alignmentLength);
-		push @matrix, $geneName."\t",$string;
+		push @matrix, $geneName."\t".$string;
 		$lineCounter++;
 	    }
 	}
 	close FASTA;
+	if ($#matrix==-1){ # if there are clusters (without IES) that have only P. caudatum or T. thermophila
+	    next;
+	}
     }
-    print substr($matrix[1],0,20),"\n";
-    print OUTM  $lineCounter-1,"\t",$alignmentLength,"\n";
+    print OUTM  $#matrix + 1,"\t",$alignmentLength,"\n";
     print OUTM join("\n",@matrix),"\n";
     close OUTM;
 }
