@@ -9,9 +9,9 @@ use Bio::SeqFeature::Gene::Transcript;
 use Bio::Location::Split;
 use Getopt::Long;
 use Bio::Species;
-
 use Data::Dumper;
 
+my $debug = 0;
 my $help;
 my $species3abr;
 my $dataPath;
@@ -19,7 +19,7 @@ my $floating = 1; #by default filter floating IES
 my $usage = <<HERE;
 
 make genebank file from gff3 files
-usage makeGeneBank.pl -species Pab -datapath PATH -floating 1
+    usage makeGeneBank.pl -species Pab -datapath PATH -floating 1
 
 #consistent species abreviations, these are not the same with the abbreviations provided in the sequence files
 # Tth Tetrahymena thermophila
@@ -35,7 +35,7 @@ HERE
 die $usage unless (GetOptions('help|?' => \$help,
 			      'datapath=s' => \$dataPath,
 			      'species=s' => \$species3abr,
-		              'floating=i'  => \$floating));
+			      'floating=i'  => \$floating));
 die $usage if $help;
 my $home = '/home/dsellis/';
 $dataPath = $home.'data/IES_data/'; #default for local run
@@ -172,6 +172,7 @@ my %cdsH;
 my %proteinH;
 my %geneH;
 my %scaffoldH;
+my %geneIdNameH;
 
 #make hash for output
 my %entriesH;
@@ -181,25 +182,27 @@ my %otherH; # hash for all the rest of the features
 
 my %rna2geneH; # hash linking mrna to gene ids
 
+my %scaffoldElementsH; # for each scaffold list with all elements
+
 #open sequence files and fill hashes
 print "read scaffolds from $scaffoldsF\n";
 my $scaffoldIn = Bio::SeqIO->new('-file' => $scaffoldsF,
 				 '-format' => 'fasta');
 while(my $scaffoldSeq = $scaffoldIn->next_seq){
-  my $scId = $scaffoldSeq->display_id;
-  $scaffoldH{$scId} = $scaffoldSeq;
+    my $scId = $scaffoldSeq->display_id;
+    $scaffoldH{$scId} = $scaffoldSeq;
 }
 
 print "read CDS from $cds\n";
 my $cdsIn = Bio::SeqIO->new('-file' => $cds,
  			    '-format' => 'fasta');
 while(my $cdsSeq = $cdsIn->next_seq){
-  $cdsH{$cdsSeq->display_id} = $cdsSeq;
+    $cdsH{$cdsSeq->display_id} = $cdsSeq;
 }
 
 print "read proteins from $protein\n";
 my $proteinIn = Bio::SeqIO->new('-file' => $protein,
- 			    '-format' => 'fasta');
+				'-format' => 'fasta');
 while(my $proteinSeq = $proteinIn->next_seq){
     my $id = $proteinSeq->display_id;
     if(defined($proteinH{$id})){
@@ -211,22 +214,15 @@ while(my $proteinSeq = $proteinIn->next_seq){
 
 print "read genes from $gene\n";
 my $geneIn = Bio::SeqIO->new('-file' => $gene,
- 			    '-format' => 'fasta');
+			     '-format' => 'fasta');
 while(my $geneSeq = $geneIn->next_seq){
-  $geneH{$geneSeq->display_id} = $geneSeq;
+    $geneH{$geneSeq->display_id} = $geneSeq;
 }
 my $gff3In = Bio::Tools::GFF->new('-file' => $gff3,
 				  '-gff_version' => 3);
 
-my $curGene;
-my $scaffold;
-my $prevScaffold;
-my %geneIdNameH;
-print "parse gff3 features\n";
-#read gff3 file and build genbank entries
 while(my $feature = $gff3In->next_feature()){ # one line at a time
-    $prevScaffold = $scaffold;
-    $scaffold = $feature->seq_id(); #print out the scaffold
+    my $scaffold = $feature->seq_id(); # scaffold
     if(defined($entriesH{$scaffold})){
 	
     }else{
@@ -236,7 +232,7 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 					     '-accession_number' => $scaffold);
 	$entriesH{$scaffold}->species($speciesO);
 	my $sequence = $scaffoldH{$scaffold}->seq();
-	$entriesH{$scaffold}->desc($scaffold);#definition
+	$entriesH{$scaffold}->desc($scaffold); # definition
 	$entriesH{$scaffold}->alphabet('dna');
 	$entriesH{$scaffold}->seq($sequence);
 	my $length = $scaffoldH{$scaffold}->length();
@@ -251,18 +247,23 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 	$entriesH{$scaffold}->add_SeqFeature($sourceFeat);
     }
     my @id = $feature->get_tag_values('ID');
+    if(defined($scaffoldElementsH{$scaffold})){
+	push @{$scaffoldElementsH{$scaffold}},$id[0];
+    }else{
+	$scaffoldElementsH{$scaffold} = [$id[0]];
+    }
     if ($feature->primary_tag() eq 'gene'){
 	$geneIdNameH{$id[0]}=($feature->get_tag_values('Name'))[0];
-	if(defined($curGene)){
-	    if(defined($CDSH{$curGene})){
-		$entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene});
-		$curGene = $id[0]; #set the current gene
-	    }else{
-		$curGene = $id[0]; #for a gene without CDS
-	    }
-	}else{
-	    $curGene = $id[0];
-	}
+	# if(defined($curGene)){
+	# 	if(defined($CDSH{$curGene})){
+	# 	    $entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene});
+	# 	    $curGene = $id[0]; #set the current gene
+	# 	}else{
+	# 	    $curGene = $id[0]; #for a gene without CDS
+	# 	}
+	# }else{
+	# 	$curGene = $id[0];
+	# }
 	#build features
 	#find all entries that are in the same scaffold
 	$geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
@@ -270,12 +271,10 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 							     -strand      => $feature->strand(),
 							     -primary_tag => $feature->primary_tag(),
 							     -tag => {gene     => $id[0]});
-	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+#	    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
     }elsif($feature->primary_tag() eq 'CDS'){
 	my $parent = ($feature->get_tag_values('Parent'))[0];
-#	$parent = deparseNumber($parent);
 	my $geneId;# = ($feature->get_tag_values('Parent'))[0];
-#	$geneId =~s/(.*)T(\d+)/$1G$2/;
 	if(defined($rna2geneH{$parent})){
 	    $geneId = $rna2geneH{$parent};
 	}else{
@@ -293,7 +292,7 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 	    $location -> add_sub_Location(Bio::Location::Simple->new(-start  => $feature->start(),
 								     -end    => $feature->end(),
 								     -strand => $feature->strand()));
-	    my $proteinId = &getProtName($geneId);
+	    my $proteinId = &getProtName($geneId, $species3abr);
 	    $CDSH{$geneId} = new Bio::SeqFeature::Generic(-location => $location,
 							  -strand => $feature->strand(),
 							  -primary_tag => $feature->primary_tag(),
@@ -315,7 +314,7 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 							     -tag => {gene => $parent,
 							     }
 	    );
-	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+#	    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
     }elsif($feature->primary_tag() eq 'exon'){
 	my $parent = ($feature->get_tag_values('Parent'))[0];
 	if(defined($rna2geneH{$parent})){
@@ -330,14 +329,14 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 							     -tag => {gene => $parent,
 							     }
 	    );
-	$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+#	    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
     }else{
 #get all tags, if it has parent and the parent is a gene
 	my $found = 0;
 	my @tags = $feature->get_all_tags();
 	foreach my $tag(@tags){
 	    if ($tag eq 'Parent'){
-	    $found = 1;
+		$found = 1;
 	    }
 	}
 	if($found){
@@ -354,17 +353,33 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 								 -tag => {gene => $parent,
 								 }
 		);
-	    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
+#		$entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
 	}else{
 	    $otherH{$feature->primary_tag()} = 1;	    
 	}
     }
 }
-$entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene}); #add the last CDS
-print '  did not include in features: ',join(',', keys(%otherH)),"\n";
-foreach my $entry (sort keys %entriesH){
-    $data_out->write_seq($entriesH{$entry});
+
+#add features to scaffolds
+foreach my $scaffold(sort keys %scaffoldElementsH){
+    foreach my $element (@{$scaffoldElementsH{$scaffold}}){
+	if(defined($geneFeatureH{$element})){
+	    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$element});
+#	    print $scaffold,' ';
+#	    print $element,' ';
+#	    print $geneFeatureH{$element}->start, ' ';
+	    if(defined($CDSH{$element})){
+#		print $CDSH{$element}->primary_tag();
+		$entriesH{$scaffold}->add_SeqFeature($CDSH{$element});
+	    }
+#	    print "\n";
+	}
+    }
+    $data_out->write_seq($entriesH{$scaffold});
 }
+
+
+print '  did not include in features: ',join(',', keys(%otherH)),"\n";
 
 $gff3In->close;
 
@@ -372,12 +387,6 @@ $gff3In->close;
 print "adding IES information postProcess.pl:\n";
 print "  ./postProcess.pl -species $species3abr $iesgffF $outputFile\n";
 exec "./postProcess.pl -species $species3abr $iesgffF $outputFile";
-
-sub deparseNumber{
-    my $string = shift @_;
-    $string =~ /$speciesAbr.*\D(\d+)/ or die; #extract the number regardless of whether it is a gene, exon etc
-    return $1;
-}
 
 sub getProtName{
     # find name of protein from name of gene.
