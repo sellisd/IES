@@ -6,17 +6,18 @@ use strict;
 
 my $treePath = '/home/dsellis/data/IES_data/msas/phyldog1/results/';
 my $matricesPath = '/home/dsellis/data/IES_data/msas/alignments/charMatphy/';
-my $treeFile ='/home/dsellis/data/IES_data/msas/alignments/allTrees.tre';
+my $matricesASRP = '/home/dsellis/data/IES_data/msas/asr/matrices/';
+my $treeFile ='/home/dsellis/data/IES_data/msas/asr/allTrees.tre';
 my $biphyPath = '/home/dsellis/tools/biphy-master/';
 
 # read all output trees from Phyldog run
 # concatenate them to one file if they have a character matrix in phylip format
 
 opendir DH, $treePath or die "$treePath $!";
-my @files = grep{/.*\.ReconciledTree$/} readdir(DH);
+my @files = grep{/^..\.ReconciledTree$/} readdir(DH);
 close DH;
 open TR, '>'.$treeFile or die $!;
-foreach my $fileName (@files){
+foreach my $fileName (sort @files){
     $fileName =~ /(\d+)\.ReconciledTree$/;
     my $cluster = $1;
     my $matrixF = $matricesPath.'cluster.'.$cluster.'.phy';
@@ -26,11 +27,13 @@ foreach my $fileName (@files){
 	close IN;
 	print TR @tree;
 	print $cluster,"\n";
+        #copy matrix to asr/matrices
+	system("cp $matrixF $matricesASRP");
     }else{
 	print $cluster," has no matrix\n";
     }
 }
 close TR;
-my $cmdl = $biphyPath."multibiphy -d $matricesPath -t $treeFile -a ies";
+my $cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a ies";
 print $cmdl,"\n";
 system "$cmdl";
