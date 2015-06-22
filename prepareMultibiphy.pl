@@ -36,6 +36,6 @@ foreach my $fileName (sort @files){
 close TR;
 my $cmdl;
 #$cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a ies";
-$cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a ies -u 1";
+$cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a -u 1 ies";
 print $cmdl,"\n";
 system "$cmdl";

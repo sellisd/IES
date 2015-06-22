@@ -63,7 +63,7 @@ foreach my $fileName (@treeF){
     my @matrix;
     my @genes;    
     my $lineCounter = 0;
-
+    my $observedColumns;
     if(-e $iesCharMatF){ # if the cluster has IES
 	print "1\n";
 	open CM, $iesCharMatF or die $!;
@@ -77,6 +77,7 @@ foreach my $fileName (@treeF){
 	    }
 	    if($lineCounter == 0){
 		# ignore header
+		$observedColumns = $#ar;
 	    }else{
 		for(my $colCounter = 0; $colCounter <= $#ar; $colCounter++){
 		    if($colCounter > 0){
@@ -122,7 +123,11 @@ foreach my $fileName (@treeF){
 #    print $cluster,"\n";use Data::Dumper;
 #    print Dumper @matrix;
     open OUTM, '>'.$extCharMatF or die "$! $extCharMatF";
-    print OUTM  $#matrix + 1,"\t",$alignmentLength,"\n";
+    if($noAbsence){
+	print OUTM  $#matrix + 1,"\t",$observedColumns,"\n";
+    }else{
+	print OUTM  $#matrix + 1,"\t",$alignmentLength,"\n";
+    }
     print OUTM join("\n",@matrix),"\n";
     close OUTM;
 }
