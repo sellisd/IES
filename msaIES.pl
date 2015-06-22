@@ -10,7 +10,7 @@ my $home = '/home/dsellis/';
 my $dir = $ARGV[0];
 
 opendir(DH, $dir) or die $!;
-@files = grep { /nucl.fa$/ } readdir(DH);
+@files = grep { /\.nucl\.fa$/ } readdir(DH);
 
 my @iesF = ($home.'data/IES_data/pbiaurelia/Pbi.IESinCDS',
 	    $home.'data/IES_data/ptetraurelia/Pte.IESinCDS',

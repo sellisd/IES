@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use List::Util qw(all);
 
-my $path = '/home/dsellis/data/IES_data/msas/alignments/aln/';
+my $path = '/home/dsellis/data/IES_data/msas/alignments/filtered/';
 my $pathOut = '/home/dsellis/data/IES_data/msas/alignments/charMat/';
 
 opendir(DH, $path) or die $!;
