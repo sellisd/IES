@@ -25,6 +25,7 @@ die $usage unless (GetOptions('help|?' => \$help,
 			      'msa'    => \$msa,
 		   ));
 die $usage if $#ARGV < 0;
+die $usage if $help;
 foreach my $inputFile (@ARGV){
     my $outputFile = $inputFile.'.'.$to; 
     die "$outputFile" if -f $outputFile; #do not overwrite any files

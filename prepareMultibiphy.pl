@@ -14,7 +14,7 @@ my $biphyPath = '/home/dsellis/tools/biphy-master/';
 # concatenate them to one file if they have a character matrix in phylip format
 
 opendir DH, $treePath or die "$treePath $!";
-my @files = grep{/^..\.ReconciledTree$/} readdir(DH);
+my @files = grep{/^.*.\.ReconciledTree$/} readdir(DH);
 close DH;
 open TR, '>'.$treeFile or die $!;
 foreach my $fileName (sort @files){
@@ -34,6 +34,8 @@ foreach my $fileName (sort @files){
     }
 }
 close TR;
-my $cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a ies";
+my $cmdl;
+#$cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a ies";
+$cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a ies -u 1";
 print $cmdl,"\n";
 system "$cmdl";

@@ -1,15 +1,29 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-# read filtered nucleotide alignments
-# read gblock files
-# if present read character matrices and print to phylip format
-# if not create empty character matrix
+use Getopt::Long;
+my $help;
+my $noAbsence = 0;
 
-# INPUT: /alignments/filtered/.aln                filtered protein alignments (>50% prot id)
-#        /alignments/filtered/.aln.fasta.gblocks  gblocks coordinates for the filtered alignments
+my $usage = <<HERE;
 
-# OUTPUT: /alignments/charMatphy/.phy             phylip format output character matrices
+Prepare character matrices for multibiphy runs. The program reads the filtered nucleotide alignments and .gblock files. The output depends on the -noAbsence option. If true. If FALSE prints the caracter matrices with zeroes based on the .gblock files and create empty character matrices. If TRUE prints only character matrices in phylipp format.
+usage
+    makeCharMat.pl [-noAbsence]
+
+INTPUT
+    /alignments/filtered/.aln                filtered protein alignments (>50% prot id)
+    /alignments/filtered/.aln.fasta.gblocks  gblocks coordinates for the filtered alignments
+OUTPUT
+    /alignments/charMatphy/.phy             phylip format output character matrices
+
+HERE
+
+die $usage unless(GetOptions('help|?'    => \$help,
+			     'noAbsence' => \$noAbsence
+		  ));
+die $usage if $#ARGV >1;
+die $usage if $help;
 
 my $filteredAlnPath = '/home/dsellis/data/IES_data/msas/alignments/filtered/';
 my $gblocksPath =     '/home/dsellis/data/IES_data/msas/alignments/filtered/';
@@ -65,7 +79,7 @@ foreach my $fileName (@treeF){
 			}
 		    }
 		}
-		push @ar, "0"x$extraColumns;
+		push @ar, "0"x$extraColumns unless $noAbsence;
 		my $geneName = shift @ar;
 		my $string = join('',@ar);
 		push @matrix, $geneName."\t".$string;
@@ -75,6 +89,9 @@ foreach my $fileName (@treeF){
 	close CM;
     }else{ # if not
 	# from alignment find name of genes
+	if($noAbsence){
+	    next; #skip alignments with no IES
+	}
 	open FASTA, $filteredAlnPath.'cluster.'.$cluster.'.nucl.fa' or die $!;
 	while(my $line = <FASTA>){
 	    if(substr($line,0,1) eq '>'){
