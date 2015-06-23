@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use lib'.';
+use functions;
 
 # find which IES are within Gblocks only for alignments that have passed the (%) identity and sequence number filters
 # and merges partially overlapping IES (floating)
@@ -20,58 +22,46 @@ foreach my $file (@charMF){
     my $bdF = 'cluster.'.$cluster.'.bed';
     my $gbF = 'cluster.'.$cluster.'.aln.fasta.gblocks';
     if(-e $pathFiltered.$gbF){ # if alignment passed the identity and seqNo filters
+	print $cluster,"\n";
 	my $inblocksF = 'cluster.'.$cluster.'.inblocks.bed';
-	my $iesInBlocksCMD = 'bedtools intersect -wb -a '.$pathFiltered.$gbF.' -b '.$pathFiltered.$bdF.' > '.$pathFiltered.$inblocksF;
-	print "$iesInBlocksCMD\n";
-	system "$iesInBlocksCMD";
-	push @inblocks, $inblocksF;
-    }
-
-}
-
-# read intermediate files
-# in case an IES overlaps 2 separate Gblocks remove it!
-foreach my $inblocksF (@inblocks){
-    my %hash; # make sure IES are located in only one Gblock
-    my %lines2del;
-    open IN, $pathFiltered.$inblocksF or die $!;
-    my $lineCounter = 0;
-    while(my $line = <IN>){
-	chomp $line;
-	(my $cluster1, my $start1, my $end1, my $cluster2, my $start2, my $end2, my $id) = split " ", $line;
-	if(defined($hash{$id})){
-	    $lines2del{$lineCounter} = 1;
-	}else{
-	    $hash{$id} = 1;
+	# read inblocksF make arrays
+	my @blockStart;
+	my @blockEnd;
+	open GB, $pathFiltered.$gbF or die $!;
+	while(my $line = <GB>){
+	    chomp $line;
+	    (my $cluster, my $start, my $end) = split " ", $line;
+	    push @blockStart, $start;
+	    push @blockEnd, $end;
 	}
-	$lineCounter++;
-    }
-    close IN;
-    if(%lines2del){
-	rename $pathFiltered.$inblocksF, $pathFiltered.$inblocksF.'.temp' or die $!;
-	open IN, $pathFiltered.$inblocksF.'.temp' or die $!;
+	close GB;
+	my @iesStart;
+	my @iesEnd;
+	open BD, $pathFiltered.$bdF or die $!;
+	while(my $line = <BD>){
+	    chomp $line;
+	    (my $cluster, my $start, my $end, my $id) = split " ", $line;
+	    push @iesStart, $start;
+	    push @iesEnd, $end;
+	}
+	close BD;
+	my $inOneR = whichInOne(\@iesStart,\@iesEnd,\@blockStart,\@blockEnd);
+	
 	open OUT, '>'.$pathFiltered.$inblocksF or die $!;
-	my $lineCounter = 0;
-	while(my $line = <IN>){
-	    if(defined($lines2del{$lineCounter})){ #skip line(s)
-	    }else{
-		print OUT $line;
-	    }
-	    $lineCounter++;
+	foreach my $in1 (sort{$a<=>$b} keys %$inOneR){
+	    print OUT "$cluster\t$iesStart[$in1]\t$iesEnd[$in1]\t$in1\n";
 	}
 	close OUT;
-	close IN;
-	unlink $pathFiltered.$inblocksF.'.temp' or die $!;
     }
 }
-die;
+
 # find which IES are partially overlaping
 foreach my $file (@charMF){
     $file =~ /cluster\.(\d+)/;
     my $cluster = $1;
     my $inBlocksF = 'cluster.'.$cluster.'.inblocks.bed';
     if(-s $pathFiltered.$inBlocksF){ # if there are IES in blocks
-	my $ies2mergeCMD = 'bedtools merge -o collapse -c 7 -i '.$pathFiltered.$inBlocksF.' > '.$pathFiltered.'cluster.'.$cluster.'.2merge.bed';
+	my $ies2mergeCMD = 'bedtools merge -o collapse -c 4 -i '.$pathFiltered.$inBlocksF.' > '.$pathFiltered.'cluster.'.$cluster.'.2merge.bed';
 	print "$ies2mergeCMD\n";
 	system "$ies2mergeCMD";
     }
