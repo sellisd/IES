@@ -1,0 +1,16 @@
+#PBS -q q1hour
+#PBS -N test
+#PBS -e test.e
+#PBS -o test.o
+#PBS -l nodes=1:dodeca
+
+# from http://stackoverflow.com/questions/601543/command-line-command-to-auto-kill-a-command-after-a-certain-amount-of-time
+doalarm () { perl -e 'alarm shift; exec @ARGV' "$@"; } # define a helper function
+
+# interrupt after 55 min
+doalarm 3300 /panhome/sellis/biphy-master/multibiphy -d /pandata/sellis/asr/matrices -t /pandata/sellis/asr/allTrees.tre -a -u 1 ies
+echo tellos
+
+# and copy files
+mv *.treelist /pandata/sellis/asr/
+mv ies.trace /pandata/sellis/asr/

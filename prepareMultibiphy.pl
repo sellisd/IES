@@ -17,6 +17,7 @@ opendir DH, $treePath or die "$treePath $!";
 my @files = grep{/^.*.\.ReconciledTree$/} readdir(DH);
 close DH;
 open TR, '>'.$treeFile or die $!;
+#my $debug = 0;
 foreach my $fileName (sort @files){
     $fileName =~ /(\d+)\.ReconciledTree$/;
     my $cluster = $1;
@@ -32,10 +33,13 @@ foreach my $fileName (sort @files){
     }else{
 	print $cluster," has no matrix\n";
     }
+ #   if ($debug>50){last;}
+ #   $debug++;
+
 }
 close TR;
 my $cmdl;
 #$cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a ies";
 $cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a -u 1 ies";
 print $cmdl,"\n";
-system "$cmdl";
+#system "$cmdl";
