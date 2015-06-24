@@ -33,8 +33,8 @@ foreach my $fileName (sort @files){
     }else{
 	print $cluster," has no matrix\n";
     }
- #   if ($debug>50){last;}
- #   $debug++;
+#    if ($debug>50){last;}
+#    $debug++;
 
 }
 close TR;
