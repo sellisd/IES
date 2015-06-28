@@ -1,23 +1,46 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-
+use Getopt::Long;
+my $help;
 my $burnIn = 100;
 my $mbfPath = '/home/dsellis/data/IES_data/msas/asr/results/';
+
+my $usage = <<HERE;
+
+Read ancestral state reconstructions from multibiphy run and calculate summary probabilities ignoring the burnIn first steps.
+
+parseMulitbiphy.pl [OPTIONS] outputFile
+
+where OPTIONS can be:
+ - burnIn:   Number of cycles to skip (default 100)
+ - path:     Path to multibiphy treelist files (default : /home/dsellis/data/IES_data/msas/asr/results/)
+ - help|?:   This help screen
+HERE
+
+die $usage unless (GetOptions('help|?'     => \$help,
+			      'burnIn=i'   => \$burnIn,
+			      'mbfPath=s'  => \$mbfPath
+		   ));
+die $usage if $help;
+my $outputF = $ARGV[0];
 
 opendir DH, $mbfPath or die $!;
 my @files = grep {/^ies\.cluster\.\d+\.phy\.treelist$/} readdir(DH);
 close DH;
+
+open OUT, '>', $outputF or die $!;
 foreach my $fileName (@files){
 #    $fileName = 'ies.cluster.10.phy.treelist';
     open IN, $mbfPath.$fileName or die $!;
     my $lineCounter = 0;
     my $totalCycles = 1;
     my @counts;
+    my @prob;
+    my $iesNo; #number of IES in cluster
     while(my $line = <IN>){
 	chomp $line;
 	my @ar = split " ", $line;
-	my $iesNo; #number of IES in cluster
 	if($lineCounter == 0){ #header
 	    my @nodes = @ar;
 	}else{
@@ -48,20 +71,55 @@ foreach my $fileName (@files){
     close IN;
     $fileName =~ /^ies\.cluster\.(\d+)\.phy\.treelist$/;
     my $cluster = $1;
-    print $cluster,"\t";
+    print OUT $cluster,"\t$iesNo\t";
     foreach my $sum (@counts){
 	if(defined($sum)){
-	    print $sum/($totalCycles-1),"\t";
+	    push @prob, $sum/($totalCycles-1);
 	}else{
-	    print "0\t";
+	    push @prob, 0;
 	}
     }
-    print "\n";
-    #print $totalCycles-1,"\n"; 
-#    die;
+    print OUT join("\t",@prob),"\n";
 }
-
-# for branch Si to Sj
-# calculate difference from all Si to Sj (including paralogs)
-
-# for all pair of paralogs compare Si to Sj (how similar they are)
+close OUT;
+# # for branch Si to Sj
+# # calculate difference from all Si to Sj (including paralogs)
+# # calculate difference from nodeA to nodeB (speciation nodes)
+# my $nodeA = 0;
+# my $nodeB = 1;
+# # for all pair of paralogs compare Si to Sj (how similar they are)
+# #read phyldog output find which nodes correspond to Si Sj of cluster X
+# #read output of parseMultibify for cluster X calculate difference between node i and j for IES N
+# my $phylTreePath = '/home/dsellis/data/IES_data/msas/phyldog1/results/';
+# my $cluster = 10;
+# open IN, $phylTreePath.$cluster.'.ReconciledTree' or die $!;
+# my %spgH;  # hash with geneTreeNodes => species tree nodes
+# my @fromNode;
+# my @toNode;
+# my $line = <IN>;
+# while($line =~ /\[\&\&NHX:Ev=([SD]):S=(\d+):ND=(\d+)\]/g){
+#     my $eventType = $1;
+#     my $spNode    = $2;
+#     my $node      = $3;
+# #build correspondences (geneTreeNodes speciesNodes)
+#     if($spNode == $nodeA){
+# 	push @fromNode, $spNode;
+#     }
+#     if($spNode == $nodeB){
+# 	push @toNode, $spNode;
+#     }
+#     if($eventType eq 'S'){
+# 	$spgH{$node} = $spNode;
+#     }
+# }
+# close IN;
+# print "\n";
+# foreach my $from (@fromNode){
+#     print $prob[$from*$iesNo],"\t";
+# }
+# print "\n";
+# foreach my $to (@toNode){
+#     print $prob[$to*$iesNo],"\t";
+# }
+# print "\n";
+# #chose comparisson , e.g 2->3 : Pbi,te -> Ptet
