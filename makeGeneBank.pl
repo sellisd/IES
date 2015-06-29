@@ -9,9 +9,7 @@ use Bio::SeqFeature::Gene::Transcript;
 use Bio::Location::Split;
 use Getopt::Long;
 use Bio::Species;
-use Data::Dumper;
 
-my $debug = 0;
 my $help;
 my $species3abr;
 my $dataPath;

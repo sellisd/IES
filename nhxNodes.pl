@@ -2,30 +2,48 @@
 use warnings;
 use strict;
 use Bio::TreeIO;
+use Getopt::Long;
 
 # read a nhx tree file, and for each node print the node ID and as a key the name of all leaves
 
-my $treeF = $ARGV[0];
+my $help;
+my $usage = <<HERE;
 
-my $input = new Bio::TreeIO(-file   => $treeF,
-                            -format => "nhx");
-my $tree = $input->next_tree;
+Reads nhx trees file from phyldog output and creates node key files. Files with the node name in the ND section and a string of the leaf names corresponding to that node concatenated in alphanumeric order. If the node is a leaf only its own name is included.
+usage
 
+nhxNodes.pl inputfiles
 
-for my $node ( $tree->get_nodes ) {
-    my @descNodes = $node->get_all_Descendents;
-    my @leaves;
-    foreach my $desc (@descNodes){
-	my $id = $desc->{'_tags'}->{'ND'}[0];
-	if($desc->is_Leaf){
-	    my $name = $desc->id;
-	    push @leaves,$name;
-	}
+HERE
+
+die $usage unless(GetOptions('help|?' => \$help));
+die $usage if $help;
+
+foreach my $treeF (@ARGV){
+    print $treeF,"\n";
+    my $input = new Bio::TreeIO(-file   => $treeF,
+				-format => "nhx");
+    my $tree = $input->next_tree;
+    my $outF = $treeF.'.key';
+    open OUT, '>'.$outF or die $!;
+    for my $node ( $tree->get_nodes ) {
 	my $keyString;
-	foreach my $leaf (sort @leaves){
-	    $keyString .= '+'.$leaf;
+	my $id = $node->get_tag_values('ND');
+	if($node->is_Leaf){ # if node is leaf
+	    $keyString = $node->id;
+	}else{
+	    my @descNodes = $node->get_all_Descendents;
+	    my @leaves;
+	    foreach my $desc (@descNodes){
+		if($desc->is_Leaf){
+		    push @leaves,$desc->id;
+		}
+	    }
+	    foreach my $leaf (sort @leaves){
+		$keyString .= $leaf;
+	    }
 	}
-	print $id,"\t",$keyString,"\n";
+    print OUT $id,"\t", $keyString,"\n";
     }
-
+    close OUT;
 }
