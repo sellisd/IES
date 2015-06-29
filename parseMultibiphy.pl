@@ -20,10 +20,16 @@ HERE
 
 die $usage unless (GetOptions('help|?'     => \$help,
 			      'burnIn=i'   => \$burnIn,
-			      'mbfPath=s'  => \$mbfPath
+			      'path=s'     => \$mbfPath
 		   ));
 die $usage if $help;
-my $outputF = $ARGV[0];
+my $outputF;
+if(defined($ARGV[0])){
+    $outputF = $ARGV[0];
+}else{
+    print "No default output file\n";
+    die $usage;
+}
 
 opendir DH, $mbfPath or die $!;
 my @files = grep {/^ies\.cluster\.\d+\.phy\.treelist$/} readdir(DH);

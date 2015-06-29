@@ -1,8 +1,4 @@
-make two genbank files
-one with only gene, CDS and IES_junction features in MAC coordinates
-and the other with the IES seqeuences and related information
-add gene family as feature in genbank files
-and create ACNUC database
-
-
-for each subfamily select subtree based on a pattern
+read phyldog output
+read key file
+find node correspondences
+for each node find state and plot
