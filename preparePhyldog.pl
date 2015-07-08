@@ -7,8 +7,9 @@ my $inputFiltered = '/home/dsellis/data/IES_data/msas/alignments/filtered/';
 #my $inputTreesF = '/home/dsellis/data/IES_data/msas/tree/trees.tre';
 
 my $outputPath = '/home/dsellis/data/IES_data/msas/phyldog/';
-my $fastaPath = 'FastaFiles/';
-my $linkPath = 'LinkFiles/';
+my $fastaPath = 'aln/';
+my $linkPath = 'link/';
+
 #my $treePath = 'TreeFiles/';
 
 # do not use branch lengths
@@ -18,6 +19,8 @@ my $speciesTree = '(Tetrahymena_thermophila,(Paramecium_caudatum,(Paramecium_sex
 #make required folders
 make_path($outputPath.$fastaPath) unless -d $outputPath.$fastaPath;
 make_path($outputPath.$linkPath) unless -d $outputPath.$linkPath;
+make_path($outputPath.'results') unless -d $outputPath.'results';
+make_path($outputPath.'run') unless -d $outputPath.'run';
 #make_path($outputPath.$treePath) unless -d $outputPath.$treePath;
 
 open ST, '>'.$outputPath.'speciesTree.tre' or die;
@@ -65,7 +68,6 @@ foreach my $file (@charMats){
 	}
 	$OF->write_seq($seqO);
     }
-#    die;	  
 #foreach sequence
 # filter name
     # open FAI, $fastaFileSource or die $!;
