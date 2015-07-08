@@ -6,11 +6,11 @@ use Bio::SeqIO;
 #read a protein multiple sequence alignment and replace the aligned proteins by nucleotide sequences
 
 my @dnaF = qw#
-/home/dsellis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gene.fa
-/home/dsellis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gene.fa
-/home/dsellis/data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.gene.fa
-/home/dsellis/data/IES_data/pcaudatum_43c3d_annotation_v2.0/pcaudatum_43c3d_annotation_v2.0.gene.fa
-/home/dsellis/data/IES_data/tthermophila/T_thermophila_June2014_gene.fasta
+/home/dsellis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.cds.fa
+/home/dsellis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.cds.fa
+/home/dsellis/data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.cds.fa
+/home/dsellis/data/IES_data/pcaudatum_43c3d_annotation_v2.0/pcaudatum_43c3d_annotation_v2.0.cds.fa
+/home/dsellis/data/IES_data/tthermophila/T_thermophila_June2014_CDS.fasta
 #;
 
 my %seqIndexH;
@@ -21,11 +21,12 @@ foreach my $fileIN (@dnaF){
     while(my $seqO = $stream->next_seq){
 	my $header = $seqO->display_id();
 	my $sequence = $seqO->seq();
-	#replace G in name with P
-	$header =~ s/^(.+)G(\d+)$/$1P$2/;
+	#replace T in name with P
+	$header =~ s/^(.+)T(\d+)$/$1P$2/;
 	$seqIndexH{$header} = $sequence;
     }
 }
+
 
 my @files = @ARGV;
 print "read alignments\n";
