@@ -1,4 +1,19 @@
 # useful functions for plotting
+source("~/projects/fgmo/colors.R")
+
+colBySpec <- function(tree){
+  # color code tips of a tree based on species
+  names <- tree$tip.label
+  speciesAbr <- substr(names,0,4)
+  colV <- speciesAbr
+  colV[which(speciesAbr == "PBIA")] <- cgreen1
+  colV[which(speciesAbr == "PTET")] <- cred1
+  colV[which(speciesAbr == "PSEX")] <- cblue1
+  colV[which(speciesAbr == "PCAU")] <- "grey60"
+  colV[which(speciesAbr == "TTHE")] <- cbrown1
+  names(colV) <- names
+  colV
+}
 
 linkNodes <- function(tr,ktr){
   # read a phyldog outpout file and the corresponding key file
@@ -30,9 +45,9 @@ sumAsr <- function(asr,burnIn,iesNo,dict){
   i <- 1
   for(node in dict[,2]){ # foreach node find ancestral state of ies 'iesNo'
     columnI <- which(names(asr)==paste("X",node,sep="")) # column with asr of node 'node'
-    vector <- as.numeric(substr(asr[,columnI],iesNo+1,iesNo+1))
+    vector <- as.numeric(substr(asr[,columnI],iesNo,iesNo))
     p <- mean(vector[burnIn:length(vector)]) # probability of state 1
-    ps[i,] <- c(p,1-p)
+    ps[i,] <- c(1-p,p) # Prob absence, Prob presence
     i <- i+1
   }
   # nodes is the R ape numbering system
