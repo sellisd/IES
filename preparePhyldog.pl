@@ -57,8 +57,7 @@ foreach my $file (@charMats){
     while(my $seqO = $IF->next_seq()){
 	my $geneName = $seqO->display_id();
 	my $speciesName  = &gene2species($geneName);
-	if($speciesName eq 'Paramecium_caudatum' or
-	   $speciesName eq 'Tetrahymena_thermophila'){
+	if($speciesName eq 'Tetrahymena_thermophila'){
 	    next;
 	}
 	if(defined($linkH{$speciesName})){

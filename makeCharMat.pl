@@ -71,8 +71,7 @@ foreach my $fileName (@treeF){
 	    chomp $line;
 	    my @ar = split " ", $line;
 	    my $extraColumns = $alignmentLength-$#ar;
-	    if (substr($ar[0],0,4) eq 'PCAU' or
-		substr($ar[0],0,4) eq 'TTHE'){
+	    if (substr($ar[0],0,4) eq 'TTHE'){
 		next; #skip rows
 	    }
 	    if($lineCounter == 0){
@@ -106,8 +105,7 @@ foreach my $fileName (@treeF){
 		chomp $line;
 		$line =~ /^>(.*)$/;
 		my $geneName = $1;
-		if (substr($geneName,0,4) eq 'PCAU' or
-		    substr($geneName,0,4) eq 'TTHE'){
+		if (substr($geneName,0,4) eq 'TTHE'){
 		    next; #skip rows
 		}
 		my $string = join('',"0"x$alignmentLength);
