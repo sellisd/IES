@@ -14,7 +14,9 @@ opendir(DH, $dir) or die $!;
 
 my @iesF = ($home.'data/IES_data/pbiaurelia/Pbi.IESinCDS',
 	    $home.'data/IES_data/ptetraurelia/Pte.IESinCDS',
-	    $home.'data/IES_data/psexaurelia/Pse.IESinCDS');
+	    $home.'data/IES_data/psexaurelia/Pse.IESinCDS',
+	    $home.'data/IES_data/pcaudatum_43c3d_annotation_v2.0/Pca.IESinCDS'
+    );
 foreach my $file (@iesF){  # load IES information in memory
     open IN, $file or die $!;
     while (my $line = <IN>){
@@ -29,14 +31,14 @@ foreach my $file (@iesF){  # load IES information in memory
 		 'start'   => $start,
 		 'end'   => $end,
 		 'length'  => $length
-		};
-      if(defined($hash{$gene})){
-      push @{$hash{$gene}},$entry;
+    };
+    if(defined($hash{$gene})){
+	push @{$hash{$gene}},$entry;
     }else{
-      $hash{$gene} =[$entry];
+	$hash{$gene} =[$entry];
     }
-   }
-  close IN;
+    }
+    close IN;
 }
 
 

@@ -39,8 +39,10 @@ die $usage if $help;
 my $dataPath = $home.'data/IES_data/';
 my $iesLengthF;
 my $subdir;
+my $addTA;
 if($speciesAbr eq 'Ppr'){
     $subdir = 'pprimaurelia/';
+    $addTA = 0;
 }elsif($speciesAbr eq 'Pbi'){
     $subdir = 'pbiaurelia/';
     if($floating){
@@ -48,6 +50,7 @@ if($speciesAbr eq 'Ppr'){
     }else{
 	$iesLengthF = 'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
     }
+    $addTA = 0;
 }elsif($speciesAbr eq 'Pte'){
     $subdir = 'ptetraurelia/';
     if($floating){
@@ -55,8 +58,10 @@ if($speciesAbr eq 'Ppr'){
     }else{
 	$iesLengthF = 'internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
     }
+    $addTA = 0;
 }elsif($speciesAbr eq 'Pen'){
     $subdir = 'ppentaurelia/';
+    $addTA = 0;
 }elsif($speciesAbr eq 'Pse'){
     $subdir = 'psexaurelia/';
     if($floating){
@@ -64,6 +69,15 @@ if($speciesAbr eq 'Ppr'){
     }else{
 	$iesLengthF = 'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
     }
+    $addTA = 0;
+}elsif($speciesAbr eq 'Pca'){
+    $subdir = 'pcaudatum_43c3d_annotation_v2.0/';
+    if($floating){
+	$iesLengthF = 'PCAUD_MIC10_IES.fl.gff3';
+    }else{
+	$iesLengthF = 'PCAUD_MIC10_IES.gff3';
+    }
+    $addTA = 1;
 }else{
     print 'Not known species abreviation: $speciesAbr',"\n";
     die $usage;
@@ -126,6 +140,9 @@ while (my $line = <IESL>){
 	    $name = $1;
 	}elsif($pairs =~ /^sequence=(.*)$/){
 	    $length = length($1);
+	    if($addTA){
+		$length+=2; #add end TA in IES length
+	    }
 	}
     }
     $iesLengthsH{$scaffold.$id} = $length;
@@ -173,7 +190,7 @@ while(my $seqO = $gnbkIn->next_seq()){
 		    my $gCoo; # gene coordinates
 #		    my $pCoo; #protein coordinates
 		    if($complement == -1){
-			# if gene in - strand location is counding from the end
+			# if gene in - strand location is counting from the end
 			$gCoo = [$index - ${$iesIP}[1] + 1, $index - ${$iesIP}[0] + 1];
 #			$pCoo = $index - $iesIP; # IES has length 2
 		    }elsif($complement == 1){

@@ -133,9 +133,9 @@ if ($species3abr eq 'Pbi'){
     $scaffoldsF = $dataPath.'caudatum_43c3d_assembly_v1.fasta';
     $outputFile = $dataPath.'Pca.gnbk';
     if($floating){ # not yet available
-	$iesgffF = $dataPath.'';
+	$iesgffF = $dataPath.'PCAUD_MIC10_IES.fl.gff3';
     }else{
-	$iesgffF = $dataPath.'';
+	$iesgffF = $dataPath.'PCAUD_MIC10_IES.gff3';
     }
 }elsif($species3abr eq 'Tth'){
     $species = 'Tetrahymena thermophila';

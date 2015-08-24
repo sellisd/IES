@@ -21,32 +21,40 @@ die $usage if $help;
 my $taxonId;
 my $speciesName;
 my @lineage = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligohymenophorea','Peniculida','Parameciidae','Paramecium');
+my $addTA;
 
 if($speciesAbr eq 'Ppr'){
     $speciesName = 'Paramecium primaurelia';
     $taxonId = 5886;
+    $addTA = 0;
 }elsif($speciesAbr eq 'Pbi'){
     $speciesName = 'Paramecium biaurelia';
     $taxonId = 65126;
+    $addTA = 0;
 #Paremecium biaurelia
 }elsif($speciesAbr eq 'Pte'){
     $speciesName = 'Paramecium tetraurelia';
     $taxonId = 5888;
+    $addTA = 0;
 #Paramecium tetraurelia
 }elsif($speciesAbr eq 'Pen'){
     $speciesName = 'Paramecium pentaurelia';
     $taxonId = 43138;
+    $addTA = 0;
 #Paramecium pentaurelia
 }elsif($speciesAbr eq 'Pse'){
     $speciesName = 'Paramecium sexaurelia';
     $taxonId = 65128;
+    $addTA = 0;
 #Paramecium sexaurelia
 }elsif($speciesAbr eq 'Pca'){
     $speciesName = 'Paramecium caudatum';
     $taxonId = 5885;
+    $addTA = 1;
 }elsif($speciesAbr eq 'Tth'){
     $speciesName = 'Tetrahymena thermophila';
     $taxonId = 5911;
+    $addTA = 0;
 }else{
     print 'Not known species abreviation: $speciesAbr',"\n";
     die $usage;
@@ -84,6 +92,9 @@ while (my $line = <IN>){
 	    $id = $1;
 	}elsif($annot =~ /sequence=(.*)/){
 	    $sequence = $1;
+	    if($addTA){
+		$sequence = $sequence.'TA';
+	    }
 	}elsif($annot =~ /alternative_IES_seq=(.*)/){
 	    $alt_seq = $1;
 	}
