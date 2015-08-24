@@ -9,7 +9,9 @@ my @iesFiles = qw(
 pbiaurelia/internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3
 ptetraurelia/internal_eliminated_sequence_PGM_IES51.pt_51.gff3
 psexaurelia/internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3
+pcaudatum_43c3d_annotation_v2.0/PCAUD_MIC10_IES.gff3
 );
+
 my $PtetMacF = $path.'ptetraurelia/Pte.ies.mac_seq';
 my %PtmacSeq;
 open PT, $PtetMacF or die $!;
@@ -20,11 +22,16 @@ while (my $line =<PT>){
 }
 close PT;
 foreach my $file (@iesFiles){
+    my $addTA;
+    if ($file =~ /^pcaudatum/){
+	$addTA = 1;
+    }
     my $outputF = $file;
     $outputF =~ s/\.gff3/.fl.gff3/ or die;
     open OUT, '>'.$path.$outputF or die $!;
     open IN, $path.$file or die $!;
     while(my $line = <IN>){
+	next if substr($line,0,1) eq '#'; #skip comments
 	chomp $line;
 	my @ar = split "\t", $line;
 	my $start = $ar[3];
@@ -41,10 +48,15 @@ foreach my $file (@iesFiles){
 		$id = $1;
 	    }elsif ($annot =~ /sequence=(.*)/){
 		$seq = $1;
+		if($addTA){
+		    $seq = $seq.'TA';
+		}
 	    }elsif($annot =~ /alternative_IES_seq=(.*)/){
 		$alt_seq = $1;
 	    }elsif($annot =~ /mac_seq=(.*)/){
 		$mac_seq = $1;	    
+	    }elsif($annot =~ /junction_seq=(.*)/){ #in P. caudatum .gff
+		$mac_seq = $1;
 	    }
 	}
 	if(!defined($mac_seq)){
