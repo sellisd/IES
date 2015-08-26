@@ -114,7 +114,8 @@ foreach my $alnF (sort @files){  # find IES coordinates in alignments
 		}else{
 		    if(substr($geneName,0,4) eq 'PBIA' or
 		       substr($geneName,0,4) eq 'PTET' or
-		       substr($geneName,0,4) eq 'PSEX'){
+		       substr($geneName,0,4) eq 'PSEX' or
+		       substr($geneName,0,4) eq 'PCAU'){
 			print OUTF "0\t";
 			print OUTL "0\t";
 		    }else{ # or unknown
