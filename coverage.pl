@@ -9,10 +9,12 @@ my $iesF = '/home/dsellis/data/IES_data/ptetraurelia/ies.fa';
 my $seqIO = Bio::SeqIO->new('-file' => $iesF,
 			   '-format' => 'fasta');
 my %lengthsH;
+my %seqH;
 while(my $seqO = $seqIO->next_seq){
     my $id = $seqO->display_id;
     my $length = $seqO->length;
     $lengthsH{$id} = $length;
+    $seqH{$id} = $seqO->seq;
 }
 open LDB, '>/home/dsellis/data/IES_data/iesnet/iesLengths.tab' or die $!;
 foreach my $ies (sort keys %lengthsH){
@@ -39,8 +41,24 @@ while(my $line = <IN>){ # read blast output line - by line
 }
 close IN;
  # use Data::Dumper;
- # print "@{$covM{'IESPGM.PTET51.1.1.10090'}}\n";
- # die;
+#print them vertically
+my $lineCounter = 0;
+while(1){
+    if($lineCounter == 0){
+	foreach my $ies (keys %covM){
+	    print $ies,' '; # header
+	}
+    }else{
+	foreach my $ies (keys %covM){
+	    print ${$covM{$ies}}[$lineCounter],' ';
+	}
+    }
+    $lineCounter++;
+    if(){#add statement for end of loop
+	last;
+    }
+}
+ die;
 my $covX = 0;
 while(1){
     if($covX == 0){ #print header with IES names

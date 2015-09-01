@@ -12,11 +12,18 @@ my @iesFiles = qw(
 ptetraurelia/internal_eliminated_sequence_PGM_IES51.pt_51.fl.gff3
 pbiaurelia/internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.fl.gff3
 psexaurelia/internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.fl.gff3
+pcaudatum_43c3d_annotation_v2.0/PCAUD_MIC10_IES.fl.gff3
 );
 
 my %iesH;
 print "reading IES information\n";
 foreach my $file (@iesFiles){
+    my $addTA;
+    if(substr($file,0,4) eq 'pcau'){
+	$addTA = 1;
+    }else{
+	$addTA = 0;
+    }
     open IN, $dataPath.$file or die $!;
     while (my $line = <IN>){
 	chomp $line;
@@ -37,6 +44,9 @@ foreach my $file (@iesFiles){
 	    }
 	}
 	$length = length($seq);
+	if ($addTA == 1){
+	    $length+=2;
+	}
 	$iesH{$id} = {
 	    'start'    => $start,
 	    'end'      => $end,
@@ -46,7 +56,6 @@ foreach my $file (@iesFiles){
     }
     close IN;
 }
-
 
 # character matrices
 opendir(DH, $charMatPath) or die $!;
@@ -69,14 +78,17 @@ foreach my $charMF (@charMatF){
 	    my @ar = split "\t", $line;
 	    print OUT shift @ar,"\t";
 	    foreach my $entry (@ar){
-		if(defined($iesH{$entry})){
-		    print OUT $iesH{$entry}{'length'},"\t";
-		}elsif($entry eq '0'){
-		    print OUT '0',"\t";
-		}elsif($entry eq 'NA'){
-		    print OUT 'NA',"\t";
-		}else{
-		    die $entry,"\n";
+		my @iesEntry = split ",",$entry;
+		foreach my $iesId (@iesEntry){
+		    if(defined($iesH{$iesId})){
+			print OUT $iesH{$iesId}{'length'},"\t";
+		    }elsif($iesId eq '0'){
+			print OUT '0',"\t";
+		    }elsif($iesId eq 'NA'){
+			print OUT 'NA',"\t";
+		    }else{
+			die  $iesId,"\n";
+		    }
 		}
 	    }
 	    print OUT "\n";
