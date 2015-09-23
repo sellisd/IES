@@ -53,3 +53,7 @@ while(my $line = <IN>){
     print "$id\t$scaffold\t$start\t$end\t$length\t$sequence\t$wgd1\t$wgd2\t$wgd3\n"; # for P. tetraurelia
 }
 close IN;
+
+
+ies border db
+id length begin10bp end10bp
