@@ -37,7 +37,7 @@ for(i in pcaL){
     }
   }
 }
-pcaD <- data.frame(length=IESlength,front=front,back=back,row.names=id)
+pcaD <- data.frame(length=IESlength,front=front,back=back,row.names=id, stringsAsFactors=FALSE)
 
 #--- P. biaurelia, P. sexuarelia-------
 pbi <- read.table("~/data/IES_data/pbiaurelia//internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.ies", as.is = TRUE)
@@ -53,7 +53,7 @@ for(i in pbiL){
     id <- append(id,substr(i[1],4,nchar(i[1])))
   }
 }
-pbiD <- data.frame(length=IESlength,front=front,back=back,row.names=id)
+pbiD <- data.frame(length=IESlength,front=front,back=back,row.names=id, stringsAsFactors=FALSE)
 
 pse <- read.table("~/data/IES_data/psexaurelia/internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.ies", as.is = TRUE)
 pseL <- strsplit(pse[,6],";",fixed=TRUE)
@@ -68,7 +68,7 @@ for(i in pseL){
     id <- append(id,substr(i[1],4,nchar(i[1])))
   }
 }
-pseD <- data.frame(length=IESlength,front=front,back=back,row.names=id)
+pseD <- data.frame(length=IESlength,front=front,back=back,row.names=id, stringsAsFactors=FALSE)
 
 #------P. tetraurelia-----------
 pte <- read.table("~/data/IES_data/ptetraurelia/internal_eliminated_sequence_PGM_IES51.pt_51.gff3", as.is = TRUE)
@@ -93,6 +93,6 @@ for(i in pteL){
     }
   }
 }
-pteD <- data.frame(length=IESlength,front=front,back=back,row.names=id)
+pteD <- data.frame(length=IESlength,front=front,back=back,row.names=id, stringsAsFactors=FALSE)
 
 save(pcaD,pbiD,pteD,pseD,file="~/data/IES_data/iesDB")

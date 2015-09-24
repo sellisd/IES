@@ -7,13 +7,14 @@ if(!dir.exists(filteredPath)){
 files <- dir(path= path,pattern="*.aln$")
 nb <- numeric()
 id <- numeric()
-for(file in files){
-  print(file)
-  a <- read.alignment(paste(path,file,sep=""),format="clustal")
+for(fileName in files){
+  print(fileName)
+  a <- read.alignment(paste(path,fileName,sep=""),format="clustal")
   nb <- append(nb,a$nb) #number of sequeces
-  id <- append(id,mean(dist.alignment(a,matrix="identity"))) #average pairwise identity
+  distM <- dist.alignment(a,matrix="identity")
+  id <- append(id,mean(1-distM*distM)) #average pairwise identity
 }
-write.table(data.frame(file=files,sequenceNo=nb,avPairId=id),file="~/data//IES_data/msas/protAlignStats.dat", quote=FALSE)
+write.table(data.frame(file=files,sequenceNo=nb,avPairId=id),file="~/data/IES_data/msas/protAlignStats.dat", quote=FALSE)
 highId <- files[which(id>0.5)]
 enoughSeq <- files[which(nb>3)]
 filtered <- intersect(enoughSeq,highId)
