@@ -11,6 +11,8 @@ my $matricesPath = '/home/dsellis/data/IES_data/msas/alignments/charMatphy/';
 opendir DH, $treePath or die $!;
 my @files = grep {/^.*.\.ReconciledTree$/} readdir(DH);
 close DH;
+
+print "cluster\tpbi\tpte\n"; #header
 foreach my $fileName(sort @files){
     $fileName =~ /(\d+)\.ReconciledTree$/;
     my $cluster = $1;
@@ -34,13 +36,13 @@ foreach my $fileName(sort @files){
 	}
 	for(my $i = 0; $i <= $#bi; $i++){
 	    my $pbiNode = $tree->find_node(-id => $bi[$i]);
-	    for(my $j = $i; $j <= $#te; $j++){
+	    for(my $j = 0; $j <= $#te; $j++){
 		my $pteNode = $tree->find_node(-id => $te[$j]);
 		my $lca = $tree->get_lca(-nodes => [$pbiNode, $pteNode]);
 		my $speciationEvent = $lca->get_tag_values('S');
 		my $eventType = $lca->get_tag_values('Ev');
 		if($eventType eq 'S' and $speciationEvent == 4){
-		    print $cluster, "\t", $speciationEvent, "\t", $bi[$i], "\t", $te[$i],"\n";
+		    print $cluster, "\t", $bi[$i], "\t", $te[$j],"\n";
 		}
 	    }
 	}  
