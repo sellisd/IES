@@ -15,6 +15,7 @@ id <- character(iesNo)
 front <- character(iesNo)
 back <- character(iesNo)
 IESlength <- numeric(iesNo)
+IESsequence <- character(iesNo)
 start <- pte$V4
 end <- pte$V5
 upstream <- character(iesNo)
@@ -34,12 +35,13 @@ for(i in pteL){
       l <- nchar(IESseq)
       front[counter] <- substr(IESseq,0,windowSize)
       back[counter] <- substr(IESseq,l-windowSize+1,l)
+      IESsequence[counter] <- IESseq
       IESlength[counter] <- l-2 # The IES length does not include both TAs
     }
   }
   counter <- counter + 1
 }
-pteD <- data.frame(length=IESlength,front=front,back=back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, row.names=id, stringsAsFactors=FALSE)
+pteD <- data.frame(length=IESlength, seq = IESsequence, front=front,back=back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, row.names=id, stringsAsFactors=FALSE)
 
 # ------- for P. biaurelia ----------
 pbi <- read.table("~/data/IES_data/pbiaurelia/internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.fl.gff3", as.is = TRUE)
@@ -49,6 +51,7 @@ id <- character(iesNo)
 front <- character(iesNo)
 back <- character(iesNo)
 IESlength <- numeric(iesNo)
+IESsequence <- character(iesNo)
 start <- pbi$V4
 end <- pbi$V5
 floatingB <- (end-start>1)
@@ -65,6 +68,7 @@ for(i in pbiL){
       l <- nchar(IESseq)
       front[counter] <- substr(IESseq,0,windowSize)
       back[counter] <- substr(IESseq,l-windowSize+1,l)
+      IESsequence[counter] <- IESseq
       IESlength[counter] <- l-2 # The IES length does not include both TAs
     }else if(j[1] == "mac_seq"){
       upstream[counter] <- substr(j[2], 0, 15)
@@ -73,5 +77,5 @@ for(i in pbiL){
   }
   counter <- counter + 1
 }
-pbiD <- data.frame(length = IESlength, front = front, back = back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, row.names=id, stringsAsFactors=FALSE)
+pbiD <- data.frame(length = IESlength, seq = IESsequence, front = front, back = back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, row.names=id, stringsAsFactors=FALSE)
 save(pteD, pbiD, file = "~/projects/IES/reports/outline/iesInfo")
