@@ -2,6 +2,7 @@
 
 # find floating IES and IES border sequence
 windowSize <- 20
+# lengthClass
 # ------- for P. tetraurelia----------
 ptemacseq <- read.table("~/data/IES_data/ptetraurelia/Pte.ies.mac_seq", as.is=TRUE, row.names = 1)
 upstream <- substr(ptemacseq$V2,0,15)
