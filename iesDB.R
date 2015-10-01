@@ -11,8 +11,8 @@
 #  R saved data.frames, one for each species with: length front back and id as row.names
 #
 # parameters: 
-# window <- 10, window size of borders of IES sequence retained
-window <- 10
+# windowSize <- 10, window size of borders of IES sequence retained
+windowSize <- 10
 #-----P. caudatum-----------
 pca <- read.table("~/data/IES_data/pcaudatum_43c3d_annotation_v2.0/PCAUD_MIC10_IES.gff3",as.is=TRUE)
 pcaL <- strsplit(pca[,9],";",fixed=TRUE)
@@ -31,9 +31,9 @@ for(i in pcaL){
       IESseq <- j[2]
       l <- nchar(IESseq)
       IESlength <- append(IESlength,l)
-      front <- append(front,substr(IESseq,0,window))
+      front <- append(front,substr(IESseq,0,windowSize))
       # P caudatum does not have the ending TA
-      back <- append(back,paste(substr(IESseq,l-window+1+2,l),"TA",sep=""))
+      back <- append(back,paste(substr(IESseq,l-windowSize+1+2,l),"TA",sep=""))
     }
   }
 }
@@ -45,8 +45,8 @@ pbiL <- strsplit(pbi[,6],";",fixed=TRUE)
 
 IESseq <- pbi$V5
 IESlength  <- pbi$V3
-front <- substr(IESseq,0,window)
-back <- substr(IESseq,IESlength+2-window+1,IESlength+2)
+front <- substr(IESseq,0,windowSize)
+back <- substr(IESseq,IESlength+2-windowSize+1,IESlength+2)
 id <- character()
 for(i in pbiL){
   if(substr(i[1],0,3)=="ID="){
@@ -60,8 +60,8 @@ pseL <- strsplit(pse[,6],";",fixed=TRUE)
 
 IESseq <- pse$V5
 IESlength  <- pse$V3
-front <- substr(IESseq,0,window)
-back <- substr(IESseq,IESlength+2-window+1,IESlength+2)
+front <- substr(IESseq,0,windowSize)
+back <- substr(IESseq,IESlength+2-windowSize+1,IESlength+2)
 id <- character()
 for(i in pseL){
   if(substr(i[1],0,3)=="ID="){
@@ -87,9 +87,9 @@ for(i in pteL){
     if(j[1]=="sequence"){
       IESseq <- j[2]
       l <- nchar(IESseq)
-      IESlength <- append(IESlength,l)
-      front <- append(front,substr(IESseq,0,window))
-      back <- append(back,substr(IESseq,l-window+1,l))
+      front <- append(front,substr(IESseq,0,windowSize))
+      back <- append(back,substr(IESseq,l-windowSize+1,l))
+      IESlength <- append(IESlength,l-2) # The IES length does not include both TAs
     }
   }
 }
