@@ -7,15 +7,15 @@ matched <- regexpr("ID=[^;]*;", geneIds, perl = TRUE)
 geneIds <- gsub("(ID=)|;", "", regmatches(geneIds, matched), perl = TRUE)
 # G to P
 geneIds <- sub("G","P",geneIds)
-pteStrands <- pteG$V7[pteG$V3 == "gene"]
-names(pteStrands) <- geneIds
+pteStrand <- pteG$V7[pteG$V3 == "gene"]
+names(pteStrand) <- geneIds
 # --- P. biaurelia ---
 pbiG <- read.table("~/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gff3", as.is = TRUE)
 geneIds <- pbiG[pbiG$V3 == "gene", 9]
 matched <- regexpr("ID=[^;]*;", geneIds, perl = TRUE)
 geneIds <- gsub("(ID=)|;", "", regmatches(geneIds, matched), perl = TRUE)
 geneIds <- sub("G","P", geneIds)
-pbiStrands <- pbiG$V7[pbiG$V3 == "gene"]
-names(pbiStrands) <- geneIds
+pbiStrand <- pbiG$V7[pbiG$V3 == "gene"]
+names(pbiStrand) <- geneIds
 
-save(pteStrands, pbiStrands, file = "~/projects/IES/reports/outline/geneStrands")
+save(pteStrand, pbiStrand, file = "~/data/IES_data/rdb/geneStrand")

@@ -1,7 +1,7 @@
 # find pairs of orthologs
-library(seqinr)
-load("~/projects/IES/reports/outline/iesInfo")
-load("~/projects/IES/reports/outline/geneStrands")
+library( seqinr)
+load("~/data/IES_data/rdb/iesInfo")
+load("~/data/IES_data/rdb/geneStrand")
 source("~/projects/IES/src/sharedFunctions.R")
 # read pairs of true orthologs
 orth <- read.table("~/data/IES_data/msas/orthologs/pbipte.dat", as.is = TRUE, header=TRUE)
@@ -11,14 +11,10 @@ key <- paste(orth$pbi, orth$pte)
 # read character matrices
 path <- "~/data/IES_data/msas/alignments/charMat/"
 files <- dir(path, pattern="cluster.[^.]*.dat")
-
-#matBool <- matrix(nrow = windowSize * 2, ncol = 0)
-#logoList <- list()
-#logoInfo <- character()
 for(fileName in files){
   #  fileName <- files[7]
   # fileName <- "cluster.5591.dat"
-  a <- read.table(paste("~/data/IES_data/msas/alignments/charMat/", fileName,sep=""), header=T, row.names=1, as.is=TRUE)
+  a <- read.table(paste(path, fileName,sep=""), header=T, row.names=1, as.is=TRUE)
   # find which species are represented
   speciesV <- substr(row.names(a), 0,4)
   pbiI <- which(speciesV == "PBIA")
@@ -27,7 +23,7 @@ for(fileName in files){
     next # skip alignments without both P biaurelia and P. tetraurelia genes
   }
   # find rows that IES sequence has to be reverse complemented
-  toRevComp <- c(which(pbiStrands[row.names(a)] == "-"), which(pteStrands[row.names(a)] == "-"))
+  toRevComp <- c(which(pbiStrand[row.names(a)] == "-"), which(pteStrand[row.names(a)] == "-"))
   for(columnI in c(1:ncol(a))){ # for each column
     #columnI <- 2
     allInColumn <- character() # all homologous strings
@@ -58,9 +54,14 @@ for(fileName in files){
       if(trueOrthologsI[i, 2] %in% toRevComp){
         pteIESSeq <- rev(comp(pteIESSeq))
       }
-      if(is.na(orthIES[i,1])){stop()}
+      if(is.na(orthIES[i,1])){
+        print(cluster)
+        next()
+        # skip the rare cases of two IES on the same column (not sure if it is one or two)
+        # currently the only known example is of 5591
+      }
       orthPairs <- rbind(orthPairs, data.frame(cluster = paste(cluster, i), pbi = orthIES[i,1], pte = orthIES[i,2], pbiseq = toupper(c2s(pbiIESSeq)), pteseq = toupper(c2s(pteIESSeq)), stringsAsFactors = FALSE))
     }
   }
 }
-save(orthPairs, file = "~/data/IES_data/IESorthologs")
+save(orthPairs, file = "~/data/IES_data/rdb/IESorthologs")

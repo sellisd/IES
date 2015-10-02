@@ -79,4 +79,4 @@ for(i in pbiL){
   counter <- counter + 1
 }
 pbiD <- data.frame(length = IESlength, seq = IESsequence, front = front, back = back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, row.names=id, stringsAsFactors=FALSE)
-save(pteD, pbiD, file = "~/projects/IES/reports/outline/iesInfo")
+save(pteD, pbiD, file = "~/data/IES_data/rdb/iesInfo")

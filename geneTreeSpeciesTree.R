@@ -22,5 +22,5 @@ for(fileName in files){
     }
   }
 }
-save(selectedGroups, file = "~/data/IES_data/msas/geneTreesSpeciesTrees")
+save(selectedGroups, file = "~/data/IES_data/msas/geneTreeSpeciesTree")
 
