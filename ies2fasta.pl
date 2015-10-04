@@ -8,6 +8,7 @@ use Getopt::Long;
 my $help;
 my $input;
 my $output;
+my $addTA;
 my $usage = <<HERE;
 
 Create a fasta file with IES sequence from gff3 files.
@@ -15,14 +16,16 @@ usage:
   
 ies2fasta.pl [OPTIONS] IN OUT
 where OPTIONS can be:
-  -help|?: this help screen
+    -addTA:  add a trailing TA to all sequences (for P. caudatum IES)
+    -help|?: this help screen
 and
    IN: input file
   OUT: output file
  
 HERE
 
-die $usage unless (GetOptions('help|?' => \$help));
+die $usage unless (GetOptions('help|?' => \$help,
+		   'addTA' => \$addTA));
 die $usage if $#ARGV < 1;
 die $usage if $help;
 
@@ -44,6 +47,9 @@ my $inS = Bio::Tools::GFF->new('-file' => $input,
 while(my $feature = $inS->next_feature()){
     my $id = ($feature->get_tag_values('ID'))[0];
     my $seq =  ($feature->get_tag_values('sequence'))[0];
+    if ($addTA){
+	$seq .= 'TA';
+    }
     my $seqO = Bio::Seq->new('-seq'      => $seq,
 			     '-id'       => $id,
 			     '-alphabet' => 'dna');
