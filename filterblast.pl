@@ -12,10 +12,10 @@ my $identityCutoff = 95;
 
 open IN, $file or die $!;
 while(my $line = <IN>){
-	my @ar = split "", $line;
-	next if $ar[0] eq $ar[1]; # skip self hits
-	next if $ar[2] <= $identityCutoff;
-	next if $ar[3] <= $lengthCutoff;
-	print $line;
+    my @ar = split " ", $line;
+    next if $ar[0] eq $ar[1]; # skip self hits
+    next if $ar[2] <= $identityCutoff;
+    next if $ar[3] <= $lengthCutoff;
+    print $line;
 }
 close IN;
