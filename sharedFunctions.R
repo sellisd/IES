@@ -12,6 +12,14 @@ pairwiseIdentity <- function(a,b){
   ac==bc
 }
 
+complementarity <- function(a, b){
+  if(length(a) != length(b)){
+    stop()
+  }
+  b <- rev(comp(b))
+  pairwiseIdentity(a, b)
+}
+
 combS <- function(a,b){
   # function that finds all combinations of vectors a and b
   la <- length(a)

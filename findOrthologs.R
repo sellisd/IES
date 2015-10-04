@@ -14,6 +14,7 @@ files <- dir(path, pattern="cluster.[^.]*.dat")
 for(fileName in files){
   #  fileName <- files[7]
   # fileName <- "cluster.5591.dat"
+  #fileName <- "cluster.10008.dat"
   a <- read.table(paste(path, fileName,sep=""), header=T, row.names=1, as.is=TRUE)
   # find which species are represented
   speciesV <- substr(row.names(a), 0,4)
@@ -60,7 +61,7 @@ for(fileName in files){
         # skip the rare cases of two IES on the same column (not sure if it is one or two)
         # currently the only known example is of 5591
       }
-      orthPairs <- rbind(orthPairs, data.frame(cluster = paste(cluster, i), pbi = orthIES[i,1], pte = orthIES[i,2], pbiseq = toupper(c2s(pbiIESSeq)), pteseq = toupper(c2s(pteIESSeq)), stringsAsFactors = FALSE))
+      orthPairs <- rbind(orthPairs, data.frame(cluster = paste(cluster, columnI), pbi = orthIES[i,1], pte = orthIES[i,2], pbiseq = toupper(c2s(pbiIESSeq)), pteseq = toupper(c2s(pteIESSeq)), stringsAsFactors = FALSE))
     }
   }
 }

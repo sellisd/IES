@@ -3,7 +3,7 @@ library(ape)
 selectedGroups <- numeric(0)
 treePath <- "~/data/IES_data/msas/phyldog/results/"
 charmatPath <- "~/data/IES_data/msas/alignments/charMat/"
-files <- dir(path,pattern="[^.]*.ReconciledTree$")
+files <- dir(treePath,pattern="[^.]*.ReconciledTree$")
 spTreeString <- "(((PBIA:1,PTET:1):1,PSEX:1):1, PCAU:1);"
 spTree <- read.tree(text=spTreeString)
 for(fileName in files){

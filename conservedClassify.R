@@ -12,9 +12,9 @@ for(group in selectedGroups){
   a[a == 0] <- 0
   a <- a[keepRows, , drop = FALSE]
   row.names(a) <- spNames[keepRows]
-  for(i in ncol(a)){
+  for(i in c(1:ncol(a))){
     #  cons <- rbind(cons, data.frame(group = group, col = i, inpbi = a["PBIA", i], inptet = a["PTET", i], inpsex = a["PSEX", i], inpca = a["PCAU", i], stringsAsFactors = FALSE))
-    cons <- rbind(cons, data.frame(group = group, col = i, pattern = paste(a[c("PBIA", "PTET", "PSEX", "PCAU"), i], sep="", collapse = "")))
+    cons <- rbind(cons, data.frame(group = group, col = i, pattern = paste(a[c("PBIA", "PTET", "PSEX", "PCAU"), i], sep="", collapse = ""), stringsAsFactors = FALSE))
   }
 }
 save(cons, file = "~/data/IES_data/rdb/conservationPatterns")
