@@ -3,13 +3,41 @@ use warnings;
 use strict;
 use Bio::SeqIO;
 use Bio::Tools::GFF;
-# create fasta file with IES sequence
+use Getopt::Long;
+
+my $help;
+my $input;
+my $output;
+my $usage = <<HERE;
+
+Create a fasta file with IES sequence from gff3 files.
+usage:
+  
+ies2fasta.pl [OPTIONS] IN OUT
+where OPTIONS can be:
+  -help|?: this help screen
+and
+   IN: input file
+  OUT: output file
+ 
+HERE
+
+die $usage unless (GetOptions('help|?' => \$help));
+die $usage if $#ARGV < 1;
+die $usage if $help;
 
 #read ies gff
-my $input = '/home/dsellis/data/IES_data/ptetraurelia/internal_eliminated_sequence_PGM_IES51.pt_51_with_ies.gff3';
-my $output = '>/home/dsellis/data/IES_data/ptetraurelia/ies.fa';
+$input = $ARGV[0]; #'/home/dsellis/data/IES_data/ptetraurelia/internal_eliminated_sequence_PGM_IES51.pt_51_with_ies.gff3';
+$output = $ARGV[1]; #'>/home/dsellis/data/IES_data/ptetraurelia/ies.fa';
 
-my $outS = Bio::SeqIO->new('-file' => $output,
+if(! -e $input){
+    die "file does not exist: $input\n";
+}
+if(-e $output){
+    die "output file already exists, didn't overwrite: $output\n";
+}
+
+my $outS = Bio::SeqIO->new('-file' => '>'.$output,
 			   '-format' => 'fasta');
 my $inS = Bio::Tools::GFF->new('-file' => $input,
 			       '-gff_version'=> 3);
