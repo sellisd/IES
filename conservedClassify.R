@@ -1,5 +1,5 @@
 # classify homologous IES columns at different patterns of conservation
-load("~/data/IES_data/msas/geneTreesSpeciesTrees")
+load("~/data/IES_data/msas/geneTreeSpeciesTree")
 charmatPath <- "~/data/IES_data/msas/alignments/charMat/"
 cons <- data.frame(stringsAsFactors = FALSE)
 for(group in selectedGroups){
