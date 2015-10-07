@@ -16,7 +16,7 @@ names(pbiLengthBins) <- row.names(pbiD)
 pteIesLengthsIR <- IRanges(start = pteD$length, end = pteD$length)
 pteBins <- findOverlaps(pteIesLengthsIR,lengthBins)
 pteLengthBins <- pteBins@subjectHits
-names(pteLengthBins) <- row.names(pbiD)
+names(pteLengthBins) <- row.names(pteD)
 
 pseIesLengthsIR <- IRanges(start = pseD$length, end = pseD$length)
 pseBins <- findOverlaps(pseIesLengthsIR,lengthBins)
@@ -28,4 +28,4 @@ pcaBins <- findOverlaps(pcaIesLengthsIR,lengthBins)
 pcaLengthBins <- pcaBins@subjectHits
 names(pcaLengthBins) <- row.names(pcaD)
 
-save(pbiLengthBins, pteLengthBins, pseLengthBins, pcaLengthBins, file = "~/data/IES_data/rdb/iesLengthBins")
+save(pbiLengthBins, pteLengthBins, pseLengthBins, pcaLengthBins, file = "~/data/IES_data/rdb/lengthBins")
