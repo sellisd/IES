@@ -12,14 +12,12 @@ my $evalueCutoff = 0.001;
 # qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore
 # for each IES keep the lowest e-value and if multiple the lowest bit-score
 my %tophits;
-
+my %worsehits;
 open IN, $file or die $!;
 while(my $line = <IN>){
     my @ar = split " ", $line;
-    next if $ar[0] eq $ar[1]; # skip self hits
     #next if $ar[2] <= $identityCutoff;
     #next if $ar[3] <= $lengthCutoff;
-    next if $ar[10] >= $evalueCutoff;
     my $currentMatch = {'sseqid' => $ar[1],
 			'pident' => $ar[2],
 			'length' => $ar[3],
@@ -32,6 +30,19 @@ while(my $line = <IN>){
 			'evalue' => $ar[10],
 			'bitscore' => $ar[11],
 			'out of' => 0};
+    if($ar[0] eq $ar[1]){
+#pick the worse self-hits and print separately
+	if(defined($worsehits{$ar[0]})){
+#	    keep the onw with the worse evalue
+	    if($worsehits{$ar[0]}->{'evalue'} < $ar[10]){
+		$worsehits{$ar[0]} = $currentMatch;
+	    }
+	}else{
+	    $worsehits{$ar[0]} = $currentMatch;
+	}
+	next;  # skip self hits
+    }
+    next if $ar[10] >= $evalueCutoff; # keep best hits with high e-value only
     if(defined($tophits{$ar[0]})){ # is this IES previously seen?
 	if($tophits{$ar[0]}->{'evalue'} < $ar[10]){ # if evalue is less
 	    $tophits{$ar[0]} = $currentMatch;       #     replace
@@ -57,15 +68,34 @@ while(my $line = <IN>){
 }
 close IN;
 
+# foreach my $qies (sort keys %worsehits){
+#     print $qies,' ';
+#     print $worsehits{$qies}->{'sseqid'},' ';
+#     print $worsehits{$qies}->{'pident'},' ';
+#     print $worsehits{$qies}->{'length'},' ';
+#     print $worsehits{$qies}->{'mismatch'},' ';
+#     print $worsehits{$qies}->{'evalue'},' ';
+#     print $worsehits{$qies}->{'bitscore'},' ';
+#     print $worsehits{$qies}->{'out of'},' ';
+#     print "\n";
+# }
+
 foreach my $qies (sort keys %tophits){
-    print &iesName2species($qies), ' ';
-    print &iesName2species($tophits{$qies}->{'sseqid'}),' ';
-    print $tophits{$qies}->{'pident'},' ';
-    print $tophits{$qies}->{'length'},' ';
-    print $tophits{$qies}->{'mismatch'},' ';
-    print $tophits{$qies}->{'evalue'},' ';
-    print $tophits{$qies}->{'bitscore'},' ';
-    print $tophits{$qies}->{'out of'},' ';
+    print &iesName2species($qies), ' ';                        # 1 query IES
+    print &iesName2species($tophits{$qies}->{'sseqid'}),' ';   # 2 top hit IES
+    print $tophits{$qies}->{'pident'},' ';                     # 3 pident
+    print $tophits{$qies}->{'length'},' ';                     # 4 length
+    print $tophits{$qies}->{'mismatch'},' ';                   # 5 mismatch
+    print $tophits{$qies}->{'evalue'},' ';                     # 6 e-value
+    print $tophits{$qies}->{'bitscore'},' ';                   # 7 bit score
+    print $tophits{$qies}->{'out of'},' ';                     # 8 No of equally best hits
+    if(defined($worsehits{$qies})){
+	# The self-hit for this IES with the worse e-value
+	print $worsehits{$qies}->{'evalue'},' ';               # 9 e-value of worse self-hit
+    }else{
+	die;
+# There is no self-hit for this IES???
+    }
     print "\n";
 }
 
