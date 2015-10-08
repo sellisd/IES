@@ -63,3 +63,45 @@ prepareLOGO <- function(l){
 nadel <- function(x){
   as.vector(x[!is.na(x)])
 }
+# 
+# x <- data.frame(letters = letters[1:10], numbers1 = c(1:10), numbers2 = c(1,1,1,1,1,1,1,2,2,2), ignored = letters[1:10], numbers3 = c(NA,NA,NA,2,3,3,4,4,5,5))
+# col2permute <- c("letters", "numbers1")
+# col2keepFixed <- c("numbers2", "numbers3")
+
+permuteBy <- function(x, col2permute, col2keepFixed, ret = "index"){
+  # function that permutes values in data.frame column but keeping values in another column fixed
+  # col2permute can be a column name of the x data.frame  or a character vector with multiple such names
+  # col2keepFixed can be a column name of the x data.frame
+  if(!is.data.frame(x)){
+    stop("x must be a data.frame")
+  }
+  permutedI <- numeric(nrow(x))
+  #make a key from all columns that we need to keep
+  if(length(col2keepFixed) >  1){
+    key <-  apply(x[ , col2keepFixed], 1, paste0, collapse =" ")
+  }else{
+    key <- x[, col2keepFixed]
+  }
+  #find unique combinations
+  lev <- unique(key)
+  #find index of unique combinations
+  for(l in lev){
+    index <- which(key == l)
+    if(length(index) == 1){
+      newIndex = index
+    }else{
+      newIndex <- sample(index, length(index))    
+    }
+    permutedI[index] <- newIndex
+  }
+  for(i in col2permute){
+    x[i] <- x[permutedI, i]
+  }
+  if(ret == "index"){
+    return(permutedI)
+  }else if(ret == "data.frame"){
+    return(x)
+  }else{
+    stop("return error")
+  }
+}
