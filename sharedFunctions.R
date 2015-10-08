@@ -105,3 +105,9 @@ permuteBy <- function(x, col2permute, col2keepFixed, ret = "index"){
     stop("return error")
   }
 }
+
+compl <- function(gc){
+  # The expected complementarity of random sequences with gc GC%
+  at <- 1 - gc  
+  at*at/2+gc*gc/2
+}
