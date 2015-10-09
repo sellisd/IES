@@ -13,6 +13,7 @@ pairwiseIdentity <- function(a,b){
 }
 
 complementarity <- function(a, b){
+  # calculate per locus complementarity of two sequences, by reverse complementing the second and calculating identity
   if(length(a) != length(b)){
     stop()
   }

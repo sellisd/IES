@@ -42,7 +42,13 @@ for(i in pteL){
   }
   counter <- counter + 1
 }
-pteD <- data.frame(length=IESlength, seq = IESsequence, front=front,back=back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, row.names=id, stringsAsFactors=FALSE)
+pteD <- data.frame(length=IESlength,
+                   seq = IESsequence,
+                   front=front, back=back,
+                   start = start, end = end,
+                   floating = floatingB,
+                   upstream = upstream, downstream = downstream,
+                   row.names=id, stringsAsFactors=FALSE)
 
 # ------- for P. biaurelia ----------
 pbi <- read.table("~/data/IES_data/pbiaurelia/internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.fl.gff3", as.is = TRUE)

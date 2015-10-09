@@ -47,4 +47,4 @@ for(i in clusters){
   }
 }
 
-save(matBool, matBoolR, extendedTable, file = "~/data/IES_data/rdb/pairwiseIdentity")
+save(matBool, matBoolR, extendedTable, windowSize, file = "~/data/IES_data/rdb/pairwiseIdentity")
