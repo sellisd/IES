@@ -30,6 +30,26 @@ sub whichInOne{
     return \%inOne;
 }
 
+sub gene2species{
+#get species name from gene name
+    my $string = shift @_;
+    my $speciesName;
+    my $abr = substr($string,0,4);
+    if($abr eq 'PCAU'){
+	$speciesName = 'Paramecium_caudatum';
+    }elsif($abr eq 'PSEX'){
+	$speciesName = 'Paramecium_sexaurelia';
+    }elsif($abr eq 'PTET'){
+	$speciesName = 'Paramecium_tetraurelia';
+    }elsif($abr eq 'PBIA'){
+	$speciesName = 'Paramecium_biaurelia';
+    }elsif($abr eq 'TTHE'){
+	$speciesName = 'Tetrahymena_thermophila';
+    }else{
+	die "unknown name $abr";
+    }
+}
+
 # sub mergeOverlap{
 # 	# if elements in @A partially overlap return which should be merged
 # 	my $asref = shift @_;

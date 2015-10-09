@@ -3,6 +3,8 @@ use warnings;
 use strict;
 use File::Path qw(make_path);
 use Bio::SeqIO;
+use lib'.';
+use functions;
 my $inputFiltered = '/home/dsellis/data/IES_data/msas/alignments/filtered/'; 
 #my $inputTreesF = '/home/dsellis/data/IES_data/msas/tree/trees.tre';
 
@@ -107,25 +109,6 @@ foreach my $file (@charMats){
 }
 close DH;
 
-sub gene2species{
-#get species name from gene name
-    my $string = shift @_;
-    my $speciesName;
-    my $abr = substr($string,0,4);
-    if($abr eq 'PCAU'){
-	$speciesName = 'Paramecium_caudatum';
-    }elsif($abr eq 'PSEX'){
-	$speciesName = 'Paramecium_sexaurelia';
-    }elsif($abr eq 'PTET'){
-	$speciesName = 'Paramecium_tetraurelia';
-    }elsif($abr eq 'PBIA'){
-	$speciesName = 'Paramecium_biaurelia';
-    }elsif($abr eq 'TTHE'){
-	$speciesName = 'Tetrahymena_thermophila';
-    }else{
-	die "unknown name $abr";
-    }
-}
 
 #prepare appropriate directories and files for a phyldog run
 
