@@ -62,8 +62,9 @@ my @files = grep {/^.*.\.ReconciledTree$/} readdir(DH);
 close DH;
 
 open OUT, '>'.$output or die $!;
-print OUT "cluster\tgeneId\tgroup\tspecies\n"; #header
+print OUT "subtree\tcluster\tgeneId\tgroup\tspecies\n"; #header
 
+my $subtreeId = 0; # counter of subtrees
 my $fileCounter = 0;
 foreach my $fileName(sort @files){
   $fileName =~ /(\d+)\.ReconciledTree$/;
@@ -108,11 +109,12 @@ foreach my $fileName(sort @files){
 	    }
 	}
 	foreach my $geneId (@ingroup){
-	    print OUT $cluster, "\t", $geneId, "\t", 'ingroup', "\t", gene2species($geneId),"\n";
+	    print OUT $subtreeId, "\t", $cluster, "\t", $geneId, "\t", 'ingroup', "\t", gene2species($geneId),"\n";
 	}
 	foreach my $geneId (@outgroup){
-	    print OUT $cluster, "\t", $geneId, "\t", 'outgroup', "\t", gene2species($geneId),"\n";
+	    print OUT $subtreeId, "\t", $cluster, "\t", $geneId, "\t", 'outgroup', "\t", gene2species($geneId),"\n";
 	}
+	$subtreeId++;
     }
   }
   $fileCounter++;
