@@ -1,7 +1,7 @@
 # Shared functions
 library(seqinr) # make s2c availabel
 library(seqLogo)
-
+library(plyr)
 pairwiseIdentity <- function(a,b){
   # function that returnes a boolean vector with identities of the character matrix with two input strings
   if(length(a) != length(b)){
@@ -149,16 +149,18 @@ presenceAbsence <- function(sp){
   seI <- which(extMat[, "species"] == "Paramecium_sexaurelia")
   caI <- which(extMat[, "species"] == "Paramecium_caudatum")
   subtrees <- unique(extMat$subtree)
-  patternsV <- character(length(subtrees))
+  patternsM <- matrix(ncol = 4, nrow = length(subtrees))
+#  patternsV <- character(length(subtrees))
   counter <- 1
   #for(clustcol in unique(homIES)){
   for(subtree in subtrees){
-    # for each cluster AND column
-    #subtree <- unique(extMat$subtree)[1]
     indexCM <- which(extMat$subtree == subtree)
     #for each species find if at least one IES
-    patternsV[counter] <- paste(appa(extMat[intersect(biI, indexCM), "ies"]), appa(extMat[intersect(teI, indexCM), "ies"]), appa(extMat[intersect(seI, indexCM), "ies"]), appa(extMat[intersect(caI, indexCM), "ies"]))
+    patternsM[counter, ] <- c(appa(extMat[intersect(biI, indexCM), "ies"]),
+                              appa(extMat[intersect(teI, indexCM), "ies"]),
+                              appa(extMat[intersect(seI, indexCM), "ies"]),
+                              appa(extMat[intersect(caI, indexCM), "ies"]))
     counter <- counter + 1
   }
-  patternsV
+  patternsM
 }
