@@ -112,3 +112,53 @@ compl <- function(gc){
   at <- 1 - gc  
   at*at/2+gc*gc/2
 }
+
+appa <- function(x){
+  # approximate presence-absence
+  # The function determines the state of an IES in a species from character vector containing information from all paralogs
+  # INPUT: a character string with the following options
+  #       0:  absence
+  #       NA: unknown IES state
+  #       !=0: presence
+  # OUTPUT: NA: no IES information
+  #          0: all absent
+  #          1: at least one present
+  #         -1: empty input
+  if(length(x) == 0){
+    return(-1)
+  }
+  if(all(is.na(x))){
+    return(NA)
+  }
+  if(all(x == 0, na.rm = TRUE)){
+    return(0)
+  }
+  if(any(x != 0)){
+    return(1)
+  }  
+}
+
+presenceAbsence <- function(sp){
+  # Function to assign patterns of presence / absence of IES in subtrees.
+  # In the case of multiple paralogs, presence is counted as at least one parlaog having an IES
+  load("~/data/IES_data/rdb/charMats")
+  # add to charMats a column with in-/outgroup/NA and species
+  extMat <- join(charMats, sp, by = "geneId")
+  biI <- which(extMat[, "species"] == "Paramecium_biaurelia")
+  teI <- which(extMat[, "species"] == "Paramecium_tetraurelia")
+  seI <- which(extMat[, "species"] == "Paramecium_sexaurelia")
+  caI <- which(extMat[, "species"] == "Paramecium_caudatum")
+  subtrees <- unique(extMat$subtree)
+  patternsV <- character(length(subtrees))
+  counter <- 1
+  #for(clustcol in unique(homIES)){
+  for(subtree in subtrees){
+    # for each cluster AND column
+    #subtree <- unique(extMat$subtree)[1]
+    indexCM <- which(extMat$subtree == subtree)
+    #for each species find if at least one IES
+    patternsV[counter] <- paste(appa(extMat[intersect(biI, indexCM), "ies"]), appa(extMat[intersect(teI, indexCM), "ies"]), appa(extMat[intersect(seI, indexCM), "ies"]), appa(extMat[intersect(caI, indexCM), "ies"]))
+    counter <- counter + 1
+  }
+  patternsV
+}
