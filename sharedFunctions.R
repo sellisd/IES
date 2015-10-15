@@ -137,7 +137,7 @@ appa <- function(x){
     return(1)
   }  
 }
-
+#sp <- spGT
 presenceAbsence <- function(sp){
   # Function to assign patterns of presence / absence of IES in subtrees.
   # In the case of multiple paralogs, presence is counted as at least one parlaog having an IES
@@ -163,4 +163,17 @@ presenceAbsence <- function(sp){
     counter <- counter + 1
   }
   patternsM
+}
+
+
+gene2species <- function(string){
+  # get a character vector of species names from 
+  # a character vector of gene names
+  knownSpeciesNames <- c("Paramecium_caudatum", "Paramecium_sexaurelia", "Paramecium_tetraurelia", "Paramecium_biaurelia", "Tetrahymena_thermophila")
+  names(knownSpeciesNames) <-  c("PCAU", "PSEX", "PTET", "PBIA", "TTHE")
+  speciesNames <- knownSpeciesNames[substr(string, 0, 4)]
+  if(any(is.na(speciesNames))){
+    stop(paste("unknown name", string[which(is.na(speciesNames))]))
+  }
+  speciesNames
 }
