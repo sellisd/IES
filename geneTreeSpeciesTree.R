@@ -19,7 +19,7 @@ for(fileName in files){
     geneNames <- geneTree$tip.label
     geneTree$tip.label <- substr(geneNames, 0, 4)
     if(length(geneTree$tip.label) == 4 && sort(geneTree$tip.label) == sort(spTree$tip.label)){ # ignore trees of wrong size
-     # if(dist.topo(spTree, geneTree) == 0){
+      if(dist.topo(spTree, geneTree) == 0){
         selectedGroups <- append(selectedGroups,groupNo)
         spGT <- rbind(spGT,
                       data.frame(subtree = counter,
@@ -31,7 +31,7 @@ for(fileName in files){
                                  ),
                       make.row.names = FALSE
                       )
-     # }
+      }
     }
   }
   counter <- counter + 1
