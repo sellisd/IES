@@ -148,19 +148,32 @@ presenceAbsence <- function(sp){
   teI <- which(extMat[, "species"] == "Paramecium_tetraurelia")
   seI <- which(extMat[, "species"] == "Paramecium_sexaurelia")
   caI <- which(extMat[, "species"] == "Paramecium_caudatum")
-  subtrees <- unique(extMat$subtree)
-  patternsM <- matrix(ncol = 4, nrow = length(subtrees))
-#  patternsV <- character(length(subtrees))
+  uniqueSubtrees <- unique(extMat$subtree)
+  # the total number of patterns will be the product of the number of subtrees by the number of columns in each one
+  countRows <- extMat[,c("column","subtree")]
+  countRows <- countRows[!is.na(countRows$subtree), ]
+  countRows <- unique(paste(countRows[,1], countRows[,2]))
+  patternsM <- matrix(ncol = 4, nrow = length(countRows)) # minimum length of matrix
+#  patternsV <- character(length(uniqueSubtrees))
   counter <- 1
   #for(clustcol in unique(homIES)){
-  for(subtree in subtrees){
-    indexCM <- which(extMat$subtree == subtree)
-    #for each species find if at least one IES
-    patternsM[counter, ] <- c(appa(extMat[intersect(biI, indexCM), "ies"]),
-                              appa(extMat[intersect(teI, indexCM), "ies"]),
-                              appa(extMat[intersect(seI, indexCM), "ies"]),
-                              appa(extMat[intersect(caI, indexCM), "ies"]))
-    counter <- counter + 1
+  for(subtree in uniqueSubtrees){
+    #subtree <- uniqueSubtrees[2]
+    if(is.na(subtree)){
+      next
+    }
+    indexCM <- which(extMat$subtree == subtree) # create and index for the current subtree
+    homologIES <- unique(extMat[indexCM, "column"])
+    for(column in homologIES){
+      # column <- homologIES[1]                 # and one for each column
+      indexCMC <- which(extMat$subtree == subtree & extMat$column == column)
+      # for each species find if at least one IES
+      patternsM[counter, ] <- c(appa(extMat[intersect(biI, indexCMC), "ies"]),
+                                appa(extMat[intersect(teI, indexCMC), "ies"]),
+                                appa(extMat[intersect(seI, indexCMC), "ies"]),
+                                appa(extMat[intersect(caI, indexCMC), "ies"]))
+      counter <- counter + 1
+    }
   }
   patternsM
 }
