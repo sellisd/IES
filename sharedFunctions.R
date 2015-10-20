@@ -264,5 +264,81 @@ overlapping <- function(a, b){
   # overlapping(a, b9) # 1
   # overlapping(a, b10) # 1
   # overlapping(a, b11) # 0
-  
+}
+
+closest <- function(df, index, direction){
+  # look up or down in sorted data.frame for closest gene to the one at row index
+  # return index of closest gene, distance and relative orientation
+  # if no closest gene present (first or last) return -1
+  # if there is overlap with closest genes return -1
+  scaffold <- df[index, "scaffold"]
+  if(direction == "upstream"){
+    ua <- -1
+  }else if(direction == "downstream"){
+    ua <- +1
+  }else{
+    stop("unknown direction")
+  }
+  candidate <- index + ua
+  if(length(pbiBE[candidate, "scaffold"]) == 0){
+    # first gene 
+    return(-1)
+  }else if(is.na(pbiBE[candidate, "scaffold"])){
+    # last gene reached
+    return(-1)
+  }else{
+    if(overlapping(df[index, ], df[candidate, ])){
+      return(-1) # overlapping gene
+    }else{
+      neighborIndex <- index + ua
+      if(direction == "downstream"){
+        return(c(index = neighborIndex, geneDist(df[index, ], df[neighborIndex, ])))
+      }else if(direction == "upstream"){
+        return(c(index = neighborIndex, geneDist(df[neighborIndex, ], df[index, ])))
+      }
+      return(neighborIndex)
+    }
+  }
+}
+
+geneDist <- function(a, b){
+  # genomic distance and relative orientation calculation assuming b is downstream a
+  if(a$strand == "+" & b$strand == "+"){
+    d <- b$begin - a$end - 1 # -> ->
+    relOri <- "same"
+  }else if(a$strand == "-" & b$strand == "-"){ # <- <-
+    d <- b$end - a$begin - 1
+    relOri <- "same"
+  }else if(a$strand == "+" & b$strand == "-"){
+    d <- b$end - a$end - 1
+    relOri <- "in" # heads in ->  <-
+  }else if(a$strand == "-" & b$strand == "+"){
+    d <- b$begin - a$begin 
+    relOri <- "out" # heads out <- ->
+  }else{
+    stop("unknown orientation(s)")
+  }
+  return(c(distance = d, relOri = relOri))
+}
+
+genePairs <- function(df){
+  # from the output of extractGenes function find all pairs of consecutive genes, their distances and relative orientation, excluding overlapping genes
+  l <- nrow(df)
+  genePairsM <- matrix(ncol = 5, nrow = 2 * l)
+  for(i in c(1:l)){
+    scaffold <- df[i, "scaffold"]
+    upNeighbor <- closest(df, i, "upstream")
+    downNeighbor <- closest(df, i, "downstream")
+    if(length(upNeighbor) == 1){
+      # either first gene or overlapping another gene
+    }else{
+      genePairsM[i, ] <- c(df[i, "id"], df[upNeighbor["index"], "id"], "upstream", unname(upNeighbor[c("distance", "relOri")]))
+    }
+    if(length(downNeighbor) == 1){
+      # either last gene in scaffold or overlapping another one
+    }else{
+      genePairsM[i, ] <- c(df[i, "id"], df[downNeighbor["index"], "id"], "downstream", unname(downNeighbor[c("distance", "relOri")]))
+    }
+  }
+  genePairsM
 }
