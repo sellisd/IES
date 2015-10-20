@@ -1,7 +1,10 @@
 # Shared functions
+
+# required libraries
 library(seqinr) # make s2c availabel
 library(seqLogo)
 library(plyr)
+
 pairwiseIdentity <- function(a,b){
   # function that returnes a boolean vector with identities of the character matrix with two input strings
   if(length(a) != length(b)){
@@ -189,4 +192,77 @@ gene2species <- function(string){
     stop(paste("unknown name", string[which(is.na(speciesNames))]))
   }
   speciesNames
+}
+
+extractGenes <- function(ggff){
+  # extract information for genes from a gff3 file
+  geneIndex <- which(ggff$V3 == "gene")
+  geneIds <- ggff[geneIndex, 9]
+  matched <- regexpr("ID=[^;]*;", geneIds, perl = TRUE)
+  # clean names fron ID=...;
+  geneIds <- gsub("(ID=)|;", "", regmatches(geneIds, matched), perl = TRUE)
+  # G to P 
+  geneIds <- sub("G","P",geneIds)
+  scaffold <- ggff[geneIndex, 1]
+  strand <- ggff[geneIndex, 7]
+  begin <- ggff[geneIndex, 4]
+  end <- ggff[geneIndex, 5]
+  df <- data.frame(id = geneIds, begin = begin, end = end, strand = strand, scaffold = scaffold, stringsAsFactors = FALSE)
+  #order by scaffold, then by start and then by end
+  df[order(df$scaffold, df$begin, df$end), ]
+}
+
+
+overlapping <- function(a, b){
+  # function that tests if two elements a and b are overlapping
+  if(a$strand == '-'){
+    beginA <- a$end
+    endA <- a$begin
+  }else{
+    beginA <- a$begin
+    endA <- a$end
+  }
+  if(b$strand == '-'){
+    beginB <- b$end
+    endB <- b$begin
+  }else{
+    beginB <- b$begin
+    endB <- b$end
+  }
+  if(beginB >= beginA & beginB <= endA){  # B starts within A
+    return(1) 
+  }
+  if(endB >= beginA & endB <= endA){      # B ends within A
+    return(1)
+  }
+  if(endB >= endA & beginB <= beginA){
+    return(1)                             # A is within B
+  }
+  return(0)
+  # # testing code for function
+  # a <- data.frame(begin = 10, end = 20, strand = "+") 
+  # b1 <- data.frame(begin = 1, end = 2, strand = "+")
+  # b2 <- data.frame(begin = 1, end = 10, strand = "+")
+  # b3 <- data.frame(begin = 1, end = 12, strand = "+")
+  # b4 <- data.frame(begin = 1, end = 20, strand = "+")
+  # b5 <- data.frame(begin = 1, end = 22, strand = "+")
+  # b6 <- data.frame(begin = 10, end = 20, strand = "+")
+  # b7 <- data.frame(begin = 12, end = 18, strand = "+")
+  # b8 <- data.frame(begin = 12, end = 20, strand = "+")
+  # b9 <- data.frame(begin = 12, end = 25, strand = "+")
+  # b10 <- data.frame(begin = 20, end = 25, strand = "+")
+  # b11 <- data.frame(begin = 22, end = 25, strand = "+")
+  # 
+  # overlapping(a, b1) # 0
+  # overlapping(a, b2) # 1
+  # overlapping(a, b3) # 1
+  # overlapping(a, b4) # 1
+  # overlapping(a, b5) # 1
+  # overlapping(a, b6) # 1
+  # overlapping(a, b7) # 1
+  # overlapping(a, b8) # 1
+  # overlapping(a, b9) # 1
+  # overlapping(a, b10) # 1
+  # overlapping(a, b11) # 0
+  
 }
