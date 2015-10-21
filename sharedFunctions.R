@@ -280,10 +280,10 @@ closest <- function(df, index, direction){
     stop("unknown direction")
   }
   candidate <- index + ua
-  if(length(pbiBE[candidate, "scaffold"]) == 0){
+  if(length(df[candidate, "scaffold"]) == 0){
     # first gene 
     return(-1)
-  }else if(is.na(pbiBE[candidate, "scaffold"])){
+  }else if(is.na(df[candidate, "scaffold"])){
     # last gene reached
     return(-1)
   }else{
@@ -302,22 +302,24 @@ closest <- function(df, index, direction){
 }
 
 geneDist <- function(a, b){
-  # genomic distance and relative orientation calculation assuming b is downstream a
+  # The genomic coordinates (begin, end) are not dependent on orientation, begin is always more upstream than end
+  # genomic distance and relative orientation calculation assuming b is downstream a.
   if(a$strand == "+" & b$strand == "+"){
-    d <- b$begin - a$end - 1 # -> ->
+    #d <- b$begin - a$end - 1 # -> ->
     relOri <- "same"
   }else if(a$strand == "-" & b$strand == "-"){ # <- <-
-    d <- b$end - a$begin - 1
+    #d <- b$end - a$begin - 1
     relOri <- "same"
   }else if(a$strand == "+" & b$strand == "-"){
-    d <- b$end - a$end - 1
+    #d <- b$end - a$end - 1
     relOri <- "in" # heads in ->  <-
   }else if(a$strand == "-" & b$strand == "+"){
-    d <- b$begin - a$begin 
+    #d <- b$begin - a$begin 
     relOri <- "out" # heads out <- ->
   }else{
     stop("unknown orientation(s)")
   }
+  d <- b$begin - a$end
   return(c(distance = d, relOri = relOri))
 }
 
@@ -325,6 +327,7 @@ genePairs <- function(df){
   # from the output of extractGenes function find all pairs of consecutive genes, their distances and relative orientation, excluding overlapping genes
   l <- nrow(df)
   genePairsM <- matrix(ncol = 5, nrow = 2 * l)
+  counter <- 1
   for(i in c(1:l)){
     scaffold <- df[i, "scaffold"]
     upNeighbor <- closest(df, i, "upstream")
@@ -332,13 +335,20 @@ genePairs <- function(df){
     if(length(upNeighbor) == 1){
       # either first gene or overlapping another gene
     }else{
-      genePairsM[i, ] <- c(df[i, "id"], df[upNeighbor["index"], "id"], "upstream", unname(upNeighbor[c("distance", "relOri")]))
+      genePairsM[counter, ] <- c(df[i, "id"], df[upNeighbor["index"], "id"], "upstream", unname(upNeighbor[c("distance", "relOri")]))
+      counter <- counter + 1
     }
     if(length(downNeighbor) == 1){
       # either last gene in scaffold or overlapping another one
     }else{
-      genePairsM[i, ] <- c(df[i, "id"], df[downNeighbor["index"], "id"], "downstream", unname(downNeighbor[c("distance", "relOri")]))
+      genePairsM[counter, ] <- c(df[i, "id"], df[downNeighbor["index"], "id"], "downstream", unname(downNeighbor[c("distance", "relOri")]))
+      counter <- counter + 1
     }
   }
-  genePairsM
+  genePairsM[apply(genePairsM, 1, notAllNA), ] # return matrix without the extra rows of NAs
+}
+
+notAllNA <- function(a){
+  # useful for use in apply function
+  !all(is.na(a))
 }
