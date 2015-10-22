@@ -215,55 +215,17 @@ extractGenes <- function(ggff){
 
 overlapping <- function(a, b){
   # function that tests if two elements a and b are overlapping
-  if(a$strand == '-'){
-    beginA <- a$end
-    endA <- a$begin
-  }else{
-    beginA <- a$begin
-    endA <- a$end
-  }
-  if(b$strand == '-'){
-    beginB <- b$end
-    endB <- b$begin
-  }else{
-    beginB <- b$begin
-    endB <- b$end
-  }
-  if(beginB >= beginA & beginB <= endA){  # B starts within A
+  # strand is ignored as we care for both strands
+  if(b$begin >= a$begin & b$begin <= a$end){  # B starts within A
     return(1) 
   }
-  if(endB >= beginA & endB <= endA){      # B ends within A
+  if(b$end >= a$begin & b$end <= a$end){      # B ends within A
     return(1)
   }
-  if(endB >= endA & beginB <= beginA){
+  if(b$end >= a$end & b$begin <= a$begin){
     return(1)                             # A is within B
   }
   return(0)
-  # # testing code for function
-  # a <- data.frame(begin = 10, end = 20, strand = "+") 
-  # b1 <- data.frame(begin = 1, end = 2, strand = "+")
-  # b2 <- data.frame(begin = 1, end = 10, strand = "+")
-  # b3 <- data.frame(begin = 1, end = 12, strand = "+")
-  # b4 <- data.frame(begin = 1, end = 20, strand = "+")
-  # b5 <- data.frame(begin = 1, end = 22, strand = "+")
-  # b6 <- data.frame(begin = 10, end = 20, strand = "+")
-  # b7 <- data.frame(begin = 12, end = 18, strand = "+")
-  # b8 <- data.frame(begin = 12, end = 20, strand = "+")
-  # b9 <- data.frame(begin = 12, end = 25, strand = "+")
-  # b10 <- data.frame(begin = 20, end = 25, strand = "+")
-  # b11 <- data.frame(begin = 22, end = 25, strand = "+")
-  # 
-  # overlapping(a, b1) # 0
-  # overlapping(a, b2) # 1
-  # overlapping(a, b3) # 1
-  # overlapping(a, b4) # 1
-  # overlapping(a, b5) # 1
-  # overlapping(a, b6) # 1
-  # overlapping(a, b7) # 1
-  # overlapping(a, b8) # 1
-  # overlapping(a, b9) # 1
-  # overlapping(a, b10) # 1
-  # overlapping(a, b11) # 0
 }
 
 closest <- function(DF, index, direction){
@@ -335,7 +297,7 @@ geneDist <- function(a, b){
 genePairs <- function(DF){
   # from the output of extractGenes function find all pairs of consecutive genes, their distances and relative orientation, excluding overlapping genes
   l <- nrow(DF)
-  genePairsM <- matrix(ncol = 5, nrow = 2 * l)
+  genePairsM <- matrix(ncol = 7, nrow = 2 * l)
   counter <- 1
   for(i in c(1:l)){
     scaffold <- DF[i, "scaffold"]
@@ -364,3 +326,5 @@ notAllNA <- function(a){
   # useful for use in apply function
   !all(is.na(a))
 }
+
+source("~/projects/IES/src/testSharedFunctions.R")
