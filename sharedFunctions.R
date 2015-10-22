@@ -266,12 +266,13 @@ overlapping <- function(a, b){
   # overlapping(a, b11) # 0
 }
 
-closest <- function(df, index, direction){
+closest <- function(DF, index, direction){
   # look up or down in sorted data.frame for closest gene to the one at row index
   # return index of closest gene, distance and relative orientation
-  # if no closest gene present (first or last) return -1
+  # if no closest gene present (first or last gene) return -1
+  # if focus gene is the only in scaffold also return -1
   # if there is overlap with closest genes return -1
-  scaffold <- df[index, "scaffold"]
+  scaffold <- DF[index, "scaffold"]
   if(direction == "upstream"){
     ua <- -1
   }else if(direction == "downstream"){
@@ -280,30 +281,37 @@ closest <- function(df, index, direction){
     stop("unknown direction")
   }
   candidate <- index + ua
-  if(length(df[candidate, "scaffold"]) == 0){
-    # first gene 
+  if(length(DF[candidate, "scaffold"]) == 0){
+    # candidate gene does not exist (focus gene is first in scaffold)
     return(-1)
-  }else if(is.na(df[candidate, "scaffold"])){
+  }
+  if(is.na(DF[candidate, "scaffold"])){
     # last gene reached
     return(-1)
+  }
+  if(DF[index, "scaffold"] != DF[candidate, "scaffold"]){
+    # genes are on different scaffolds (focus gene is the only one in scaffold)
+    return(-1)
+  }
+  if(overlapping(DF[index, ], DF[candidate, ])){
+    return(-1) # overlapping gene
+  }
+  if(direction == "downstream"){
+    return(c(index = candidate, geneDist(DF[index, ], DF[candidate, ])))
+  }else if(direction == "upstream"){
+    return(c(index = candidate, geneDist(DF[candidate, ], DF[index, ]))) # distance is always positive
   }else{
-    if(overlapping(df[index, ], df[candidate, ])){
-      return(-1) # overlapping gene
-    }else{
-      neighborIndex <- index + ua
-      if(direction == "downstream"){
-        return(c(index = neighborIndex, geneDist(df[index, ], df[neighborIndex, ])))
-      }else if(direction == "upstream"){
-        return(c(index = neighborIndex, geneDist(df[neighborIndex, ], df[index, ])))
-      }
-      return(neighborIndex)
-    }
+    stop("unknown direction")
   }
 }
 
 geneDist <- function(a, b){
   # The genomic coordinates (begin, end) are not dependent on orientation, begin is always more upstream than end
   # genomic distance and relative orientation calculation assuming b is downstream a.
+  if(a$scaffold != b$scaffold){
+    print(a)
+    stop("Can't compute distance of genes from different chromosomes")
+  }
   if(a$strand == "+" & b$strand == "+"){
     #d <- b$begin - a$end - 1 # -> ->
     relOri <- "same"
@@ -320,28 +328,32 @@ geneDist <- function(a, b){
     stop("unknown orientation(s)")
   }
   d <- b$begin - a$end
-  return(c(distance = d, relOri = relOri))
+  return(c(distance = d, relOri = relOri, begin = a$end, end = b$begin))
 }
 
-genePairs <- function(df){
+
+genePairs <- function(DF){
   # from the output of extractGenes function find all pairs of consecutive genes, their distances and relative orientation, excluding overlapping genes
-  l <- nrow(df)
+  l <- nrow(DF)
   genePairsM <- matrix(ncol = 5, nrow = 2 * l)
   counter <- 1
   for(i in c(1:l)){
-    scaffold <- df[i, "scaffold"]
-    upNeighbor <- closest(df, i, "upstream")
-    downNeighbor <- closest(df, i, "downstream")
+    scaffold <- DF[i, "scaffold"]
+    if(length(which(DF[, "scaffold"] == scaffold)) == 1){
+      next # skip scaffolds with only one gene
+    }
+    upNeighbor <- closest(DF, i, "upstream")
+    downNeighbor <- closest(DF, i, "downstream")
     if(length(upNeighbor) == 1){
       # either first gene or overlapping another gene
     }else{
-      genePairsM[counter, ] <- c(df[i, "id"], df[upNeighbor["index"], "id"], "upstream", unname(upNeighbor[c("distance", "relOri")]))
+      genePairsM[counter, ] <- c(DF[i, "id"], DF[as.numeric(unname(upNeighbor["index"])), "id"], "upstream", unname(upNeighbor[c("distance", "relOri", "begin", "end")]))
       counter <- counter + 1
     }
     if(length(downNeighbor) == 1){
       # either last gene in scaffold or overlapping another one
     }else{
-      genePairsM[counter, ] <- c(df[i, "id"], df[downNeighbor["index"], "id"], "downstream", unname(downNeighbor[c("distance", "relOri")]))
+      genePairsM[counter, ] <- c(DF[i, "id"], DF[as.numeric(unname(downNeighbor["index"])), "id"], "downstream", unname(downNeighbor[c("distance", "relOri", "begin", "end")]))
       counter <- counter + 1
     }
   }
