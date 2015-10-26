@@ -22,6 +22,7 @@ end <- pte$V5
 upstream <- character(iesNo)
 downstream <- character(iesNo)
 floatingB <- (end-start>1)
+scaffold <- pte$V1
 counter <- 1
 for(i in pteL){
   sbL <- strsplit(i,"=")
@@ -48,6 +49,7 @@ pteD <- data.frame(length=IESlength,
                    start = start, end = end,
                    floating = floatingB,
                    upstream = upstream, downstream = downstream,
+                   scaffold = scaffold,
                    row.names=id, stringsAsFactors=FALSE)
 
 # ------- for P. biaurelia ----------
@@ -64,6 +66,7 @@ end <- pbi$V5
 floatingB <- (end-start>1)
 upstream <- character(iesNo)
 downstream <- character(iesNo)
+scaffold <- pbi$V1
 counter <- 1
 for(i in pbiL){
   sbL <- strsplit(i,"=")
@@ -84,7 +87,7 @@ for(i in pbiL){
   }
   counter <- counter + 1
 }
-pbiD <- data.frame(length = IESlength, seq = IESsequence, front = front, back = back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, row.names=id, stringsAsFactors=FALSE)
+pbiD <- data.frame(length = IESlength, seq = IESsequence, front = front, back = back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, scaffold = scaffold, row.names=id, stringsAsFactors=FALSE)
 
 # ------- for P. sexaurelia ----------
 pse <- read.table("~/data/IES_data/psexaurelia/internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.fl.gff3", as.is = TRUE)
@@ -100,6 +103,7 @@ end <- pse$V5
 floatingB <- (end-start>1)
 upstream <- character(iesNo)
 downstream <- character(iesNo)
+scaffold <- pse$V1
 counter <- 1
 for(i in pseL){
   sbL <- strsplit(i,"=")
@@ -120,7 +124,7 @@ for(i in pseL){
   }
   counter <- counter + 1
 }
-pseD <- data.frame(length = IESlength, seq = IESsequence, front = front, back = back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, row.names=id, stringsAsFactors=FALSE)
+pseD <- data.frame(length = IESlength, seq = IESsequence, front = front, back = back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, scaffold = scaffold, row.names=id, stringsAsFactors=FALSE)
 
 # ------- for P. caudatum ----------
 pca <- read.table("~/data/IES_data/pcaudatum_43c3d_annotation_v2.0/PCAUD_MIC10_IES.fl.gff3", as.is = TRUE)
@@ -136,6 +140,7 @@ end <- pca$V5
 floatingB <- (end-start>1)
 upstream <- character(iesNo)
 downstream <- character(iesNo)
+scaffold <- pca$V1
 counter <- 1
 for(i in pcaL){
   # i <- pcaL[[1]]
@@ -158,6 +163,6 @@ for(i in pcaL){
   }
   counter <- counter + 1
 }
-pcaD <- data.frame(length = IESlength, seq = IESsequence, front = front, back = back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, row.names=id, stringsAsFactors=FALSE)
+pcaD <- data.frame(length = IESlength, seq = IESsequence, front = front, back = back, start = start, end = end, floating = floatingB, upstream = upstream, downstream = downstream, scaffold = scaffold, row.names=id, stringsAsFactors=FALSE)
 # save data.frames
 save(pteD, pbiD, pseD, pcaD, file = "~/data/IES_data/rdb/iesInfo")

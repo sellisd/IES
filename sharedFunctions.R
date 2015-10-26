@@ -4,6 +4,7 @@
 library(seqinr) # make s2c availabel
 library(seqLogo)
 library(plyr)
+library(IRanges)
 
 pairwiseIdentity <- function(a,b){
   # function that returnes a boolean vector with identities of the character matrix with two input strings
@@ -297,7 +298,7 @@ geneDist <- function(a, b){
 genePairs <- function(DF){
   # from the output of extractGenes function find all pairs of consecutive genes, their distances and relative orientation, excluding overlapping genes
   l <- nrow(DF)
-  genePairsM <- matrix(ncol = 7, nrow = 2 * l)
+  genePairsM <- matrix(ncol = 8, nrow = 2 * l)
   counter <- 1
   for(i in c(1:l)){
     scaffold <- DF[i, "scaffold"]
@@ -309,22 +310,61 @@ genePairs <- function(DF){
     if(length(upNeighbor) == 1){
       # either first gene or overlapping another gene
     }else{
-      genePairsM[counter, ] <- c(DF[i, "id"], DF[as.numeric(unname(upNeighbor["index"])), "id"], "upstream", unname(upNeighbor[c("distance", "relOri", "begin", "end")]))
+      genePairsM[counter, ] <- c(DF[i, "id"], DF[as.numeric(unname(upNeighbor["index"])), "id"], "upstream", unname(upNeighbor[c("distance", "relOri", "begin", "end")]), scaffold)
       counter <- counter + 1
     }
     if(length(downNeighbor) == 1){
       # either last gene in scaffold or overlapping another one
     }else{
-      genePairsM[counter, ] <- c(DF[i, "id"], DF[as.numeric(unname(downNeighbor["index"])), "id"], "downstream", unname(downNeighbor[c("distance", "relOri", "begin", "end")]))
+      genePairsM[counter, ] <- c(DF[i, "id"], DF[as.numeric(unname(downNeighbor["index"])), "id"], "downstream", unname(downNeighbor[c("distance", "relOri", "begin", "end")]), scaffold)
       counter <- counter + 1
     }
   }
   genePairsM[apply(genePairsM, 1, notAllNA), ] # return matrix without the extra rows of NAs
 }
 
+# small functions useful for use in apply
 notAllNA <- function(a){
-  # useful for use in apply function
   !all(is.na(a))
 }
+
+naSum <- function(a){
+  # the sun of non NA values
+  sum(is.na(a))
+}
+
+iesInIntergenic <- function(synblockDF, pabD, speciesName){
+  # function that finds if IES are within an intergenic region of a given species
+  # as input is given the synblockDF data.frame of blocks of intergenic regions, the pabD data.frame of iesInfo
+  # and the species Name for which to perform the search
+  # The value returned is a boolean vector with the same length as the rows of synblockDF
+  if(!speciesName %in% c("Paramecium_biaurelia", "Paramecium_tetraurelia", "Paramecium_sexaurelia", "Paramecium_caudatum")){
+    stop(paste("error in speciesNane", speciesName))
+  }
+  hasIES <- rep(NA, nrow(synblockDF))
+  spV <- unname(gene2species(synblockDF$upanchor))
+  pabI <- which(spV == speciesName)
+  # all scaffolds that have IES or genes
+  scaffolds <- unique(c(pabD$scaffold, unique(synblockDF$scaffold[pabI])))
+  for(i in c(1:length(scaffolds))){
+    # index of intergenic regions in the current scaffold
+    intergenicScaffoldI <- which(synblockDF$scaffold == scaffolds[i])
+    # build IRanges objects for intergenic regions in each species
+    spscI <- intersect(pabI, intergenicScaffoldI)
+    intergenicIR <- IRanges(start = as.numeric(synblockDF[spscI, "begin"]),
+                            end   = as.numeric(synblockDF[spscI, "end" ])
+    )
+    # for each species buildindex of IES in the current scaffold
+    iesI <- which(pabD$scaffold == scaffolds[i])
+    # build corresponding IRanges object
+    iesIR <- IRanges(start = pabD$start[iesI],
+                     end   = pabD$end[iesI]
+    )
+    # find if intergenic there are IES
+    hasIES[spscI] <- intergenicIR %over% iesIR
+  }
+  hasIES
+}
+
 
 source("~/projects/IES/src/testSharedFunctions.R")
