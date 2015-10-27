@@ -1,10 +1,10 @@
 # Shared functions
 
 # required libraries
-library(seqinr) # make s2c availabel
-library(seqLogo)
-library(plyr)
-library(IRanges)
+suppressPackageStartupMessages(library(seqinr)) # make s2c availabel
+suppressPackageStartupMessages(library(seqLogo))
+suppressPackageStartupMessages(library(plyr))
+suppressPackageStartupMessages(library(IRanges))
 
 pairwiseIdentity <- function(a,b){
   # function that returnes a boolean vector with identities of the character matrix with two input strings
@@ -144,7 +144,7 @@ appa <- function(x){
 #sp <- spGT
 presenceAbsence <- function(sp){
   # Function to assign patterns of presence / absence of IES in subtrees.
-  # In the case of multiple paralogs, presence is counted as at least one parlaog having an IES
+  # In the case of multiple paralogs, presence is counted as at least one paralog having an IES
   load("~/data/IES_data/rdb/charMats")
   # add to charMats a column with in-/outgroup/NA and species
   extMat <- join(charMats, sp, by = "geneId")
