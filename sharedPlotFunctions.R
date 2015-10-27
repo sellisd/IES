@@ -1,3 +1,20 @@
+# useful functions for plotting
+source("~/projects/fgmo/colors.R")
+
+colBySpec <- function(tree){
+  # color code tips of a tree based on species
+  names <- tree$tip.label
+  speciesAbr <- substr(names,0,4)
+  colV <- speciesAbr
+  colV[which(speciesAbr == "PBIA")] <- cgreen1
+  colV[which(speciesAbr == "PTET")] <- cred1
+  colV[which(speciesAbr == "PSEX")] <- cblue1
+  colV[which(speciesAbr == "PCAU")] <- "grey60"
+  colV[which(speciesAbr == "TTHE")] <- cbrown1
+  names(colV) <- names
+  colV
+}
+
 plotConsPast <- function(pattern){
   # function to plot conservation barplots
   # INPUT: a matrix with patterns of conservation for each species
