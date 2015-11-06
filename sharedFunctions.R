@@ -407,4 +407,136 @@ iesInIntergenic <- function(synblockDF, pabD, speciesName){
 }
 
 
+modif.write.nexus.data <- function (x, file, format = "dna", datablock = TRUE, interleaved = TRUE, charsperline = NULL, gap = NULL, missing = NULL){
+  # minor modification in ape::write.nexus.data to save standard and restriction type data  
+  format <- match.arg(toupper(format), c("DNA", "PROTEIN", "STANDARD", "RESTRICTION"))
+  indent <- "  "
+  maxtax <- 5
+  defcharsperline <- 80
+  defgap <- "-"
+  defmissing <- "?"
+  if (is.matrix(x)) {
+    if (inherits(x, "DNAbin")) 
+      x <- as.list(x)
+    else {
+      xbak <- x
+      x <- vector("list", nrow(xbak))
+      for (i in seq_along(x)) x[[i]] <- xbak[i, ]
+      names(x) <- rownames(xbak)
+      rm(xbak)
+    }
+  }
+  ntax <- length(x)
+  nchars <- length(x[[1]])
+  zz <- file(file, "w")
+  if (is.null(names(x))) 
+    names(x) <- as.character(1:ntax)
+  fcat <- function(..., file = zz) cat(..., file = file, sep = "", 
+                                       append = TRUE)
+  find.max.length <- function(x) max(nchar(x))
+  print.matrix <- function(x, dindent = "    ") {
+    Names <- names(x)
+    printlength <- find.max.length(Names) + 2
+    if (!interleaved) {
+      for (i in seq_along(x)) {
+        sequence <- paste(x[[i]], collapse = "")
+        taxon <- Names[i]
+        thestring <- sprintf("%-*s%s%s", printlength, 
+                             taxon, dindent, sequence)
+        fcat(indent, indent, thestring, "\n")
+      }
+    }
+    else {
+      ntimes <- ceiling(nchars/charsperline)
+      start <- 1
+      end <- charsperline
+      for (j in seq_len(ntimes)) {
+        for (i in seq_along(x)) {
+          sequence <- paste(x[[i]][start:end], collapse = "")
+          taxon <- Names[i]
+          thestring <- sprintf("%-*s%s%s", printlength, 
+                               taxon, dindent, sequence)
+          fcat(indent, indent, thestring, "\n")
+        }
+        if (j < ntimes) 
+          fcat("\n")
+        start <- start + charsperline
+        end <- end + charsperline
+        if (end > nchars) 
+          end <- nchars
+      }
+    }
+  }
+  fcat("#NEXUS\n[Data written by write.nexus.data.R, ", date(), 
+       "]\n")
+  NCHAR <- paste("NCHAR=", nchars, sep = "")
+  NTAX <- paste0("NTAX=", ntax)
+  DATATYPE <- paste0("DATATYPE=", format)
+  if (is.null(charsperline)) {
+    if (nchars <= defcharsperline) {
+      charsperline <- nchars
+      interleaved <- FALSE
+    }
+    else charsperline <- defcharsperline
+  }
+  if (is.null(missing)) 
+    missing <- defmissing
+  MISSING <- paste0("MISSING=", missing)
+  if (is.null(gap)) 
+    gap <- defgap
+  GAP <- paste0("GAP=", gap)
+  INTERLEAVE <- if (interleaved) 
+    "INTERLEAVE=YES"
+  else "INTERLEAVE=NO"
+  if (datablock) {
+    fcat("BEGIN DATA;\n")
+    fcat(indent, "DIMENSIONS ", NTAX, " ", NCHAR, ";\n")
+    fcat(indent, "FORMAT", " ", DATATYPE, " ", MISSING, " ", 
+         GAP, " ", INTERLEAVE, ";\n")
+    fcat(indent, "MATRIX\n")
+    print.matrix(x)
+    fcat(indent, ";\nEND;\n\n")
+  }
+  else {
+    fcat("BEGIN TAXA;\n")
+    fcat(indent, "DIMENSIONS", " ", NTAX, ";\n")
+    fcat(indent, "TAXLABELS\n")
+    fcat(indent, indent)
+    j <- 0
+    for (i in seq_len(ntax)) {
+      fcat(names(x[i]), " ")
+      j <- j + 1
+      if (j == maxtax) {
+        fcat("\n", indent, indent)
+        j <- 0
+      }
+    }
+    fcat("\n", indent, ";\n")
+    fcat("END;\n\nBEGIN CHARACTERS;\n")
+    fcat(indent, "DIMENSIONS", " ", NCHAR, ";\n")
+    fcat(indent, "FORMAT", " ", MISSING, " ", GAP, " ", DATATYPE, 
+         " ", INTERLEAVE, ";\n")
+    fcat(indent, "MATRIX\n")
+    print.matrix(x)
+    fcat(indent, ";\nEND;\n\n")
+  }
+  close(zz)
+}
+
+save2nexus <- function(geneFamily){
+  # prepare IES character matrices to be writen in a nexus file
+  DF <- data.frame(charMats[charMats$cluster == geneFamily, ], stringsAsFactors = FALSE)
+  DFcasted <- dcast(DF, geneId ~ column, value.var = "ies")
+  list4nexus <- list()
+  for(i in c(1:nrow(DFcasted))){
+    sequenceS <- DFcasted[i, -1]
+    sequenceS[sequenceS != "0"] <- "1"
+    sequenceS[is.na(sequenceS)] <- "?"
+    sequenceV <- as.vector(unlist((sequenceS)))
+    sequenceL <- list(sequenceV)
+    names(sequenceL)<-DFcasted$geneId[i]
+    list4nexus <- append(list4nexus, sequenceL)
+  }
+  list4nexus
+}
 source("~/projects/IES/src/testSharedFunctions.R")
