@@ -524,7 +524,7 @@ modif.write.nexus.data <- function (x, file, format = "dna", datablock = TRUE, i
 }
 
 save2nexus <- function(geneFamily){
-  # prepare IES character matrices to be writen in a nexus file
+  # prepare IES character matrices to be writen in a nexus file by
   DF <- data.frame(charMats[charMats$cluster == geneFamily, ], stringsAsFactors = FALSE)
   DFcasted <- dcast(DF, geneId ~ column, value.var = "ies")
   list4nexus <- list()

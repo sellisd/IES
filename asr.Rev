@@ -1,0 +1,54 @@
+# test case with just 2 gene families if works add some loops to see what is going on
+
+setwd("/home/dsellis") # @ ak1k1
+#setwd("/Users/dsellis") # @ mac
+# load file with gene families to read
+geneFamilies = readCharacterDataDelimited(file = "data/IES_data/msas/asr/geneFamilies.dat", type = "Standard", delimiter = "\t")
+geneFamilyNames = geneFamilies.names()
+for(i in 1:geneFamilyNames.size()){
+  data[i] = readDiscreteCharacterData("data/IES_data/msas/asr/charMat"+ geneFamilies.names()[i] + ".nexus")
+  psi[i] = readTrees("data/IES_data/msas/asr/tree" + geneFamilies.names()[i] + ".nexus")[1]
+}
+
+# rates of change
+alpha <- 0.1
+lambda ~ dnExponential(alpha)
+insertionRate ~ dnUnif(0,1)
+lossRate ~ dnUnif(0,1)
+
+#this gives equal rates
+Q := fnFreeBinary([insertionRate, lossRate])
+
+# do not assume stationarity
+presenceAtRoot <- 1
+absenceAtRoot <- 1
+rootFrequencies := simplex(presenceAtRoot, absenceAtRoot)
+
+mi <- 0
+moves[mi++] = mvScale(lambda)
+
+for(i in 1:geneFamilyNames.size()){
+  ctmc[i] ~ dnPhyloCTMC(Q = Q, tree = psi[i], rootFreq = rootFrequencies, branchRates = lambda, type = "Restriction", coding = "noabsencesites")
+  ctmc[i].clamp(data[i])
+}
+
+#coding = [noabsencesites|all(default)]
+#type =[restriction]
+
+mymodel = model(ctmc)
+
+for(i in 1:geneFamilyNames.size()){
+  monitors[i] = mnJointConditionalAncestralState(tree = psi[i], ctmc = ctmc[i], filename = "ancStates" + i + ".log", type = "Standard", printgen = 10, withStartStates = false)
+}
+
+
+#monitors[1] = mnFile(filename = "parameters.log", lambda, insertionRate, lossRate, rootFrequencies, likelihood = true, printgen=100)
+
+monitors[++i] = mnFile(filename = "parameters.log", lambda, insertionRate, lossRate, rootFrequencies, likelihood = true, printgen=100)
+monitors[++i] = mnScreen(lambda, insertionRate, lossRate, rootFrequencies, printgen=1000)
+
+mymcmc = mcmc(mymodel, monitors, moves)
+mymcmc.burnin(generations=10000,tuningInterval=1000)
+mymcmc.run(5000)
+
+
