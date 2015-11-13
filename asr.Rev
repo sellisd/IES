@@ -50,7 +50,8 @@ print("adding monitors")
 system("date")
 for(i in 1:geneFamilyNames.size()){
   system("printf 'adding model "+ i + " out of " + geneFamilyNames.size() + "\r'")
-  monitors[i] = mnJointConditionalAncestralState(tree = psi[i], ctmc = ctmc[i], filename = "ancStates" + i + ".log", type = "Restriction", printgen = 100, withStartStates = false)
+  monitors[i] = mnJointConditionalAncestralState(tree = psi[i], ctmc = ctmc[i], filename = "ancStates" + geneFamilyNames()[i] + ".log", type = "Restriction", printgen = 100, withStartStates = false)
+# withStartStates = false does not print both start and end states for each node
 }
 
 monitors[++i] = mnFile(filename = "parameters1.log", insertionRate, lossRate, likelihood = true, printgen=100)
