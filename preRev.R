@@ -8,7 +8,10 @@ geneFamiliesProcessed <- character()
 for(i in c(1:length(clusters))){
   cat(i, "/", length(clusters), "\r")
   nex <- save2nexus(clusters[i])
-  #check if we have a tree file
+  spNames <- gene2species(names(nex))
+  # if data matrix has T. thermophila exclude list elements
+  nex <- nex[which(spNames != "Tetrahymena_thermophila")]
+ #check if we have a tree file
   dataNexusOut <- paste0("~/data/IES_data/msas/asr/charMat",clusters[i],".nexus")
   treeFileIn <- paste0("~/data/IES_data/msas/phyldog/results/",clusters[i],".ReconciledTree")
   if(file.exists(treeFileIn)){
@@ -22,6 +25,11 @@ for(i in c(1:length(clusters))){
     # source("~/projects/IES/src/sharedPlotFunctions.R")
     # cl <- colBySpec(geneTree)
     # plot(geneTree, tip.col = cl)
+    if(length(geneTree$tip.label) != length(names(nex))){
+      stop(paste("Genes do not match between tree and character matrix!: ", clusters[i]))
+    }else if (!all(sort(geneTree$tip.label) == sort(names(nex)))){
+      stop(paste("Genes do not match between tree and character matrix!: ", clusters[i]))
+    }
     write.nexus(geneTree, file = paste0("~/data/IES_data/msas/asr/tree",clusters[i],".nexus"))
     geneFamiliesProcessed <- append(geneFamiliesProcessed, clusters[i])
   }else{
