@@ -6,6 +6,35 @@ suppressPackageStartupMessages(library(seqLogo))
 suppressPackageStartupMessages(library(plyr))
 suppressPackageStartupMessages(library(IRanges))
 
+r2phyldog <- function(RnodeId, cluster, phyldogTree){
+  # translate node id from R to phyldog
+  phyldogNodeId <- nodeDictionary[nodeDictionary$cluster == as.character(cluster) & nodeDictionary$r == as.character(RnodeId), "phyldog"]
+  phyldogNodeId
+}
+getEvent <- function(RnodeId, cluster, phyldogTree){
+  # get type of event from an R node
+  phyldogNodeId <- r2phyldog(RnodeId, cluster, phyldogTree)  
+  phyldogTree@nhx_tags$ND[phyldogTree@nhx_tags$ND == phyldogNodeId]
+}
+
+extractEvents <- function(ph){
+  # Input an nhx object
+  # Returns a vector of events
+  spEventsV <- character(nrow(ph@nhx_tags))
+  for(i in 1:nrow(ph@nhx_tags)){
+    if(ph@nhx_tags$Ev[i] == "S"){
+      # speciation event
+      spEventsV[i] <- ph@nhx_tags$S[i]
+    }else if(ph@nhx_tags$Ev[i] == "D"){
+      # duplication event
+      spEventsV[i] <- "D"
+    }else{
+      stop("unknown event")
+    }
+  }
+  spEventsV
+}
+
 linkNodes <- function(tr,ktr){
   # read a phyldog outpout file and the corresponding key file
   # and create a dictionary linking the two node numbering schemes
