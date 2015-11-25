@@ -1,6 +1,25 @@
 # useful functions for plotting
 source("~/projects/fgmo/colors.R")
 
+# required libraries
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(ggtree))
+
+asrPlot <- function(ph, orderedMM){
+  # function that plots the ancestral states on a ggtree
+  # Input: ggree::read.nhx object and an orderedMM data.frame
+  spEventsV <- extractEvents(ph)
+  spN <- data.frame(tipLabels = ph@phylo$tip.label, speciesName = unname(gene2species(ph@phylo$tip.label)))
+  data4tree <- cbind(orderedMM[orderedMM$iesColumn == 1, c("r", "mean", "sd")], spEventsV)
+  iesColumns <- levels(orderedMM$iesColumn)
+  p <- ggplot(ph@phylo, aes(x, y)) + geom_tree() + theme_tree() + xlab("") + ylab("")
+  for(i in c(1:length(iesColumns))){
+    print(p %<+% spN + geom_text(aes(color = speciesName, label=label, adj = -.1)) + scale_size(range = c(0,10)) +
+            geom_point(aes(size = orderedMM$mean[orderedMM$iesColumn == iesColumns[i]])) +
+            ggtitle(paste("gene family:", cluster, "IES:", iesColumns[i])))
+  }
+}
+
 colBySpec <- function(tree){
   # color code tips of a tree based on species
   names <- tree$tip.label
