@@ -5,16 +5,129 @@ suppressPackageStartupMessages(library(seqinr)) # make s2c availabel
 suppressPackageStartupMessages(library(seqLogo))
 suppressPackageStartupMessages(library(plyr))
 suppressPackageStartupMessages(library(IRanges))
+suppressPackageStartupMessages(library(phangorn))
+suppressPackageStartupMessages(library(dplyr))
 
-r2phyldog <- function(RnodeId, cluster, phyldogTree){
-  # translate node id from R to phyldog
-  phyldogNodeId <- nodeDictionary[nodeDictionary$cluster == as.character(cluster) & nodeDictionary$r == as.character(RnodeId), "phyldog"]
-  phyldogNodeId
+
+tTypeOnTree<- function(ph, orderedMM, fromSpEv, toSpEvs, cluster){
+  # calculate transition type from speciation 'fromEv' to speciation event 'toEv' on tree 'ph' (nhx object)
+  # given a table 'orderedMM' with node properties (probability of presence)
+  bigDF <- data.frame(cluster    = character(0),
+                      iesColumn  = character(0),
+                      nodeSTartR = character(0),
+                      nodeStartPhyldog = character(0),
+                      nodeStopR  = character(0),
+                      spEventStart = character(0),
+                      spEventEnd = character(0),
+                      meanStart  = numeric(0),
+                      sdStart    = numeric(0),
+                      meanStop   = numeric(0),
+                      sdStop     = numeric(0),
+                      branchType = character(0),
+                      transitionTypes = character(0)
+  )
+  fromNodesP <- getEvents(ph, fromSpEv)
+  # find descendents of each node
+  for(fromNodeP in fromNodesP){
+    #fromNodeP <- fromNodeP[1]
+    # translate to R numbering
+    fromNodeR <- phyldog2r(phyldogNodeId = fromNodeP, cluster = cluster)
+    descendantNodesR <- Descendants(ph@phylo, as.numeric(fromNodeR), type = "all")
+    # find type of events
+    evS <- getEventsR(RNodeId = descendantNodesR, cluster = cluster, phyldogTree = ph)
+    # keep nodes of appropriate speciation event
+    for(toSpEv in toSpEvs){
+      toNodesR <- descendantNodesR[which(evS$Ev == "S" & evS$S == toSpEv)]
+      # next if there are no toNodesR
+      # some events cannot be classified as belonging to one type of branch because of gene loss
+      if(length(toNodesR) == 0){
+        next
+      }
+      toNodesP <- r2phyldog(RNodeId = toNodesR, cluster)
+      fromDF <- orderedMM[orderedMM$phyldog == fromNodeP, c("iesColumn", "mean", "sd", "r", "phyldog")]
+      toDF   <- orderedMM[orderedMM$phyldog %in% toNodesP, c("iesColumn", "mean", "sd", "r", "phyldog")]
+      DF <- dplyr::full_join(fromDF, toDF, by = "iesColumn")
+      DF <- cbind(DF, cluster = cluster, spEventStart = fromSpEv, spEventEnd = toSpEv,stringsAsFactors = FALSE)
+      names(DF) <- c("iesColumn", "meanStart", "sdStart", "nodeStartR", "nodeStartPhyldog", "meanStop", "sdStop", "nodeStopR", "nodeStopPhyldog", "cluster", "spEventStart", "spEventEnd") # give nice names
+      DF <- DF[,c("cluster", "iesColumn", "nodeStartR", "nodeStartPhyldog", "nodeStopR", "nodeStopPhyldog", "spEventStart", "spEventEnd", "meanStart", "sdStart", "meanStop", "sdStop")] # reodrer
+      branchType <- paste0(DF$spEventStart, DF$spEventEnd)
+      bigDF <- rbind(bigDF, cbind(DF, branchType, transitionTypes = transitionTypes(DF)))
+    }
+  }
+  bigDF
 }
-getEvent <- function(RnodeId, cluster, phyldogTree){
+  
+
+transitionTypes <- function(DF){
+  # calculate transition type from columns of a data.frame
+  tt <- character(nrow(DF))
+  for(i in c(1:nrow(DF))){
+    tt[i] <- transitionType(DF$meanStart[i], DF$meanStop[i], DF$sdStart[i], DF$sdStop[i])
+  }
+  tt
+}
+
+transitionType <- function(meanFrom, meanTo, sdFrom, sdTo){
+  # function that classifies the transition type based on probabilities of the two nodes
+  # possibly a better approach would be to do a stochastic simulation on the tree and get probabilities of events on branches
+  # possible values are absence, presence, gain, loss, notSignificant
+  # for absence both means should be < 0 + interval
+  # for presence both means should be > 1 - interval
+  interval <- 0.05
+  from <- almostP(meanFrom, interval)
+  to <- almostP(meanTo, interval)
+  if(from == 0 & to == 0){
+    return("absent")
+  }else if(from == 0 & to == 1){
+    return("gain")
+  }else if(from == 1 & to == 1){
+    return("presence")
+  }else if(from == 1 & to == 0){
+    return("loss")
+  }else if(from == -1 | to == -1){
+    return("notSignificant")
+  }else{
+    stop()
+  }
+}
+
+almostP <- function(prob, interval){
+  # is the probability almost 1 or almost 0
+  if(prob < interval){
+    return(0)
+  }else if(prob > 1 - interval){
+    return(1)
+  }else{
+    return(-1)
+  }
+}
+
+r2phyldog <- function(RNodeId, cluster){
+  # translate node id from R to phyldog
+  clusterIndex <- which(nodeDictionary$cluster %in% as.character(cluster))
+  index <- match(RNodeId, nodeDictionary$r[clusterIndex])
+  (nodeDictionary[clusterIndex, "phyldog"])[index]
+}
+
+phyldog2r <- function(phyldogNodeId, cluster){
+  # translate node id from phyldog to R
+  clusterIndex <- which(nodeDictionary$cluster %in% as.character(cluster))
+  index <- match(phyldogNodeId, nodeDictionary$phyldog[clusterIndex])
+  (nodeDictionary[clusterIndex, "r"])[index]
+}
+
+getEventsR <- function(RNodeId, cluster, phyldogTree){
   # get type of event from an R node
-  phyldogNodeId <- r2phyldog(RnodeId, cluster, phyldogTree)  
-  phyldogTree@nhx_tags$ND[phyldogTree@nhx_tags$ND == phyldogNodeId]
+  phyldogNodeId <- r2phyldog(RNodeId, cluster)  
+  evS <- ph@nhx_tags[match(phyldogNodeId, ph@nhx_tags$ND), c("Ev","S")]
+  evS
+}
+
+getEvents <- function(phyldogTree, eventType){
+  # find which node(s) corresponds to event of type eventType {0,1,2,3..} for Ev = S, and {D} for duplications
+  # returns phyldogNodeId
+  spEventsV <- extractEvents(phyldogTree)
+  phyldogTree@nhx_tags$ND[which(spEventsV == as.character(eventType))]
 }
 
 extractEvents <- function(ph){
