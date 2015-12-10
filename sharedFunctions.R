@@ -8,6 +8,83 @@ suppressPackageStartupMessages(library(IRanges))
 suppressPackageStartupMessages(library(phangorn))
 suppressPackageStartupMessages(library(dplyr))
 
+boundaryCompl <- function(pabD, pabLengthBins){
+  # calculate IES boundary complementarity from a data frame of IES info and lenght bin class
+  #extend IES info table with length bin and conservation pattern
+  DE <- cbind(pabD, lengthBin = unname(pabLengthBins[row.names(pabD)]))
+  # exclude floating
+  DE <- DE[DE$floating == FALSE, ]
+  # permute back sequences(and downstream) reserving lengthBin
+  DERI <- permuteBy(DE, c("back", "downstream"), "lengthBin", ret = "index")
+  # calculate complementarity of all
+  flankLength <- nchar(DE$upstream[1])
+  windowSize <- nchar(pabD$front)
+  matBool <- matrix(ncol = windowSize + flankLength , nrow = nrow(DE))
+  matBoolR <- matrix(ncol = windowSize + flankLength , nrow = nrow(DE))
+  for(i in c(1:nrow(DE))){
+    matBool[i, ] <- complementarity(s2c(paste0(DE$upstream[i], DE$front[i])),
+                                    s2c(paste0(DE$back[i], DE$downstream[i])))
+    matBoolR[i, ] <- complementarity(s2c(paste0(DE$upstream[i], DE$front[i])),
+                                     s2c(paste0(DE$back[DERI[i]], DE$downstream[DERI[i]])))
+  }
+  list(matBool, matBoolR, flankLength)
+}
+
+getNodePairs <- function(ph, cluster, fromEvent, toEvent){
+# get all pairs of parental descendent nodes between speciation events A and B
+  DF <- data.frame(cluster = character(0), fromP = character(0), toP = character(0), fromEvent = character(0), toEvent = character(0))
+  fromPs <- getEvents(ph, fromEvent)
+  toPs <- getEvents(ph, toEvent)
+  for(fromP in fromPs){
+    for(toP in toPs){
+      # check if toP is among Descendants of gromP
+      offspringR <- Descendants(ph@phylo, as.numeric(phyldog2r(phyldogNodeId = fromP, cluster = cluster)), type = c("all"))
+      if(phyldog2r(phyldogNodeId = toP, cluster = cluster) %in% offspringR){
+        DF <- rbind(DF, data.frame(cluster = cluster, fromP =  fromP, toP = toP, fromEvent = fromEvent, toEvent = toEvent))
+      }
+    }
+  }
+  DF
+}
+
+transitions <- function(paV){
+  if(length(paV)<2){
+    stop("Not enough observations")
+  }
+  # calculate from a presence absence vector the number of transitions
+  presence <- 0
+  absence <- 0
+  gain <- 0
+  loss <- 0
+  curV <- paV[1]
+  for(i in c(2:length(paV))){
+    if(curV == 1 & paV[i] == 1){
+      presence <- presence + 1  
+    }else if(curV == 0 & paV[i] == 0){
+      absence <- absence + 1
+    }else if (curV == 0 & paV[i] == 1){
+      gain <- gain + 1
+    }
+    else if (curV == 1 & paV[i] == 0){
+      loss <- loss + 1
+    }else{
+      stop("unknown state")
+    }
+    curV <- paV[i]
+  }
+  data.frame(presence = presence, absence = absence, gain = gain, loss = loss, stringsAsFactors = FALSE)
+}
+
+#transitions(c(0,1,0,1,1,1,0)) 
+# gain 2
+# loss 2
+# absence 0
+# presence 2
+
+rol <- function(bigDF, index){
+  # calculate rate of IES loss per IES for each branch type (index)
+  sum(pas[index] & !pae[index])/ sum(pas[index]) #loss/present at start
+}
 
 tTypeOnTree<- function(ph, orderedMM, fromSpEv, toSpEvs, cluster){
   # calculate transition type from speciation 'fromEv' to speciation event 'toEv' on tree 'ph' (nhx object)

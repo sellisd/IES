@@ -10,9 +10,9 @@ use File::Path qw(make_path);
 
 my $treePath = '/home/dsellis/data/IES_data/msas/phyldog/results/';
 my $matricesPath = '/home/dsellis/data/IES_data/msas/alignments/charMatphy/';
-my $matricesASRP = '/home/dsellis/data/IES_data/msas/asr/matrices/';
-my $treeFile ='/home/dsellis/data/IES_data/msas/asr/allTrees.tre';
-my $biphyPath = '/home/dsellis/tools/biphy-master/';
+my $matricesASRP = '/home/dsellis/data/IES_data/msas/asrmbf/matrices/';
+my $treeFile ='/home/dsellis/data/IES_data/msas/asrmbf/allTrees.tre';
+my $biphyPath = '/home/dsellis/tools/biphy/';
 
 # read all output trees from Phyldog run
 # concatenate them to one file if they have a character matrix in phylip format
@@ -68,6 +68,7 @@ foreach my $fileName (sort @files){
 close TR;
 my $cmdl;
 # #$cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a ies";
-$cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a -u 1 ies";
+$cmdl = $biphyPath."multibiphy -d $matricesASRP -t $treeFile -a -u 1 -lambda_mu 12 -x 1000 1000000 ies";
 print $cmdl,"\n";
 system "$cmdl";
+# /home/dsellis/tools/biphy/multibiphy -d /home/dsellis/data/IES_data/msas/asrmbf/matrices/ -t /home/dsellis/data/IES_data/msas/asrmbf/allTrees.tre -a -u 1 -lambda_mu 12 -x 1000 1000000 -n 4 ies
