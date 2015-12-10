@@ -1,7 +1,7 @@
 # find IES info
 
 # find floating IES and IES border sequence
-windowSize <- 20
+windowSize <- 10
 # lengthClass
 # ------- for P. tetraurelia----------
 ptemacseq <- read.table("~/data/IES_data/ptetraurelia/Pte.ies.mac_seq", as.is=TRUE, row.names = 1)
@@ -155,7 +155,7 @@ for(i in pcaL){
       front[counter] <- substr(IESseq,0,windowSize)
       back[counter] <- substr(IESseq,l-windowSize+1,l)
       IESsequence[counter] <- IESseq
-      IESlength[counter] <- l # The IES length does not include both TAs
+      IESlength[counter] <- l - 2 # The IES length does not include both TAs
     }else if(j[1] == "junction_seq"){ # in P. caudatum the field is junction_seq while in P. biaurelia and P. sexaurelia is mac_seq
       upstream[counter] <- substr(j[2], 0, 15)
       downstream[counter] <- substr(j[2],18,32)
