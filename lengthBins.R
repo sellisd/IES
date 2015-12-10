@@ -28,4 +28,4 @@ pcaBins <- findOverlaps(pcaIesLengthsIR,lengthBins)
 pcaLengthBins <- pcaBins@subjectHits
 names(pcaLengthBins) <- row.names(pcaD)
 
-save(pbiLengthBins, pteLengthBins, pseLengthBins, pcaLengthBins, file = "~/data/IES_data/rdb/lengthBins")
+save(pbiLengthBins, pteLengthBins, pseLengthBins, pcaLengthBins, lengthBins, file = "~/data/IES_data/rdb/lengthBins")
