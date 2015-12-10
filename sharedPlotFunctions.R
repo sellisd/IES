@@ -4,6 +4,52 @@ source("~/projects/fgmo/colors.R")
 # required libraries
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(ggtree))
+suppressPackageStartupMessages(library(binom))
+
+recttext <- function(xl, yb, xr, yt, text, rectArgs = NULL, textArgs = NULL) {
+  # from http://stackoverflow.com/questions/31371296/how-to-write-text-inside-a-rectangle-in-r
+  center <- c(mean(c(xl, xr)), mean(c(yb, yt)))
+  do.call('rect', c(list(xleft = xl, ybottom = yb, xright = xr, ytop = yt), rectArgs))
+  do.call('text', c(list(x = center[1], y = center[2], labels = text), textArgs))
+}
+
+plotCompl <- function(matBool, matBoolR, flankLength, speciesName){
+  # make complementarity plot
+  windowSize <- ncol(matBool) - flankLength
+  ci <- binom.confint(colSums(matBool), rep(nrow(matBool), ncol(matBool)), methods = "exact")
+  ciR <- binom.confint(colSums(matBoolR), rep(nrow(matBoolR), ncol(matBoolR)), methods = "exact")
+  bpCoo <- barplot(ci$mean, 
+                   ylim = c(0, 1.2), 
+                   names.arg = c(-flankLength:-1, 1:windowSize),
+                   col=c(rep("grey", flankLength),
+                         dblue, dblue, 
+                         rep("grey", (windowSize - 2))),
+                   xlab = "",
+                   ylab = "identity",
+                   main = bquote(italic(.(speciesName))))
+  arrows(bpCoo, ci$lower, bpCoo, ci$upper, code = 0, angle = 90)
+  points(bpCoo, ciR$mean, type = "l", lwd = 2)
+  points(bpCoo, ciR$lower, type = "l", lty = 3)
+  points(bpCoo, ciR$upper, type = "l", lty = 3)
+  prevParXPD <- par()$xpd
+  par(xpd = NA)
+  recttext(bpCoo[flankLength]+.5, 0, bpCoo[length(bpCoo)]+.5, -.05, "IES", rectArgs = list(col = "black"), textArgs = list(col = "grey90"))
+  par(xpd = prevParXPD)
+  
+#   mb <- colMeans(matBool, na.rm = TRUE)
+#   sb <- apply(matBool, 2, sd, na.rm = TRUE)
+#   mbr <- colMeans(matBoolR, na.rm = TRUE)
+#   sbr <- apply(matBoolR, 2, sd, na.rm = TRUE)
+#   bpCoo <- barplot(mb, ylim = c(0, 1.2), names.arg = c(-flankLength:-1, 1:windowSize),col=c(rep("grey", flankLength),     dblue,dblue,rep("grey", (windowSize - 2))), xlab = "", ylab = "identity", main = bquote(italic(.(speciesName))))
+#   arrows(bpCoo, mb + sb, bpCoo, mb - sb, code = 0, angle = 90)
+#   points(bpCoo,mbr, type = "l", lwd = 2)
+#   points(bpCoo,mbr + sbr, type = "l", lty = 3)
+#   points(bpCoo,mbr - sbr, type = "l", lty = 3)
+#   prevParXPD <- par()$xpd
+#   par(xpd = NA)
+#   recttext(bpCoo[flankLength]+.5, 0, bpCoo[length(bpCoo)]+.5, -.05, "IES", rectArgs = list(col = "black"), textArgs = list(col = "grey90"))
+#   par(xpd = prevParXPD)
+}
 
 asrPlot <- function(ph, orderedMM){
   # function that plots the ancestral states on a ggtree
