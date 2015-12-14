@@ -14,7 +14,6 @@ for(i in 1:geneFamilyNames.size()){
   if(clusterS == "3865"){
     # skip this family as it is very hard to compute starting probabilities
   }else{
-
     data[i] = readDiscreteCharacterData("/home/dsellis/data/IES_data/msas/asr/charMat"+ clusterS + ".nexus")
     psi[i] = readTrees("/home/dsellis/data/IES_data/msas/asr/tree" + clusterS + ".nexus")[1]  
 #    write(psi[i], filename = "/home/dsellis/data/IES_data/msas/asr/rbNodeIndexes/nodeIndex." + clusterS + ".tre") # save file with trees and node indexes
@@ -40,8 +39,8 @@ print("making models")
 system("date")
 for(i in 1:geneFamilyNames.size()){
   system("printf 'making model "+ i + " out of " + geneFamilyNames.size() + "\r'")
-#  ctmc[i] ~ dnPhyloCTMC(Q = Q, tree = psi[i], type = "Restriction", coding = "noabsencesites")
-  ctmc[i] ~ dnPhyloCTMC(Q = Q, tree = psi[i], type = "Standard")
+  ctmc[i] ~ dnPhyloCTMC(Q = Q, tree = psi[i], type = "Restriction", coding = "noabsencesites")
+#  ctmc[i] ~ dnPhyloCTMC(Q = Q, tree = psi[i], type = "Standard")
   ctmc[i].clamp(data[i])
 }
 
@@ -53,7 +52,8 @@ print("adding monitors")
 system("date")
 for(i in 1:geneFamilyNames.size()){
   system("printf 'adding model "+ i + " out of " + geneFamilyNames.size() + "\r'")
-  monitors[i] = mnJointConditionalAncestralState(tree = psi[i], ctmc = ctmc[i], filename = "ancStates" + geneFamilyNames[i] + ".log", type = "Restriction", printgen = 100, withStartStates = false)
+  clusterS = geneFamilies.names()[i].getSpeciesName()
+  monitors[i] = mnJointConditionalAncestralState(tree = psi[i], ctmc = ctmc[i], filename = "ancStates" + clusterS + ".log", type = "Restriction", printgen = 100, withStartStates = false)
 # withStartStates = false does not print both start and end states for each node
 }
 
