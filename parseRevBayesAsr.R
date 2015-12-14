@@ -5,7 +5,7 @@ source("~/projects/IES/src/sharedFunctions.R")
 burnIn <- 1000
 load("~/data/IES_data/rdb/charMats")
 load("~/data/IES_data/rdb/nodeDictionary")
-# for all gene families with IES in conserved blocks
+# for all gene families with IES in conserved blocks, excluding gene families with 3 only genes
 ancestralStates <- data.frame(cluster = numeric(0),
                               Iteration = numeric(0),
                               rb = numeric(0),
@@ -14,10 +14,10 @@ ancestralStates <- data.frame(cluster = numeric(0),
                               r = numeric(0))
 
 counter <- 1
-clusters <- unique(charMats$cluster)
-for(cluster in clusters){
+clusters <- read.table("~/data/IES_data/msas/asr/geneFamilies.dat", stringsAsFactors = FALSE, as.is = TRUE)
+for(cluster in clusters$V1){
   #cluster <- clusters[1]
-  print(paste(counter, "/", length(clusters)))
+  print(paste(counter, "/", length(clusters$V1)))
   # parse ancestral rate reconstructions to a R-friendly format
   # read ancestral state reconstructions and transform it to long data.frame
   ancStates <- read.table(paste("~/data/IES_data/msas/asr/run4/ancStates", cluster, ".log", sep = ""), header = TRUE, as.is = TRUE, stringsAsFactors = FALSE)
