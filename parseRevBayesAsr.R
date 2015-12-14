@@ -32,8 +32,8 @@ for(cluster in clusters$V1){
   tidyAncSt$presenceAbsence <- as.numeric(tidyAncSt$presenceAbsence)
   tidyAncSt$rb <- substr(tidyAncSt$rb, 5, length(tidyAncSt$rb)) # rename nodes from end_0 to 0
   # translate numbering to R format
-  tidyAncSt <- data.frame(cluster = cluster, tidyAncSt, r = rb2r(tidyAncSt$rb, cluster = cluster), stringsAsFactors = FALSE)
+  ancestralStates <- data.frame(cluster = cluster, tidyAncSt, r = rb2r(tidyAncSt$rb, cluster = cluster), stringsAsFactors = FALSE)
   counter <- counter + 1
 }
-save(tidyAncSt, file = "~/data/IES_data/rdb/ancestralStates")
+save(ancestralStates, file = "~/data/IES_data/rdb/ancestralStates")
 
