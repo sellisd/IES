@@ -8,6 +8,32 @@ suppressPackageStartupMessages(library(IRanges))
 suppressPackageStartupMessages(library(phangorn))
 suppressPackageStartupMessages(library(dplyr))
 
+eventType <- function(a, b){
+  #classify events as gains, loss, presence or absence from two vectors of states
+  l <- length(a)
+  if(l != length(b)){
+    stop("vectors have unequal lengths!")
+  }
+  absence <- 0
+  presence <- 0
+  gain <- 0
+  loss <- 0
+  for(i in c(1:l)){
+    if(a[i] == 0 & b[i] == 0){
+      absence <- absence + 1
+    }else if(a[i] == 0 & b[i] == 1){
+      gain <- gain + 1
+    }else if(a[i] == 1 & b[i] == 0){
+      loss <- loss + 1
+    }else if(a[i] == 1 & b[i] == 1){
+      presence <- presence + 1
+    }else{
+      stop(paste("presence absence vectors not interpretable at:", i, a[i], b[i]))
+    }
+  }
+  c(presence, absence, gain, loss)
+}
+
 boundaryCompl <- function(pabD, pabLengthBins){
   # calculate IES boundary complementarity from a data frame of IES info and lenght bin class
   #extend IES info table with length bin and conservation pattern
@@ -40,7 +66,7 @@ getNodePairs <- function(ph, cluster, fromEvent, toEvent){
       # check if toP is among Descendants of gromP
       offspringR <- Descendants(ph@phylo, as.numeric(phyldog2r(phyldogNodeId = fromP, cluster = cluster)), type = c("all"))
       if(phyldog2r(phyldogNodeId = toP, cluster = cluster) %in% offspringR){
-        DF <- rbind(DF, data.frame(cluster = cluster, fromP =  fromP, toP = toP, fromEvent = fromEvent, toEvent = toEvent))
+        DF <- rbind(DF, data.frame(cluster = cluster, fromP =  fromP, toP = toP, fromEvent = fromEvent, toEvent = toEvent, stringsAsFactors = FALSE))
       }
     }
   }
@@ -191,6 +217,20 @@ phyldog2r <- function(phyldogNodeId, cluster){
   clusterIndex <- which(nodeDictionary$cluster %in% as.character(cluster))
   index <- match(phyldogNodeId, nodeDictionary$phyldog[clusterIndex])
   (nodeDictionary[clusterIndex, "r"])[index]
+}
+
+rb2r <- function(rbNodeId, cluster){
+  # translate node id from rb (revBayes) to R
+  clusterIndex <- which(nodeDictionary$cluster %in% as.character(cluster))
+  index <- match(rbNodeId, nodeDictionary$rb[clusterIndex])
+  (nodeDictionary[clusterIndex, "r"])[index]
+}
+
+r2rb <- function(RNodeId, cluster){
+  # translate node id from R to rb (revBayes)
+  clusterIndex <- which(nodeDictionary$cluster %in% as.character(cluster))
+  index <- match(RNodeId, nodeDictionary$r[clusterIndex])
+  (nodeDictionary[clusterIndex, "rb"])[index]
 }
 
 getEventsR <- function(RNodeId, cluster, phyldogTree){
