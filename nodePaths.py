@@ -6,6 +6,7 @@ from ete3 import Tree
 read a gene tree (nhx format) and for each pair of speciation nodes print a path of ancestor to descendant.
 """
 
+# Functions
 def path2anc(nodeO):
     """Find path to root
     
@@ -44,27 +45,30 @@ def subpaths(pairS, L):
             subpaths.append(subpath)
     return subpaths
 
-#pairs of speciation nodes:
+#pairs of speciation nodes
 pairS = ((0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(2,3),(2,4),(2,5),(2,6),(4,5),(4,6))
-
 phyldogPath = '/home/dsellis/data/IES_data/msas/phyldog/results/'
-cluster = 1000
-fileNameString = phyldogPath+str(cluster)+'.ReconciledTree'
-print(fileNameString)
-t = Tree(fileNameString)
-print(t.get_ascii(attributes=['ND','name']))
 
-for leaf in t:
-    L = path2anc(leaf)
-    L.reverse();
-    print(list([n.ND for n in L]))
-    print(list([n.Ev for n in L]))
-    print(list([n.S for n in L]))
-    Sbs = subpaths(pairS,L)
-    print('cluster\tfrom\tto\tpath')
-    for i in Sbs:
-        toP = list([j.ND for j in i])
-        print('\t'.join([str(cluster), toP[0],toP[-1], ','.join(toP)]))
-    quit()
+inputF = open('/home/dsellis/data/IES_data/msas/asr/geneFamilies.dat', 'r')
+clusters = inputF.readlines()
+clusters = [i.rstrip() for i in clusters]
+print('cluster\tfrom\tto\tpath')
+
+for cluster in clusters:
+    fileNameString = phyldogPath+str(cluster)+'.ReconciledTree'
+    # print(fileNameString)
+    t = Tree(fileNameString)
+    # print(t.get_ascii(attributes=['ND','name']))
+    for leaf in t:
+        L = path2anc(leaf)
+        L.reverse();
+        # print(list([n.ND for n in L]))
+        # print(list([n.Ev for n in L]))
+        # print(list([n.S for n in L]))
+        Sbs = subpaths(pairS,L)
+        for i in Sbs:
+            toP = list([j.ND for j in i])
+            print('\t'.join([str(cluster), toP[0],toP[-1], ','.join(toP)]))
+
 
 
