@@ -8,6 +8,24 @@ suppressPackageStartupMessages(library(IRanges))
 suppressPackageStartupMessages(library(phangorn))
 suppressPackageStartupMessages(library(dplyr))
 
+gainLossOnPath <- function(L){
+  # from a list of probability of presence in ancestral nodes along a path calculate sum of insertion and loss probability
+  l <- length(L)
+  if(!all(L>0) & all(L<1)){
+    stop("not probabilities?!")
+  }
+  gain <- L[2:l] - L[1:(l-1)]
+  gain[gain<0] <- 0
+  loss <- L[1:(l-1)] - L[2:l]
+  loss[loss<0] <- 0
+  c(sum(gain), sum(loss))
+}
+
+pattern2nodes <- function(pattern, nodesRids){
+  # from a string pattern of presence absence generate a data.frame with node ids and presence absence
+  data.frame(pa = as.numeric(s2c(pattern)), r = as.numeric(nodesRids), stringsAsFactors = FALSE)
+}
+
 eventType <- function(a, b){
   #classify events as gains, loss, presence or absence from two vectors of states
   l <- length(a)
