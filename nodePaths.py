@@ -68,7 +68,9 @@ for cluster in clusters:
         Sbs = subpaths(pairS,L)
         for i in Sbs:
             toP = list([j.ND for j in i])
-            print('\t'.join([str(cluster), toP[0],toP[-1], ','.join(toP)]))
+            fromS = i[0].S
+            toS = i[-1].S
+            print('\t'.join([str(cluster), fromS,toS, ','.join(toP)]))
 
 
 
