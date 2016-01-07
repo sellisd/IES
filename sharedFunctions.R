@@ -11,8 +11,8 @@ suppressPackageStartupMessages(library(dplyr))
 gainLossOnPath <- function(L){
   # from a list of probability of presence in ancestral nodes along a path calculate sum of insertion and loss probability
   l <- length(L)
-  if(!all(L>0) & all(L<1)){
-    stop("not probabilities?!")
+  if(!all(L >= 0) & all(L <= 1)){
+    warning(L)
   }
   gain <- L[2:l] - L[1:(l-1)]
   gain[gain<0] <- 0
@@ -235,6 +235,13 @@ phyldog2r <- function(phyldogNodeId, cluster){
   clusterIndex <- which(nodeDictionary$cluster %in% as.character(cluster))
   index <- match(phyldogNodeId, nodeDictionary$phyldog[clusterIndex])
   (nodeDictionary[clusterIndex, "r"])[index]
+}
+
+phyldog2rb <- function(phyldogNodeId, cluster){
+  # translate node id from phyldog to revBayes
+  clusterIndex <- which(nodeDictionary$cluster %in% as.character(cluster))
+  index <- match(phyldogNodeId, nodeDictionary$rb[clusterIndex])
+  (nodeDictionary[clusterIndex, "rb"])[index]
 }
 
 rb2r <- function(rbNodeId, cluster){
