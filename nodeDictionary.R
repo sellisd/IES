@@ -24,3 +24,5 @@ for(cluster in clusters){
 nodeDictionary <- data.frame(m, stringsAsFactors = FALSE)
 names(nodeDictionary) <- c("cluster", "r", "phyldog", "rb")
 save(nodeDictionary, file = "~/data/IES_data/rdb/nodeDictionary")
+#also save it as text
+write.table(nodeDictionary, file = "~/data/IES_data/rdb/nodeDictionary.dat", quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
