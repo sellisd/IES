@@ -1,24 +1,17 @@
-#calculate transitions from nodes to nodes
+# parse ancestral rate reconstructions to a R-friendly format
 library(tidyr)
+library(dplyr)
 library(reshape2)
 source("~/projects/IES/src/sharedFunctions.R")
 burnIn <- 1000
 load("~/data/IES_data/rdb/charMats")
 load("~/data/IES_data/rdb/nodeDictionary")
 # for all gene families with IES in conserved blocks, excluding gene families with 3 only genes
-ancestralStates <- data.frame(cluster = numeric(0),
-                              Iteration = numeric(0),
-                              rb = numeric(0),
-                              iesColumn = numeric(0),
-                              presenceAbsence = numeric(0),
-                              r = numeric(0))
-
 counter <- 1
 clusters <- read.table("~/data/IES_data/msas/asr/geneFamilies.dat", stringsAsFactors = FALSE, as.is = TRUE)
 for(cluster in clusters$V1){
-  #cluster <- clusters[1]
+  #cluster <- clusters$V1[1]
   print(paste(counter, "/", length(clusters$V1)))
-  # parse ancestral rate reconstructions to a R-friendly format
   # read ancestral state reconstructions and transform it to long data.frame
   ancStates <- read.table(paste("~/data/IES_data/msas/asr/run4/ancStates", cluster, ".log", sep = ""), header = TRUE, as.is = TRUE, stringsAsFactors = FALSE)
   tidyAncSt <- gather(ancStates, rb, paColumns, -Iteration)
@@ -33,7 +26,10 @@ for(cluster in clusters$V1){
   tidyAncSt$rb <- substr(tidyAncSt$rb, 5, length(tidyAncSt$rb)) # rename nodes from end_0 to 0
   # translate numbering to R format
   ancestralStates <- data.frame(cluster = cluster, tidyAncSt, r = rb2r(tidyAncSt$rb, cluster = cluster), stringsAsFactors = FALSE)
+  # make numeric all columns
+  ancestralStates$iesColumn <- as.numeric(tidyAncSt$iesColumn)
+  save(ancestralStates, file = paste0("~/data/IES_data/rdb/ancestralStates/", cluster))
+#  ancestralStates <- bind_rows(ancestralStates, tidyAncSt)
+  #ancestralStates <- rbind(ancestralStates, tidyAncSt)
   counter <- counter + 1
 }
-save(ancestralStates, file = "~/data/IES_data/rdb/ancestralStates")
-

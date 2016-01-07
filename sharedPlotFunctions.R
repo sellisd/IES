@@ -6,6 +6,19 @@ suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(ggtree))
 suppressPackageStartupMessages(library(binom))
 
+
+plotAsrInt <- function(phylo, title, DF){
+  # simple ape-based plot of ancestral states with presence absence states only
+  cl <- c(0,"grey60")
+  plot(phylo, main = title, adj = 0.5)
+  tipI <- which(DF$r <= length(phylo$tip.label))
+  intI <- which(DF$r > length(phylo$tip.label))
+  painternal <- DF$pa[intI]
+  patips <- DF$pa[tipI]
+  nodelabels(text = painternal, node = DF$r[intI], bg = cl[painternal + 1])
+  tiplabels(text = patips, tip = DF$r[tipI], bg = cl[patips + 1])
+}
+
 recttext <- function(xl, yb, xr, yt, text, rectArgs = NULL, textArgs = NULL) {
   # from http://stackoverflow.com/questions/31371296/how-to-write-text-inside-a-rectangle-in-r
   center <- c(mean(c(xl, xr)), mean(c(yb, yt)))
@@ -13,13 +26,13 @@ recttext <- function(xl, yb, xr, yt, text, rectArgs = NULL, textArgs = NULL) {
   do.call('text', c(list(x = center[1], y = center[2], labels = text), textArgs))
 }
 
-plotCompl <- function(matBool, matBoolR, flankLength, speciesName){
+plotCompl <- function(matBool, matBoolR, flankLength, speciesName, conf.level = 0.95){
   # make complementarity plot
   windowSize <- ncol(matBool) - flankLength
-  ci <- binom.confint(colSums(matBool), rep(nrow(matBool), ncol(matBool)), methods = "exact")
-  ciR <- binom.confint(colSums(matBoolR), rep(nrow(matBoolR), ncol(matBoolR)), methods = "exact")
+  ci <- binom.confint(colSums(matBool), rep(nrow(matBool), ncol(matBool)), methods = "exact", conf.level = conf.level)
+  ciR <- binom.confint(colSums(matBoolR), rep(nrow(matBoolR), ncol(matBoolR)), methods = "exact", conf.level = conf.level)
   bpCoo <- barplot(ci$mean, 
-                   ylim = c(0, 1.2), 
+                   ylim = c(0, 1), 
                    names.arg = c(-flankLength:-1, 1:windowSize),
                    col=c(rep("grey", flankLength),
                          dblue, dblue, 
