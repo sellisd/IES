@@ -5,7 +5,40 @@ source("~/projects/fgmo/colors.R")
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(ggtree))
 suppressPackageStartupMessages(library(binom))
+suppressPackageStartupMessages(library(ape))
+suppressPackageStartupMessages(library(tidyr))
 
+plotASRScenario <- function(cluster){
+  #plot scenarios of ancestral state presence using the output of ancestralStates.R which summarizes the revBayes output into an tidyR format.
+  cluster <- cluster
+  name <- paste0("~/data/IES_data/rdb/ancestralStates/",cluster)
+  if (!file.exists(name)){
+    return("File does not exist")
+  }
+  load(name)
+  nodePresence <- aggregate(ancestralStates$presenceAbsence, by = list(iesColumn = ancestralStates$iesColumn, nodeR = ancestralStates$r), FUN = sum)
+  totalIterations <- length(unique(ancestralStates$Iteration))
+  nodePresence <- data.frame(nodePresence, mean = nodePresence$x/totalIterations, stringsAsFactors = FALSE)
+  ci <- binom.confint(nodePresence$x, rep(totalIterations, nrow(nodePresence)), methods = "exact", conf.level = 0.95)
+  DF <- data.frame(ci[nodePresence$iesColumn == 2, c("lower", "upper")], nodePresence[nodePresence$iesColumn == 2, ])
+  
+  wide <- ancestralStates[ancestralStates$iesColumn == 2, c("Iteration", "presenceAbsence", "r")]
+  wide <- spread(wide, r, presenceAbsence)
+  key <- wide[, c(2:ncol(wide))]
+  nodesRids <- names(key)
+  key <- apply(key, 1, paste, collapse = "")
+  simCounts <- table(key)
+  total <- sum(simCounts)
+  
+  Pscenario <- numeric(0)
+  for(i in c(1:length(simCounts))){
+    pattern <- names(simCounts)[i]
+    DF <- pattern2nodes(pattern, nodesRids)
+    plotAsrInt(geneTree@phylo, title = paste("P:", round(simCounts[i]/total, 4)), DF)
+    Pscenario <- append(Pscenario, simCounts[i]/total)
+  }
+  unname(Pscenario)
+}
 
 plotAsrInt <- function(phylo, title, DF){
   # simple ape-based plot of ancestral states with presence absence states only
