@@ -240,7 +240,7 @@ phyldog2r <- function(phyldogNodeId, cluster){
 phyldog2rb <- function(phyldogNodeId, cluster){
   # translate node id from phyldog to revBayes
   clusterIndex <- which(nodeDictionary$cluster %in% as.character(cluster))
-  index <- match(phyldogNodeId, nodeDictionary$rb[clusterIndex])
+  index <- match(phyldogNodeId, nodeDictionary$phyldog[clusterIndex])
   (nodeDictionary[clusterIndex, "rb"])[index]
 }
 
