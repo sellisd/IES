@@ -37,7 +37,6 @@ for line in f:
 #        print("skipping :" + cluster + ', ' + node, file = sys.stderr)
         next
     if (cluster, nodeP) in d:
-        pass
         d[(cluster, nodeP)][iesColumn] = presence
     else:
         d[(cluster, nodeP)] = {iesColumn : presence}
@@ -63,13 +62,14 @@ for cluster in clusters:
                 # for each ies column
                 iesColumns = list(probs[0].keys())
                 for i in iesColumns:
-                    wasPresent = float(probs[0][i]) # make sure they are numbers in order to compare
-                    isPresent = float(probs[1][i])
+                    wasPresent = float(d[(cluster, anc.ND)][i])
+                    isPresent = float(d[(cluster, leaf.ND)][i])
                     if isPresent == 0 and wasPresent > 0.99:
                         print("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent)]))
         else:
             pass
-        # try:
+
+# try:
         #     print(leaf.ND + "\t" + anc.ND)
         # except:
         #     print(cluster + leaf.name)
