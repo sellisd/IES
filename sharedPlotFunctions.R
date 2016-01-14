@@ -52,6 +52,19 @@ plotAsrInt <- function(phylo, title, DF){
   tiplabels(text = patips, tip = DF$r[tipI], bg = cl[patips + 1])
 }
 
+plotAsrFloat <- function(phylo, title, DF){
+  # simple ape-based plot of ancestral states with presence absence states only
+  # str(DF) data.frame r: num, pa: num
+  cl <- c(1, 0)
+  plot(phylo, main = title, adj = 0.5)
+  tipI <- which(DF$r <= length(phylo$tip.label))
+  intI <- which(DF$r > length(phylo$tip.label))
+  painternal <- DF$pa[intI]
+  patips <- DF$pa[tipI]
+  nodelabels(thermo = painternal, node = DF$r[intI], piecol = cl)
+  tiplabels(thermo = patips, tip = DF$r[tipI], piecol = cl)
+}
+
 recttext <- function(xl, yb, xr, yt, text, rectArgs = NULL, textArgs = NULL) {
   # from http://stackoverflow.com/questions/31371296/how-to-write-text-inside-a-rectangle-in-r
   center <- c(mean(c(xl, xr)), mean(c(yb, yt)))
