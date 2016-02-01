@@ -1,3 +1,24 @@
+sub prefix{
+    my $species = shift @_;
+    my %prefixes = (
+	'ppr' => 'PPRIM.AZ9-3.1.',
+	'pbi' => 'PBIA.V1_4.1.',
+	'pte' => 'PTET.51.1.',
+	'ppe' => 'PPENT.87.1.',
+	'pse' => 'PSEX.AZ8_4.1.',
+	'poc' => 'POCTA.138.1.',
+	'ptr' => 'PTRED.209.2.',
+	'pca' => 'PCAU.43c3d.1.'
+#	'tth' => ''	   
+    );
+    if (defined($prefixes{$species})){
+	return $prefixes{$species};
+    }else{
+	die;
+    }
+}
+
+
 sub whichInOne{
 # find which elements in @A are completely within ONE element of @B
     my $asref = shift @_;
