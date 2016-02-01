@@ -14,7 +14,7 @@ sub prefix{
     if (defined($prefixes{$species})){
 	return $prefixes{$species};
     }else{
-	die;
+	return;
     }
 }
 
