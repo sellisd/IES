@@ -8,6 +8,7 @@ use Getopt::Long;
 use Bio::SeqIO;
 use Bio::Tools::GFF;
 use Data::Dumper;
+use File::Spec::Functions qw(catfile);
 my $help;
 my $cutoff = 10**4;
 my $lengthF;
@@ -100,7 +101,8 @@ print "$geneCountFilt out of $geneCount genes over the cutoff\n";
 #read proteins and filter
 my $protIn = Bio::SeqIO->new('-file'   => $proteinF,
 			     '-format' => 'fasta');
-my $protOut = Bio::SeqIO->new('-file'  => '>'.$outdir.'.'.$species.'.protein.fa',
+my $protoutF = catfile($outdir, $species.'.protein.fa');
+my $protOut = Bio::SeqIO->new('-file'  => '>'.$protoutF,
 			      '-format' => 'fasta');
 while(my $seqO = $protIn->next_seq){
     my $protName =  $seqO->primary_id;
@@ -113,7 +115,8 @@ while(my $seqO = $protIn->next_seq){
 #read genes and filter
 my $geneIn = Bio::SeqIO->new('-file'    => $geneF,
 			     '-format'  => 'fasta');
-my $geneOut = Bio::SeqIO->new('-file'   => '>'.$outdir.'.'.$species.'.gene.fa',
+my $geneoutF = catfile($outdir, $species.'.gene.fa');
+my $geneOut = Bio::SeqIO->new('-file'   => '>'.$geneoutF,
 			      '-format' => 'fasta');
 
 while(my $seqO = $geneIn->next_seq){
@@ -127,7 +130,8 @@ while(my $seqO = $geneIn->next_seq){
 #read IES and filter
 my $iesIn = Bio::Tools::GFF->new('-file'         => $iesF,
 				 '-gff_version'  => 3);
-my $iesOut = Bio::Tools::GFF->new('-file'        => '>'.$outdir.'.'.$species.'.ies.gff3',
+my $outiesF = catfile($outdir, $species.'.ies.gff3');
+my $iesOut = Bio::Tools::GFF->new('-file'        => '>'.$outiesF,
 				  '-gff_version' => 3);
 my $iesCount;
 my $iesCountFilt;
