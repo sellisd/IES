@@ -1,3 +1,26 @@
+sub buildPaths{
+    # return standard file names and paths
+    my $binomial = shift @_;
+    my $pabAnot = shift @_;
+    $binomial =~ /^([A-Z])[a-z]+\s+([a-z]+)$/ or die;
+    my $g = lc($1);
+    my $spEpithet = $2;
+    my $pab = $g.substr($spEpithet, 0, 2);
+    my $scaffoldF = 'data/IES/analysis/'.$pab.'.scaf';
+    my $proteinF  = 'data/IES/'.$spEpithet.'/gene/'.$pabAnot.'.protein.fa';
+    my $geneF     = 'data/IES/'.$spEpithet.'/gene/'.$pabAnot.'.gene.fa';
+    my $anotF     = 'data/IES/'.$spEpithet.'/gene/'.$pabAnot.'.gff3';
+    my $iesF      = 'data/IES/'.$spEpithet.'/IES/'.$g.$spEpithet.'_internal_eliminated_sequence.gff3';
+    return {
+	'scaffoldF' => $scaffoldF,
+	'proteinF'  => $proteinF,
+	'geneF'     => $geneF,
+	'anotF'     => $anotF,
+	'iesF'      => $iesF,
+	'pab'       => $pab
+    }
+}
+
 sub prefix{
     my $species = shift @_;
     my %prefixes = (
