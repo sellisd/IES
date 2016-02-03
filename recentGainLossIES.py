@@ -66,6 +66,8 @@ for cluster in clusters:
                     isPresent = float(d[(cluster, leaf.ND)][i])
                     if isPresent == 0 and wasPresent > 0.99:
                         print("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent)]))
+                    else wasPresent < 0.01 and isPresent == 1:
+                        print("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent)]))
         else:
             pass
 
