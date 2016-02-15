@@ -47,7 +47,7 @@ inputF = open('/home/dsellis/data/IES_data/msas/asr/geneFamilies.dat', 'r')
 
 clusters = inputF.readlines()
 clusters = [i.rstrip() for i in clusters]
-print('\t'.join(['cluster', 'iesColumn', 'gene', 'fromS', 'toS', 'fromNodeP', 'toNodeP', 'presenceFrom', 'presenceTo']))
+print('\t'.join(['cluster', 'iesColumn', 'gene', 'fromS', 'toS', 'fromNodeP', 'toNodeP', 'presenceFrom', 'presenceTo', 'eventType']))
 for cluster in clusters:
     fileNameString = phyldogPath+str(cluster)+'.ReconciledTree'
     # print(fileNameString)
@@ -65,9 +65,9 @@ for cluster in clusters:
                     wasPresent = float(d[(cluster, anc.ND)][i])
                     isPresent = float(d[(cluster, leaf.ND)][i])
                     if isPresent == 0 and wasPresent > 0.99:
-                        print("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent)]))
-                    else wasPresent < 0.01 and isPresent == 1:
-                        print("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent)]))
+                        print("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'loss']))
+                    elif wasPresent < 0.01 and isPresent == 1:
+                        print("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'gain']))
         else:
             pass
 

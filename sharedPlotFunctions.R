@@ -8,6 +8,69 @@ suppressPackageStartupMessages(library(binom))
 suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(tidyr))
 
+printIESalign <- function(geneFamily, iesColumn, pad, filtered){
+  # plot a multiple sequence alignment around an IES
+  # print the nucleotide alignment around iesColumn with TAs annotated
+  DF <- charMats[charMats$cluster == geneFamily & charMats$column == iesColumn, c("geneId", "ies", "begin", "end")]
+  #printRegion(geneFamily, DF$begin[1] - pad, DF$end[1] + pad)
+  alignF <- paste0("/home/dsellis/data/IES_data/msas/alignments/filtered/cluster.", geneFamily, ".nucl.fa")
+  aln <- read.alignment(file = alignF, format = "fasta")
+  alnM <- as.matrix.alignment(aln)
+  # find in which genes IES are present
+  geneIds <- DF$geneId[which(DF$ies != "0" & !is.na(DF$ies))]
+  I <- which(row.names(alnM) %in% geneIds)
+  IES <- DF[which(DF$ies != "0" & !is.na(DF$ies)), ]
+  for(i in I){
+    alnM[i, DF$begin[1]] <- toupper(alnM[i, DF$begin[1]])
+    alnM[i, DF$end[1]] <- toupper(alnM[i, DF$end[1]])
+  }
+  print(alnM[, c((DF$begin[1] - pad):(DF$end[1] + pad))])
+  m <- alnM[, c((DF$begin[1] - pad):(DF$end[1] + pad))]
+  plotMSA(m, IES, filtered)
+}
+
+dnacol <- function(a){
+  # a color pallette for DNA sequence printing
+  a <- c("a","c","t","g")
+  p1 <- c("A" = dred,
+          "T" = dblue,
+          "C" = dgreen,
+          "G" = dorange)
+  p1[toupper(a)]
+}
+
+plotMSA <- function(m, IES, filtered){
+  # plot a MSA, shade IES insertion locations and mark arbitrary regions
+  namesWidth <- max(sapply(row.names(m),nchar))
+  y <- nrow(m)
+  x <- as.numeric(dimnames(m)[[2]])
+  plot.new()
+  #leave some space between name and sequence
+  sp <- 2
+  xmin <- min(x) - namesWidth - sp
+  plot.window(xlim = c(xmin, max(x)), ylim = c(-y, 0))
+  for(yi in c(1:y)){
+    if(row.names(m)[yi] %in% IES$geneId){ # if it has an IES draw background
+      be <- IES[IES$geneId==row.names(m)[yi], c("begin","end")]
+      #beginCol <- which(dimnames(m)[[2]] == as.character(be[1]))
+      #endCol <- which(dimnames(m)[[2]] == as.character(be[2]))
+      points(be[1], y = - yi, col = "grey60",pch = 19, cex = 3)
+      points(be[2], y = - yi, col = "grey60",pch = 19, cex = 3)
+    }
+    filtered <- filtered[filtered$eventType=="loss"] #only mark lost IES
+    if(row.names(m)[yi] %in% filtered$gene){
+      be <- filtered[which(filtered$gene==row.names(m)[yi]), c("begin","end")]
+      points(be[1], y = - yi, col = "grey60", cex = 3)
+      points(be[2], y = - yi, col = "grey60", cex = 3)
+    }
+    text(x = x, y = - yi, m[yi, ], col = dnacol(m[yi, ]))
+    geneName <- s2c(row.names(m)[yi])
+    text(x = c(xmin:(xmin + length(geneName) - 1)) , y = - yi, geneName)
+  }
+  par(las = 3)
+  axis(3, at = x, labels = x)
+}
+
 plotASRScenario <- function(cluster){
   #plot scenarios of ancestral state presence using the output of ancestralStates.R which summarizes the revBayes output into an tidyR format.
   cluster <- cluster
