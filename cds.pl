@@ -1,20 +1,24 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use lib'.';
+use functions;
 use Bio::Tools::GFF;
 
 ## Extract CDS locations in gene coordinates
 
-my $gffio = Bio::Tools::GFF->new(-file => '/home/dsellis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.gff3',
+my $gffio = Bio::Tools::GFF->new(-file => $ARGV[0],
 				 -gff_version => 3);
 
 # my $gffio = Bio::Tools::GFF->new(-file => '/home/dsellis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.gff3',
 # 				 -gff_version => 3);
 my %genes;
 my %mRNAs;
+
+printab('cdsId', 'geneId', 'genomicStart', 'genomicEnd', 'geneStart', 'geneEnd');
 while(my $feature = $gffio->next_feature()){
     my $type = $feature->primary_tag;
-    $feature->start < $feature->end or die; # make sure start/end does not reflect strand
+    $feature->start <= $feature->end or die; # make sure start/end does not reflect strand
     if($type eq 'gene'){
 	my @geneNames = $feature->get_tag_values('ID');
 	die "@geneNames" if $#geneNames > 0;
@@ -57,7 +61,7 @@ while(my $feature = $gffio->next_feature()){
 	    }else{
 	     	die "Unknown strand: $strand";
 	    }
-	print "$ids[0] $mRNAs{$parents[0]} $CDSGenomicStart $CDSGenomicEnd $CDSGeneStart $CDSGeneEnd\n";
+	printab($ids[0], $mRNAs{$parents[0]}, $CDSGenomicStart, $CDSGenomicEnd, $CDSGeneStart, $CDSGeneEnd);
 	}else{
 	    die $parents[0];
 	}

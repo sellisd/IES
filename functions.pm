@@ -1,3 +1,36 @@
+my %prefixes = (
+    'ppr' => 'PPRIM.AZ9-3.1.',
+    'pbi' => 'PBIA.V1_4.1.',
+    'pte' => 'PTET.51.1.',
+    'ppe' => 'PPENT.87.1.',
+    'pse' => 'PSEX.AZ8_4.1.',
+    'poc' => 'POCTA.138.1.',
+    'ptr' => 'PTRED.209.2.',
+    'pca' => 'PCAU.43c3d.1.'
+#	'tth' => ''	   
+    );
+
+sub prot2gene{
+    my $protId = shift @_;
+    my $found = 0;
+    my $geneId;
+    foreach $prefix (keys %prefixes){
+	if($protId =~ /^$prefixes{$prefix}P(\d+)$/){
+	    $found++;
+	    $geneId = $prefixes{$prefix}.'G'.$1;
+	}
+    }
+    if($found == 1){
+	return $geneId;
+    }else{
+	return;
+    }  
+}
+
+sub printab{
+    print(join("\t", @_),"\n");
+}
+
 sub buildPaths{
     # return standard file names and paths
     my $binomial = shift @_;
@@ -23,24 +56,12 @@ sub buildPaths{
 
 sub prefix{
     my $species = shift @_;
-    my %prefixes = (
-	'ppr' => 'PPRIM.AZ9-3.1.',
-	'pbi' => 'PBIA.V1_4.1.',
-	'pte' => 'PTET.51.1.',
-	'ppe' => 'PPENT.87.1.',
-	'pse' => 'PSEX.AZ8_4.1.',
-	'poc' => 'POCTA.138.1.',
-	'ptr' => 'PTRED.209.2.',
-	'pca' => 'PCAU.43c3d.1.'
-#	'tth' => ''	   
-    );
     if (defined($prefixes{$species})){
 	return $prefixes{$species};
     }else{
 	return;
     }
 }
-
 
 sub whichInOne{
 # find which elements in @A are completely within ONE element of @B
