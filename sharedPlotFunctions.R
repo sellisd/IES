@@ -24,20 +24,21 @@ printIESalign <- function(geneFamily, iesColumn, pad, filtered){
     alnM[i, DF$begin[1]] <- toupper(alnM[i, DF$begin[1]])
     alnM[i, DF$end[1]] <- toupper(alnM[i, DF$end[1]])
   }
-  print(alnM[, c((DF$begin[1] - pad):(DF$end[1] + pad))])
+  #print(alnM[, c((DF$begin[1] - pad):(DF$end[1] + pad))])
   m <- alnM[, c((DF$begin[1] - pad):(DF$end[1] + pad))]
   plotMSA(m, IES, filtered)
 }
 
 dnacol <- function(a){
   # a color pallette for DNA sequence printing
-  a <- c("a","c","t","g")
+#  a <- c("a","c","t","g")
   p1 <- c("A" = dred,
           "T" = dblue,
           "C" = dgreen,
           "G" = dorange)
   p1[toupper(a)]
 }
+
 
 plotMSA <- function(m, IES, filtered){
   # plot a MSA, shade IES insertion locations and mark arbitrary regions
@@ -49,6 +50,10 @@ plotMSA <- function(m, IES, filtered){
   sp <- 2
   xmin <- min(x) - namesWidth - sp
   plot.window(xlim = c(xmin, max(x)), ylim = c(-y, 0))
+  greytone <- c("#c1c9c8", "#a5b5ab")
+  for(i in x){
+    rect(i - 0.5, -y - 1, i + 0.5, 0, border = NA, col = greytone[findTriplet(i)%%2+1])
+  }
   for(yi in c(1:y)){
     if(row.names(m)[yi] %in% IES$geneId){ # if it has an IES draw background
       be <- IES[IES$geneId==row.names(m)[yi], c("begin","end")]
@@ -60,8 +65,8 @@ plotMSA <- function(m, IES, filtered){
     filtered <- filtered[filtered$eventType=="loss"] #only mark lost IES
     if(row.names(m)[yi] %in% filtered$gene){
       be <- filtered[which(filtered$gene==row.names(m)[yi]), c("begin","end")]
-      points(be[1], y = - yi, col = "grey60", cex = 3)
-      points(be[2], y = - yi, col = "grey60", cex = 3)
+      points(be[1], y = -yi, col = "grey60", cex = 3)
+      points(be[2], y = -yi, col = "grey60", cex = 3)
     }
     text(x = x, y = - yi, m[yi, ], col = dnacol(m[yi, ]))
     geneName <- s2c(row.names(m)[yi])

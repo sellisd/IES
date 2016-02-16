@@ -8,6 +8,40 @@ suppressPackageStartupMessages(library(IRanges))
 suppressPackageStartupMessages(library(phangorn))
 suppressPackageStartupMessages(library(dplyr))
 
+geneInScaffold <- function(geneNames){
+  # given a gene find in which scaffold it is (old gene names)
+  scaffolds <- character(length(geneNames))
+  counter <- 1
+  for(x in geneNames){
+    if(substr(x,0,4) == "PTET"){
+      scaffold <- paste0("scaffold51_", as.numeric(substr(x,12,14)))
+    }else if (substr(x,0,4) == "PBIA"){
+      scaffold <- paste0("scaffold_", substr(x,14,17)) # pbiaurelia scaffolds retain padding 0
+    }else{
+      warning(paste("unknown gene name: ", x))
+    }
+    scaffolds[counter] <- scaffold
+    counter <- counter + 1
+  }
+  scaffolds
+}
+
+findFrame <- function(x){
+  # find the frame of a nucleotide from its coordinates
+  if(x<1){
+    stop("coordinates should be positive")
+  }
+  (x-1)%%3+1
+}
+
+findTriplet <- function(x){
+  # find the aa triplet of a nucleotide from its coordinates
+  if(x<1){
+    stop("coordinates should be positive")
+  }
+  trunc(x/3)
+}
+
 gainLossOnPath <- function(L){
   # from a list of probability of presence in ancestral nodes along a path calculate sum of insertion and loss probability
   l <- length(L)
