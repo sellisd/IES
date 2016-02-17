@@ -8,6 +8,40 @@ suppressPackageStartupMessages(library(IRanges))
 suppressPackageStartupMessages(library(phangorn))
 suppressPackageStartupMessages(library(dplyr))
 
+
+gene2protCDS <- function(cds){
+  # function that translates genomic to protein coordinates for CDS  
+  # input is a data.frame with cdsId geneId geneStart and geneEnd columns
+  l <- nrow(cds)
+  protcds <- data.frame(cdsId = character(l), geneId = character(l), geneStart = character(l), geneEnd = character(l), protStart = character(l), protEnd = character(l), stringsAsFactors = FALSE)
+  geneCounter <- 1
+  uniqueGenes <- unique(cds$geneId)
+  for(gene in uniqueGenes){
+    print(paste(geneCounter, "/", length(uniqueGenes)))
+    rowIndex <- which(cds$geneId==gene)
+    DF <- cds[rowIndex, ]
+    # order by gene start
+    DF <- DF[order(DF$geneStart), ]
+    l <- nrow(DF)
+    if(l == 1){
+      cInLen <- 1
+    }else{
+      intronLength <- DF$geneStart[2:l] - DF$geneEnd[1:(l-1)] - 1 # -1 because (geneStart, geneEnd)
+      cInLen <- c(1, cumsum(intronLength)) # cumulative length of introns
+    }
+    pstart <- DF$geneStart - cInLen + 1
+    pend <- DF$geneEnd - cInLen + 1
+    protcds[rowIndex, "cdsId"]  <- DF$cdsId
+    protcds[rowIndex, "geneId"] <- DF$geneId
+    protcds[rowIndex, "geneStart"] <- DF$geneStart
+    protcds[rowIndex, "geneEnd"] <- DF$geneEnd
+    protcds[rowIndex, "protStart"] <- pstart
+    protcds[rowIndex, "protEnd"] <- pend
+    geneCounter <- geneCounter + 1
+  }
+  protcds
+}
+
 geneInScaffold <- function(geneNames){
   # given a gene find in which scaffold it is (old gene names)
   scaffolds <- character(length(geneNames))
