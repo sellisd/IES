@@ -17,20 +17,20 @@ gene2protCDS <- function(cds){
   geneCounter <- 1
   uniqueGenes <- unique(cds$geneId)
   for(gene in uniqueGenes){
-    print(paste(geneCounter, "/", length(uniqueGenes)))
+    cat(paste(geneCounter, "/", length(uniqueGenes),"\r"))
     rowIndex <- which(cds$geneId==gene)
     DF <- cds[rowIndex, ]
     # order by gene start
     DF <- DF[order(DF$geneStart), ]
     l <- nrow(DF)
     if(l == 1){
-      cInLen <- 1
+      cInLen <- 0
     }else{
       intronLength <- DF$geneStart[2:l] - DF$geneEnd[1:(l-1)] - 1 # -1 because (geneStart, geneEnd)
-      cInLen <- c(1, cumsum(intronLength)) # cumulative length of introns
+      cInLen <- c(0, cumsum(intronLength)) # cumulative length of introns
     }
-    pstart <- DF$geneStart - cInLen + 1
-    pend <- DF$geneEnd - cInLen + 1
+    pstart <- DF$geneStart - cInLen
+    pend <- DF$geneEnd - cInLen
     protcds[rowIndex, "cdsId"]  <- DF$cdsId
     protcds[rowIndex, "geneId"] <- DF$geneId
     protcds[rowIndex, "geneStart"] <- DF$geneStart
@@ -40,6 +40,35 @@ gene2protCDS <- function(cds){
     geneCounter <- geneCounter + 1
   }
   protcds
+}
+
+introns <- function(cds){
+  # from a dataframe of geneId and CDS Ids extract some information for introns
+  l <- nrow(cds)
+  intronsPerGene <- data.frame(geneId = character(l), introns = numeric(l), stringsAsFactors = FALSE)
+  intronLengths <- numeric()
+  geneCounter <- 1
+  uniqueGenes <- unique(cds$geneId)
+  for(gene in uniqueGenes){
+    cat(paste(geneCounter, "/", length(uniqueGenes)),"\r")
+    rowIndex <- which(cds$geneId==gene)
+    DF <- cds[rowIndex, ]
+    # order by gene start
+    DF <- DF[order(DF$geneStart), ]
+    l <- nrow(DF)
+    if(l == 1){
+      # no introns
+      intronLength <- numeric(0)
+    }else{
+      intronLength <- DF$geneStart[2:l] - DF$geneEnd[1:(l-1)] - 1 # -1 because (geneStart, geneEnd)
+      # cInLen <- c(1, cumsum(intronLength)) # cumulative length of introns
+    }
+    intronsPerGene[geneCounter, "geneId"] <- gene
+    intronsPerGene[geneCounter, "introns"] <- length(intronLength)
+    intronLengths <- append(intronLengths, intronLength)
+    geneCounter <- geneCounter + 1
+  }
+  list(intronsPerGene, intronLengths)
 }
 
 geneInScaffold <- function(geneNames){
