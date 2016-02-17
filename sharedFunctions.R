@@ -8,6 +8,16 @@ suppressPackageStartupMessages(library(IRanges))
 suppressPackageStartupMessages(library(phangorn))
 suppressPackageStartupMessages(library(dplyr))
 
+# shared variables
+
+prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
+              'PBIA.V1_4.1.'   = 'Paramecium biaurelia',
+              'PTET.51.1.'     = 'Paramecium tetraurelia',  
+              'PPENT.87.1.'    = 'Paramecium pentaurelia',
+              'PSEX.AZ8_4.1.'  = 'Paramecium sexaurelia',
+              'POCTA.138.1.'   = 'Paramecium octaurelia',
+              'PTRED.209.2.'   = 'Paramecium tredecaurelia',
+              'PCAU.43c3d.1.'  = 'Paramecium caudatum')
 
 gene2protCDS <- function(cds){
   # function that translates genomic to protein coordinates for CDS  
@@ -607,8 +617,8 @@ presenceAbsence <- function(sp){
 gene2species <- function(string){
   # get a character vector of species names from 
   # a character vector of gene names
-  knownSpeciesNames <- c("Paramecium_caudatum", "Paramecium_sexaurelia", "Paramecium_tetraurelia", "Paramecium_biaurelia", "Tetrahymena_thermophila")
-  names(knownSpeciesNames) <-  c("PCAU", "PSEX", "PTET", "PBIA", "TTHE")
+  knownSpeciesNames <- c("Paramecium_caudatum", "Paramecium_primaurelia", "Paramecium_sexaurelia", "Paramecium_tetraurelia", "Paramecium_biaurelia", "Tetrahymena_thermophila")
+  names(knownSpeciesNames) <-  c("PCAU", "PPRI", "PSEX", "PTET", "PBIA", "TTHE")
   speciesNames <- knownSpeciesNames[substr(string, 0, 4)]
   if(any(is.na(speciesNames))){
     stop(paste("unknown name", string[which(is.na(speciesNames))]))
