@@ -57,8 +57,6 @@ plotMSA <- function(m, IES, filtered){
   for(yi in c(1:y)){
     if(row.names(m)[yi] %in% IES$geneId){ # if it has an IES draw background
       be <- IES[IES$geneId==row.names(m)[yi], c("begin","end")]
-      #beginCol <- which(dimnames(m)[[2]] == as.character(be[1]))
-      #endCol <- which(dimnames(m)[[2]] == as.character(be[2]))
       points(be[1], y = - yi, col = "grey60",pch = 19, cex = 3)
       points(be[2], y = - yi, col = "grey60",pch = 19, cex = 3)
     }

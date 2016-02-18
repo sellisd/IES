@@ -45,41 +45,27 @@ foreach my $file (@geneFamiliesFiles){
 				  -format=>'fasta'); # for the nucleotide alignments
     while(my $alnO = $alnIO->next_aln){
 	printab $file;
+	my $outfile = $file;
+	$outfile =~ s/\.nucl\.fa$/.cds.boundaries/ or die;
+	$outfile = catfile($alnDir, $outfile);
+	open OUT, '>'.$outfile or die $!;
 	foreach my $seq ($alnO->each_seq()) {     #find which genes
 	    my $protId = $seq->id;
-	    printab $protId;
 	    my $geneId = prot2gene($protId);
 	    if($geneId){
 		if(defined($cdsLoc{$geneId})){
 		    my @be = @{$cdsLoc{$geneId}};
-		    foreach my $be (@be){
-			my $l = $alnO->length;
-#			use Data::Dumper;
-#			my $slice = $alnO->slice(1145,1172);
-# my $debug = Bio::AlignIO->new(-file => '>temp',
-# 			      -format => 'fasta');
-# # 			$debug->write_aln($slice)
-# 			for(my $i = 1; $i <= 1140; $i++){
-# 			    print $protId, ' ', $be, ' ', $alnO->column_from_residue_number($protId, $i),"\n";
-# 			}
-# 			die;
-			
-			print $alnO->column_from_residue_number($protId, $be),"\n";
-			# die;
-			# print $alnO->column_from_residue_number($protId, $be);
-			# print ' ';
+		    print $file,"\n";
+		    for(my $c = 0; $c <= $#be - 1; $c+=2){
+			print OUT $geneId,"\t";
+			print OUT $alnO->column_from_residue_number($protId, $be[$c]),"\t";
+			print OUT $alnO->column_from_residue_number($protId, $be[$c + 1]),"\t";
+			print OUT "\n";
 		    }
-		    print "\n";
-		    die;
 		}
 	    }
-#	    my $msaLocStart = $alnO->column_from_residue_number($id,$start);     #find the 
 	}
+	close OUT;
     }
 }
 close DH;
-
-
-#     my $seqNo = $alnO->num_sequences;
-# }
-# }
