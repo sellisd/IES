@@ -21,32 +21,52 @@ prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
 
 gene2protCDS <- function(cds){
   # function that translates genomic to protein coordinates for CDS  
-  # input is a data.frame with cdsId geneId geneStart and geneEnd columns
+  # input is a data.frame with cdsId geneId geneStart, geneEnd and strand columns
   l <- nrow(cds)
   protcds <- data.frame(cdsId = character(l), geneId = character(l), geneStart = character(l), geneEnd = character(l), protStart = character(l), protEnd = character(l), stringsAsFactors = FALSE)
   geneCounter <- 1
   uniqueGenes <- unique(cds$geneId)
+  #gene <- uniqueGenes[1]
   for(gene in uniqueGenes){
     cat(paste(geneCounter, "/", length(uniqueGenes),"\r"))
     rowIndex <- which(cds$geneId==gene)
     DF <- cds[rowIndex, ]
+    # make sure all on the same strand
+    if(all(DF$strand == "-1")){
+      strand <-  -1
+    }else if(all(DF$strand == "1")){
+      strand <-  1
+    }else{
+      stop(paste("mixed strands within the same gene, or unknown strand: ", DF$strand))
+    }
     # order by gene start
     DF <- DF[order(DF$geneStart), ]
     l <- nrow(DF)
+    CDSLengths <- DF$geneEnd - DF$geneStart + 1
     if(l == 1){
-      cInLen <- 0
+        pStart <- 1
+        pEnd <- CDSLengths[1] - 3 # remove termination codon
     }else{
-      intronLength <- DF$geneStart[2:l] - DF$geneEnd[1:(l-1)] - 1 # -1 because (geneStart, geneEnd)
-      cInLen <- c(0, cumsum(intronLength)) # cumulative length of introns
+      if(strand == 1){
+        CDSLengths[l] <- CDSLengths[l] - 3 # remove termination codon
+        cumulLen <- cumsum(CDSLengths)
+        pEnd <- cumulLen
+        pStart <- c(1, cumulLen[1:(l-1)]+1)
+      }else if(strand == -1){
+        CDSLengths[1] <- CDSLengths[1] - 3 # remove termination codon
+        cumulLen <- cumsum(rev(CDSLengths))
+        pStart <- rev(c(1, cumulLen[1:(l-1)]+1))
+        pEnd <- rev(cumulLen)
+        
+      }
     }
-    pstart <- DF$geneStart - cInLen
-    pend <- DF$geneEnd - cInLen
+    # remove the last codon (TGA)
     protcds[rowIndex, "cdsId"]  <- DF$cdsId
     protcds[rowIndex, "geneId"] <- DF$geneId
     protcds[rowIndex, "geneStart"] <- DF$geneStart
     protcds[rowIndex, "geneEnd"] <- DF$geneEnd
-    protcds[rowIndex, "protStart"] <- pstart
-    protcds[rowIndex, "protEnd"] <- pend
+    protcds[rowIndex, "protStart"] <- pStart
+    protcds[rowIndex, "protEnd"] <- pEnd
     geneCounter <- geneCounter + 1
   }
   protcds
