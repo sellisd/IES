@@ -15,7 +15,7 @@ my $gffio = Bio::Tools::GFF->new(-file => $ARGV[0],
 my %genes;
 my %mRNAs;
 
-printab('cdsId', 'geneId', 'genomicStart', 'genomicEnd', 'geneStart', 'geneEnd');
+printab('cdsId', 'geneId', 'genomicStart', 'genomicEnd', 'geneStart', 'geneEnd', 'strand', 'geneLength');
 while(my $feature = $gffio->next_feature()){
     my $type = $feature->primary_tag;
     $feature->start <= $feature->end or die; # make sure start/end does not reflect strand
@@ -61,7 +61,7 @@ while(my $feature = $gffio->next_feature()){
 	    }else{
 	     	die "Unknown strand: $strand";
 	    }
-	printab($ids[0], $mRNAs{$parents[0]}, $CDSGenomicStart, $CDSGenomicEnd, $CDSGeneStart, $CDSGeneEnd);
+	printab($ids[0], $mRNAs{$parents[0]}, $CDSGenomicStart, $CDSGenomicEnd, $CDSGeneStart, $CDSGeneEnd, $strand, $geneGenomicEnd - $geneGenomicStart + 1);
 	}else{
 	    die $parents[0];
 	}
