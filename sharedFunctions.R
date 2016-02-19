@@ -43,15 +43,15 @@ gene2protCDS <- function(cds){
     #DF <- DF[order(DF$geneStart), ]
     l <- nrow(DF)
     CDSLengths <- DF$geneEnd - DF$geneStart + 1
-    if(CDSLengths[1] == 3 & strand == 1){
-        CDSLengths <- CDSLengths[-1]
-        DF <- DF[-1, ]
-        rowIndex <- rowIndex[-1]
-        l <- l - 1
-    }else if(CDSLengths[l] == 3 & strand == -1){
+    if(CDSLengths[l] == 3 & strand == 1){
         CDSLengths <- CDSLengths[-l]
         DF <- DF[-l, ]
         rowIndex <- rowIndex[-l]
+        l <- l - 1
+    }else if(CDSLengths[1] == 3 & strand == -1){
+        CDSLengths <- CDSLengths[-1]
+        DF <- DF[-1, ]
+        rowIndex <- rowIndex[-1]
         l <- l - 1
     }
     if(l == 1){
