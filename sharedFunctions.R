@@ -40,9 +40,20 @@ gene2protCDS <- function(cds){
       stop(paste("mixed strands within the same gene, or unknown strand: ", DF$strand))
     }
     # order by gene start
-    DF <- DF[order(DF$geneStart), ]
+    #DF <- DF[order(DF$geneStart), ]
     l <- nrow(DF)
     CDSLengths <- DF$geneEnd - DF$geneStart + 1
+    if(CDSLengths[1] == 3 & strand == 1){
+        CDSLengths <- CDSLengths[-1]
+        DF <- DF[-1, ]
+        rowIndex <- rowIndex[-1]
+        l <- l - 1
+    }else if(CDSLengths[l] == 3 & strand == -1){
+        CDSLengths <- CDSLengths[-l]
+        DF <- DF[-l, ]
+        rowIndex <- rowIndex[-l]
+        l <- l - 1
+    }
     if(l == 1){
         pStart <- 1
         pEnd <- CDSLengths[1] - 3 # remove termination codon
@@ -57,7 +68,6 @@ gene2protCDS <- function(cds){
         cumulLen <- cumsum(rev(CDSLengths))
         pStart <- rev(c(1, cumulLen[1:(l-1)]+1))
         pEnd <- rev(cumulLen)
-        
       }
     }
     # remove the last codon (TGA)
@@ -70,6 +80,8 @@ gene2protCDS <- function(cds){
     geneCounter <- geneCounter + 1
   }
   protcds
+  # remove empty rows, if one column is empty all should be
+  protcds <- protcds[which(protcds$protEnd != ""), ]
 }
 
 introns <- function(cds){
