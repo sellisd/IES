@@ -19,6 +19,19 @@ prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
               'PTRED.209.2.'   = 'Paramecium tredecaurelia',
               'PCAU.43c3d.1.'  = 'Paramecium caudatum')
 
+gene2protName <- function(geneNames){
+  protNames <- character(length(geneNames))
+  for(prefix in names(prefixes)){
+    index <- which(substr(geneNames, 0, nchar(prefix)) == prefix) 
+    protNames[index] <- paste0(prefix, "P", substr(geneNames[index], nchar(prefix) + 2, nchar(geneNames)))
+  }
+  if(all(protNames != "")){
+    return(protNames)
+  }else{
+    stop("error matching gene/protein names: ", geneNames[which(protNames == "")])
+  }
+}
+
 gene2protCDS <- function(cds){
   # function that translates genomic to protein coordinates for CDS  
   # input is a data.frame with cdsId geneId geneStart, geneEnd and strand columns
