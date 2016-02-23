@@ -13,9 +13,11 @@ my $alnDir = $ARGV[0];
 # build a hash of cds coordinates in gene coordinates
 my @cdsFiles = qw#
 /home/dsellis/data/IES_data/ptetraurelia/pte.cds.prot
-
+/home/dsellis/data/IES_data/pbiaurelia/pbi.cds.prot
+/home/dsellis/data/IES_data/psexaurelia/pse.cds.prot
+/home/dsellis/data/IES_data/pcaudatum_43c3d_annotation_v2.0/pca.cds.prot
 #;
-#/home/dsellis/data/IES_data/pbiaurelia/pbi.cds.prot
+
 my %cds; # make sure cdsIds are unique
 my %cdsLoc; # keep cds locations
 foreach my $cdsFile (@cdsFiles){
