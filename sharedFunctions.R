@@ -405,6 +405,13 @@ rb2r <- function(rbNodeId, cluster){
   (nodeDictionary[clusterIndex, "r"])[index]
 }
 
+rb2phyldog <- function(rbNodeId, cluster){
+  # translate node id from rb (revBayes) to PHYLDOG
+  clusterIndex <- which(nodeDictionary$cluster %in% as.character(cluster))
+  index <- match(rbNodeId, nodeDictionary$rb[clusterIndex])
+  (nodeDictionary[clusterIndex, "phyldog"])[index]
+}
+
 r2rb <- function(RNodeId, cluster){
   # translate node id from R to rb (revBayes)
   clusterIndex <- which(nodeDictionary$cluster %in% as.character(cluster))
