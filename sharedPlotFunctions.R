@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(binom))
 suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(tidyr))
 
-printIESalign <- function(geneFamily, iesColumn, pad, filtered){
+printIESalign <- function(geneFamily, iesColumn, pad, filtered, introns){
   # plot a multiple sequence alignment around an IES
   # print the nucleotide alignment around iesColumn with TAs annotated
   DF <- charMats[charMats$cluster == geneFamily & charMats$column == iesColumn, c("geneId", "ies", "begin", "end")]
@@ -26,7 +26,7 @@ printIESalign <- function(geneFamily, iesColumn, pad, filtered){
   }
   #print(alnM[, c((DF$begin[1] - pad):(DF$end[1] + pad))])
   m <- alnM[, c((DF$begin[1] - pad):(DF$end[1] + pad))]
-  plotMSA(m, IES, filtered)
+  plotMSA(m, IES, filtered, introns)
 }
 
 dnacol <- function(a){
@@ -40,7 +40,7 @@ dnacol <- function(a){
 }
 
 
-plotMSA <- function(m, IES, filtered){
+plotMSA <- function(m, IES, filtered, introns){
   # plot a MSA, shade IES insertion locations and mark arbitrary regions
   namesWidth <- max(sapply(row.names(m),nchar))
   y <- nrow(m)
@@ -65,6 +65,11 @@ plotMSA <- function(m, IES, filtered){
       be <- filtered[which(filtered$gene==row.names(m)[yi]), c("begin","end")]
       points(be[1], y = -yi, col = "grey60", cex = 3)
       points(be[2], y = -yi, col = "grey60", cex = 3)
+    }
+    if(row.names(m)[yi] %in% introns$gene){
+      be <- introns[which(introns$gene==row.names(m)[yi]), c("begin","end")]
+      points(be[, 1], y = rep(-yi, nrow(be)), col = "black", cex = 3)
+      points(be[, 2], y = rep(-yi, nrow(be)), col = "black", cex = 3)
     }
     text(x = x, y = - yi, m[yi, ], col = dnacol(m[yi, ]))
     geneName <- s2c(row.names(m)[yi])

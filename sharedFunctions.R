@@ -123,6 +123,8 @@ introns <- function(cds){
     intronLengths <- append(intronLengths, intronLength)
     geneCounter <- geneCounter + 1
   }
+  # remove extra rows
+  intronsPerGene <- intronsPerGene[which(intronsPerGene$geneId != ""), ]
   list(intronsPerGene, intronLengths)
 }
 
