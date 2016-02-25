@@ -17,6 +17,10 @@ def prevSpec(nodeO):
         else:
             pass
 
+# output files
+fgl = open('/home/dsellis/data/IES_data/msas/recentGainLossIES.dat', 'w')
+fnt = open('/home/dsellis/data/IES_data/msas/recentGainLossIES.notSign.dat', 'w')
+
 # read node dictionary
 rb2phyldog = {}
 for line in open('/home/dsellis/data/IES_data/rdb/nodeDictionary.dat'):
@@ -47,10 +51,12 @@ inputF = open('/home/dsellis/data/IES_data/msas/asr/geneFamilies.dat', 'r')
 
 clusters = inputF.readlines()
 clusters = [i.rstrip() for i in clusters]
-print('\t'.join(['cluster', 'iesColumn', 'gene', 'fromS', 'toS', 'fromNodeP', 'toNodeP', 'presenceFrom', 'presenceTo', 'eventType']))
+headerOut = '\t'.join(['cluster', 'iesColumn', 'gene', 'fromS', 'toS', 'fromNodeP', 'toNodeP', 'presenceFrom', 'presenceTo', 'eventType']) + '\n'
+fnt.write(headerOut)
+fgl.write(headerOut)
 for cluster in clusters:
     fileNameString = phyldogPath+str(cluster)+'.ReconciledTree'
-    # print(fileNameString)
+    print(fileNameString)
     t = Tree(fileNameString)
 #    print(t.get_ascii(attributes=["Ev","S","ND","name"]))
     for leaf in t:
@@ -65,12 +71,15 @@ for cluster in clusters:
                     wasPresent = float(d[(cluster, anc.ND)][i])
                     isPresent = float(d[(cluster, leaf.ND)][i])
                     if isPresent == 0 and wasPresent > 0.99:
-                        print("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'loss']))
+                        fgl.write("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'loss']) + '\n')
                     elif wasPresent < 0.01 and isPresent == 1:
-                        print("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'gain']))
+                        fgl.write("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'gain']) + '\n')
+                    else:
+                        fnt.write("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'notSign']) + '\n')
         else:
             pass
-
+fgl.close()
+fnt.close()
 # try:
         #     print(leaf.ND + "\t" + anc.ND)
         # except:
