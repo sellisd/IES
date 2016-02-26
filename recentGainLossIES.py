@@ -74,6 +74,10 @@ for cluster in clusters:
                         fgl.write("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'loss']) + '\n')
                     elif wasPresent < 0.01 and isPresent == 1:
                         fgl.write("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'gain']) + '\n')
+                    elif wasPresent < 0.01 and isPresent <0.01:
+                        fnt.write("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'absent']) + '\n')
+                    elif wasPresent > 0.99 and isPresent <0.99:
+                        fnt.write("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'present']) + '\n')
                     else:
                         fnt.write("\t".join([cluster, i, leaf.name, anc.S, leaf.S, anc.ND, leaf.ND, str(wasPresent), str(isPresent), 'notSign']) + '\n')
         else:
