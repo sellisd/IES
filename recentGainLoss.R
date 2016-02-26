@@ -8,6 +8,8 @@ source("~/projects/fgmo/colors.R")
 source("~/projects/IES/src/sharedFunctions.R")
 source("~/projects/IES/src/sharedPlotFunctions.R")
 
+pdf("~/projects/IES/reports/26.IESLoss/recentGLfiltered.pdf")
+par(mfcol=c(2,2), las = 1)
 # filter out small scaffolds
 # load scaffold lengths
 pbiSc <- read.table("~/data/IES/analysis/pbi.scaf", stringsAsFactors = FALSE, header = TRUE)
@@ -81,12 +83,13 @@ for(cluster in clusters){
   eventCounter$pteLoss <- eventCounter$pteLoss + sum(filtered$eventType == "loss" & sp == "Paramecium_tetraurelia")
   eventCounter$pbiGain <- eventCounter$pbiGain + sum(filtered$eventType == "gain" & sp == "Paramecium_biaurelia")
   eventCounter$pteGain <- eventCounter$pteGain + sum(filtered$eventType == "gain" & sp == "Paramecium_tetraurelia")
-#   alignF <- paste0("/home/dsellis/data/IES_data/msas/alignments/filtered/cluster.", cluster, ".nucl.fa")
-#   aln <- read.alignment(file = alignF, format = "fasta")
-#   alnM <- as.matrix.alignment(aln)
-#   introns <- data.frame(gene = gene2protName(cdsboundAll$V1), begin = cdsboundAll$V2, end = cdsboundAll$V3, stringsAsFactors = FALSE)
-  #   for(i in c(1:nrow(filtered))){
-  #     printIESalign(geneFamily = cluster, iesColumn = filtered$iesColumn[i], pad = 5, filtered[i, ], introns)
-  #     title(paste(cluster, filtered$iesColumn[i], filtered$eventType[i]))
-  #   }
+  alignF <- paste0("/home/dsellis/data/IES_data/msas/alignments/filtered/cluster.", cluster, ".nucl.fa")
+  aln <- read.alignment(file = alignF, format = "fasta")
+  alnM <- as.matrix.alignment(aln)
+  introns <- data.frame(gene = gene2protName(cdsboundAll$V1), begin = cdsboundAll$V2, end = cdsboundAll$V3, stringsAsFactors = FALSE)
+  for(i in c(1:nrow(filtered))){
+    printIESalign(geneFamily = cluster, iesColumn = filtered$iesColumn[i], pad = 5, filtered[i, ], introns)
+    title(paste(cluster, filtered$iesColumn[i], filtered$eventType[i]))
+  }
 }
+dev.off()
