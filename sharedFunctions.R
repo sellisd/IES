@@ -209,6 +209,9 @@ eventType <- function(a, b){
 boundaryCompl <- function(pabD, pabLengthBins){
   # calculate IES boundary complementarity from a data frame of IES info and lenght bin class
   #extend IES info table with length bin and conservation pattern
+  if(length(pabLengthBins) != nrow(pabD)){
+    stop()
+  }
   DE <- cbind(pabD, lengthBin = unname(pabLengthBins[row.names(pabD)]))
   # exclude floating
   DE <- DE[DE$floating == FALSE, ]
