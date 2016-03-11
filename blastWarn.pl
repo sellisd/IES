@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use File::Spec::Functions qw(catfile);
 
-opendir(DH, $ARGV[0]) or die $!;
+my $inputDir = $ARGV[0];
+opendir(DH, $inputDir) or die $!;
 my @files = grep{/.*\.pbs/} readdir(DH);
 close DH;
 my %errors;
@@ -11,8 +13,8 @@ foreach my $file (@files){
     #check if pbs file has a correctly formated output and an empty error file
     $file =~ /(.*).pbs/;
     my $chunk = $1;
-    my $outputFile = 'output.'.$chunk;
-    my $errorFile = 'error.'.$chunk;
+    my $outputFile = catfile($inputDir,'output.'.$chunk);
+    my $errorFile = catfile($inputDir, 'error.'.$chunk);
     if(-e $outputFile){
 	open OUT, $outputFile or die $!;
 	my $lineCounter = 0;
@@ -62,11 +64,11 @@ foreach my $chunks (keys %errors){
 
 # prepare to rerun locally all the failed runs or rerun in another queue?
 
-open RL, '>runlocal.sh' or die $!;
-foreach my $run (keys %errors){
-    print RL 'blastp -query /home/dsellis/data/IES/tempdat/fastachunks/chunk.'.$run.'.fa -db /home/dsellis/data/IES/analysis/protdb/allprot -outfmt 6 -out /home/dsellis/data/IES/analysis/allvsall/blastout.chunk.'.$run.'.fa.dat -seg yes > '.$run.'.log &',"\n";
-}
-close RL;
+# open RL, '>runlocal.sh' or die $!;
+# foreach my $run (keys %errors){
+#     print RL 'blastp -query /home/dsellis/data/IES/tempdat/fastachunks/chunk.'.$run.'.fa -db /home/dsellis/data/IES/analysis/protdb/allprot -outfmt 6 -out /home/dsellis/data/IES/analysis/allvsall/blastout.chunk.'.$run.'.fa.dat -seg yes > '.$run.'.log &',"\n";
+# }
+# close RL;
 
 sub addErrorMsg{
     my $code = shift @_;
