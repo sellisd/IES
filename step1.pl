@@ -84,4 +84,4 @@ system('makeblastdb -in /home/dsellis/data/IES/analysis/protdb/allprot.fa -dbtyp
 
 # split fasta files for faster processing in parallel
 # ---------------------------------------------------
-system('./preblast.pl /home/dsellis/data/IES/analysis/protdb/allprot.fa /home/dsellis/data/IES/tempdat/');
+system('./preblast.pl /home/dsellis/data/IES/analysis/protdb/allprot.fa /home/dsellis/data/IES/tempdat/fastachunks/');

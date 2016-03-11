@@ -5,10 +5,10 @@ use Bio::SeqIO;
 
 #script runs all-against-all blast of proteins after filtering low complexity regions and performs silix grouping
 my $blastpBin = '/usr/remote/ncbi-blast-2.2.29+/bin/blastp';
-my $dataPath = '/pandata/sellis/working/fasta/'; #@pbil
-my $nodeDataPath = '/data/sellis/working/fasta/'; #@nodes
-my $blastdbPath = '/data/sellis/working/';
-my $blastOutPath = '/data/sellis/working/blastout/';
+my $dataPath = '/pandata/sellis/allvsall/'; #@pbil
+my $nodeDataPath = '/data/sellis/allvsall/'; #@nodes
+my $blastdbPath = '/data/sellis/allvsall/';
+my $blastOutPath = '/data/sellis/allvsall/blastout/';
 
 mkdir $blastOutPath unless -d $blastOutPath;
 
@@ -21,7 +21,7 @@ foreach my $file (@files){
     $file =~ /chunk.(\d+).fa/;
     my $fileCounter = $1;
     open PBS, '>'.$fileCounter.'.pbs' or die $!;
-    my $cmdString = $blastpBin.' -query '.$nodeDataPath.$file.' -db '.$blastdbPath.'combined -outfmt 6 -out '.$blastOutPath.'blastout.'.$file.'.dat -seg yes';
+    my $cmdString = $blastpBin.' -query '.$nodeDataPath.$file.' -db '.$blastdbPath.'allprot -outfmt 6 -out '.$blastOutPath.'blastout.'.$file.'.dat -seg yes';
     #write pbs file
     print PBS '#PBS -q q1hour',"\n";
     print PBS '#PBS -N blastp.',$fileCounter,"\n";
