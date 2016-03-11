@@ -13,12 +13,12 @@ my $blastOutPath = '/data/sellis/allvsall/blastout/';
 mkdir $blastOutPath unless -d $blastOutPath;
 
 opendir(DH, $dataPath) or die $!;
-my @files = readdir(DH);
+my @files = grep{/\.fa/} readdir(DH);
 close DH;
 foreach my $file (@files){
     next unless -f $dataPath.$file;
     print $file,"\n";
-    $file =~ /chunk.(\d+).fa/;
+    $file =~ /chunk\.(\d+)\.fa/;
     my $fileCounter = $1;
     open PBS, '>'.$fileCounter.'.pbs' or die $!;
     my $cmdString = $blastpBin.' -query '.$nodeDataPath.$file.' -db '.$blastdbPath.'allprot -outfmt 6 -out '.$blastOutPath.'blastout.'.$file.'.dat -seg yes';
