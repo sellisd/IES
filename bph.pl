@@ -13,7 +13,7 @@ my $blastOutPath = '/data/sellis/allvsall/blastout/';
 mkdir $blastOutPath unless -d $blastOutPath;
 
 opendir(DH, $dataPath) or die $!;
-my @files = grep{/\.fa/} readdir(DH);
+my @files = grep{/chunk\.(\d+)\.fa/} readdir(DH);
 close DH;
 foreach my $file (@files){
     next unless -f $dataPath.$file;
