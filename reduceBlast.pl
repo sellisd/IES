@@ -2,7 +2,9 @@
 use warnings;
 use strict;
 use File::Spec::Functions qw(catfile);
+use Parallel::ForkManager;
 
+my $pm = Parallel::ForkManager->new(7);
 my %reruns;
 
 # chunks that should rerun
@@ -24,6 +26,7 @@ opendir(DH, $blastoutD) or die $!;
 my @nodes = readdir(DH);
 close DH;
 my %clusterF;
+my @rerunLocally;
 foreach my $node (@nodes){
     next if $node eq '.' or $node eq '..';
     my $nodePath = catfile($blastoutD, $node);
@@ -31,15 +34,15 @@ foreach my $node (@nodes){
 	print $nodePath,"\n";
 	opendir(ND, $nodePath);
 	my @files = grep {/\.dat$/} readdir(ND);
-	print "@files\n";
 	foreach my $file (@files){
 	    $file =~ /blastout\.chunk\.(\d+)\.fa\.dat/;
 	    my $chunk = $1;
 	    if(defined($clusterF{$file})){
-		print $file," duplicated \n";
+		die $file," duplicated \n";
 	    }else{
 		if(defined($reruns{$chunk})){
-		    print $file," should rerun\n";
+		    push @rerunLocally, $chunk;
+	#	    print $file," should rerun\n";
 		}else{
 		    $clusterF{$file} = $node
 		}
@@ -49,7 +52,11 @@ foreach my $node (@nodes){
     }
 }
 
-# gather blast results from cluster, find missing ones and run locally
-# check if there are duplicate runs
-# if not move to common folder
-# rerun locally
+
+foreach my $chunk (@rerunLocally){
+    my $pid = $pm->start and next;
+    my $cmdl = 'blastp -query /home/dsellis/data/IES/tempdat/fastachunks/chunk.'.$chunk.'.fa -db /home/dsellis/data/IES/analysis/protdb/allprot -outfmt 6 -out /home/dsellis/data/IES/analysis/allvsall/blastout/local/blastout.chunk.'.$chunk.'.fa.dat -seg yes';
+    print $cmdl,"\n";
+    system $cmdl;
+    $pm->finish;
+}
