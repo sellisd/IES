@@ -6,13 +6,13 @@ my $home = '/home/dsellis/';
 #create multiple sequence alignments of silix groups
 my $t_coffeeBin = '/panhome/sellis/tools/tcoffee/Version_11.00.8cbe486/bin/t_coffee';
 #my $t_coffeeBin = 't_coffee';
-my $dataPathNode = '/data/sellis/';
+my $dataPathNode = '/data/sellis/msas/';
 my $dataPath = '/pandata/sellis/';
 #my $dataPath = $home.'data/IES_data/';
-my $fastaPath = $dataPath.'msas/fasta/';
+my $fastaPath = $dataPath.'fasta/';
 my $block = 10;
 
-opendir(DH, $fastaPath) or die $!;
+opendir(DH, $fastaPath) or die "$!: $fastaPath";
 my @files = readdir(DH);
 close DH;
 
@@ -37,6 +37,7 @@ for(my $i = 0; $i <= $#files ; $i+=$block){
 	my $cmdl = $t_coffeeBin.' '.$fastaPath.$file.' -multi_core no  &> '.$file.'.log';
  	print PBS "$cmdl","\n";    
     }
+    print PBS "mkdir $dataPathNode\n"; #make sure the file exists
     print PBS "mv *.log *.aln *.dnd *.html $dataPathNode\n";
     print PBS 'echo telos',"\n";
     print PBS 'date',"\n";
