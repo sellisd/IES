@@ -10,6 +10,95 @@ my %prefixes = (
 #	'tth' => ''	   
     );
 
+sub isFloating{
+    # check if an IES is floating
+    my $iesS = shift @_;
+    my $macUpstreamS = shift @_;
+    my $macDownstreamS = shift @_;
+    # transform strings to arrays for easy handling 
+    my @iesA = split('', $iesS);
+    my @macUpstreamA = split('', $macUpstreamS);
+    my @macDownstreamA = split('', $macDownstreamS);
+
+    #iesS is an array of IES sequence including both TAs
+    #macUpstreamS and macDownstreamS is an array both including the TA junction
+
+    #default values
+    my @altLoc;
+    my $floating = 0;
+
+    #if sequence starts with TA(x)kT and downstream Mac boundary is (x)kTA
+    #or if sequence ends with A(x)kTA and upstream Mac boundary is TA(x)k
+    my $maxSeq = length($iesS);
+    # search downstream first
+    print $iesS,"\n";
+    print $macUpstreamS,"\n";
+    print $macDownstreamS, "\n";
+    for(my $i = 0; $i < $maxSeq; $i++){
+#	print "$i $iesA[$i] $macDownstreamA[$i] ";
+	if($iesA[$i] eq $macDownstreamA[$i]){
+	    # keep searching in this direction
+#	    print "  keep going downstream\n";
+	}else{
+#	    print "  end \n";
+	    if($iesA[$i - 1] eq 'T' and $macDownstreamA[$i] eq 'A'){
+		# is floating
+		$floating = 1;
+		push @altLoc, $i - 1;
+		print "floating downstream ",$i-1,"\n";
+	    }else{
+		# not floating
+		$floating = 0;
+	    }
+	    last;
+	}
+    }
+    # if($floating){
+    # 	print $floating,"\n";
+    # 	print "@altLoc\n";
+    # }
+    $floating = 0;
+    # search upstream then
+    for(my $i = 0 ; $i < $maxSeq; $i++){
+#	print "$i $iesA[$#iesA - $i] $macUpstreamA[$#macUpstreamA - $i]";
+	if($iesA[$#iesA - $i] eq $macUpstreamA[$#macUpstreamA - $i]){ # compare from end
+	    # keep searching in this direction
+#	    print "  keep going upstream\n";
+	}else{
+#	    print "  end \n";
+#	    print "... $iesA[$#iesA - $i + 1] $macUpstreamA[$#macUpstreamA - $i]\n";
+	    if($iesA[$#iesA - $i + 1] eq 'A' and $macUpstreamA[$#macUpstreamA - $i] eq 'T'){
+		# is floating
+		$floating = 1;
+		push @altLoc, -($i - 1);
+		print "floating upstream", -$i+1,"\n";
+	    }else{
+		# not floating
+		$floating = 0;
+	    }
+	    last;
+	}
+    }
+    # if($floating){
+    # 	print $floating,"\n";
+    # 	print "@altLoc\n";
+    # }
+
+    # for(my $i = 0; $i < $maxSeq; $i++){
+    # 	if($iesS[$#iesS - $i] eq $macUpstreamS[$i]){
+    # 	    #keep searching in this direction
+    # 	}
+    # }
+    #}
+# for i++
+# compare ies begin/end to mac up/down
+# if identical continue
+# if not was the previous one a T-T match or an A-A match and currently the mac has an A or a T?
+# floating
+# if end of ies and fully identical this is a potential repeated floating
+
+}
+
 sub prot2gene{
     my $protId = shift @_;
     my $found = 0;

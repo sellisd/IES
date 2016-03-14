@@ -30,7 +30,7 @@ foreach my $file (@files){
 #if q1hour make q1week
 	    chomp $line;
 	    if ($line eq '#PBS -q q1hour'){
-		$line = '#PBS -q q1week';
+#		$line = '#PBS -q q1week';
 	    }
 	    push @head,$line."\n";
 	}elsif(substr($line,0,1) eq '/'){
@@ -59,7 +59,7 @@ foreach my $file (@files){
 	print NBPS @tail;
 	$counter++;
 	close NBPS;
-#build a list of file names and then run all of the together
+        #build a list of file names and then run all of them together
 	push @files2sub, $fileName;
     }
 }
