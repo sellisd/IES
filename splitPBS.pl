@@ -1,19 +1,27 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use File::Spec::Functions qw(catfile);
+
 #if a pbs is too long for execution in the cluster split the file to smaller pieces and rerun it
 #find which ones to split
 my $path = $ARGV[0];
 opendir(DH, $path) or die $!;
-my @files = readdir(DH);
+my @files = grep{/error\.\d+/} readdir(DH);
 close DH;
 my $step = 1;
 my @files2sub;
 foreach my $file (@files){
-    next unless -s $path.$file; #only error files with not nzero size
-    next unless $file =~ /error.(\d+)/; #keep only error files
+    next unless -s catfile($path, $file); #only error files with not zero size
+    $file =~ /error.(\d+)/; # extract number
     my $number = $1;
-    open PBS, $path.'msa.'.$number.'.pbs' or die $!;
+    #if error file an expected warning
+    open ERR, catfile($path, $file) or die $!;
+    my $line = readline(ERR);
+    chomp $line;
+    next if $line eq 'mkdir: cannot create directory ‘/data/sellis/msas/’: File exists';
+    close ERR;
+    open PBS, catfile($path,'msa.'.$number.'.pbs') or die $!;
     my @head;
     my @commands;
     my @tail;
@@ -35,7 +43,7 @@ foreach my $file (@files){
 #split file in pieces
     my $counter = 0;
     for(my $i = 0; $i<=$#commands; $i+=$step){
-	my $fileName = "msa.".$number.'.'.$counter.".pbs";
+	my $fileName = catfile($path, 'msa.'.$number.'.'.$counter.'.pbs');
 	open NBPS, '>'.$fileName or die $!;
 	foreach my $header (@head){
 	    if($header =~/#PBS(.+)\.$number/){

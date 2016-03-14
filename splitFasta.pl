@@ -7,9 +7,9 @@ use Getopt::Long;
 my $help;
 my $home = '/home/dsellis/';
 #default values
-my $fastaOutPath = $home.'data/IES_data/msas/fasta/';
-my $silixGroups = $home.'data/IES_data/working/silix.output';
-my $fastaAll = $home.'data/IES_data/working/combined.fa';
+my $fastaOutPath = $home.'data/IES/analysis/msas/fasta/';
+my $silixGroups = $home.'data/IES/analysis/allvsall/blastout/silix.output';
+my $fastaAll = $home.'data/IES/analysis/protdb/allprot.fa';
 
 my $usage = <<HERE;
 Splits a fasta file to groups based on clustering from silix
