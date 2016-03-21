@@ -15,6 +15,14 @@ sub isFloating{
     my $iesS = shift @_;
     my $macUpstreamS = shift @_;
     my $macDownstreamS = shift @_;
+    # validate input
+    die "input sequence error" unless($iesS =~ /^[ACTG]+$/
+                                      and $macUpstreamS =~ /^[ACTG]+$/
+                                      and $macDownstreamS =~ /^[ACTG]+$/);
+    die "isFloating function expects upstream Mac sequence to end with TA" unless(substr($macUpstreamS,-2,2) eq 'TA');
+    die "isFloating function expects downstream Mac sequence to start with TA" unless(substr($macDownstreamS,0,2) eq 'TA');
+    die "isFloating function expects that IES sequence includes both beginning and end TAs" unless(substr($iesS, 0, 2) eq 'TA'
+                                                                                               and substr($iesS, -2, 2) eq 'TA');
     # transform strings to arrays for easy handling 
     my @iesA = split('', $iesS);
     my @macUpstreamA = split('', $macUpstreamS);
@@ -26,70 +34,53 @@ sub isFloating{
     #default values
     my @altLoc;
     my $floating = 0;
-
-    #if sequence starts with TA(x)kT and downstream Mac boundary is (x)kTA
-    #or if sequence ends with A(x)kTA and upstream Mac boundary is TA(x)k
+    my $altLoc;
+    #if sequence starts with TA(x)kTA... and downstream Mac boundary is (x)kTA
+    #or if sequence ends with ...TA(x)kTA and upstream Mac boundary is TA(x)k
     my $maxSeq = length($iesS);
     # search downstream first
     print $iesS,"\n";
     print $macUpstreamS,"\n";
     print $macDownstreamS, "\n";
-    for(my $i = 0; $i < $maxSeq; $i++){
-#	print "$i $iesA[$i] $macDownstreamA[$i] ";
-	if($iesA[$i] eq $macDownstreamA[$i]){
+    for(my $i = 2; $i < $maxSeq; $i++){
+        if($i > $#macDownstreamA){
+            die "Did not reach end of downstream comparison\n";
+        }
+#      print "$i $iesA[$i] $macDownstreamA[$i] ";
+	  if($iesA[$i] eq $macDownstreamA[$i]){
 	    # keep searching in this direction
 #	    print "  keep going downstream\n";
-	}else{
+        if($iesA[$i - 1] eq 'T' and $iesA[$i] eq 'A'){
+          # is floating
+          $floating = 1;
+          $altLoc = $i; # location of last matching TA
+          print "floating downstream: ";
+          print "$altLoc\n";
+        }       
+	  }else{
 #	    print "  end \n";
-	    if($iesA[$i - 1] eq 'T' and $macDownstreamA[$i] eq 'A'){
-		# is floating
-		$floating = 1;
-		push @altLoc, $i - 1;
-		print "floating downstream ",$i-1,"\n";
-	    }else{
-		# not floating
-		$floating = 0;
-	    }
 	    last;
-	}
+	  }
     }
-    # if($floating){
-    # 	print $floating,"\n";
-    # 	print "@altLoc\n";
-    # }
     $floating = 0;
     # search upstream then
-    for(my $i = 0 ; $i < $maxSeq; $i++){
-#	print "$i $iesA[$#iesA - $i] $macUpstreamA[$#macUpstreamA - $i]";
-	if($iesA[$#iesA - $i] eq $macUpstreamA[$#macUpstreamA - $i]){ # compare from end
+    for(my $i = 2 ; $i < $maxSeq; $i++){
+      if($i > $#macUpstreamA){
+        die "Did not reach end of upstream comparison\n";
+      }
+      if($iesA[$#iesA - $i] eq $macUpstreamA[$#macUpstreamA - $i]){ # compare from end
 	    # keep searching in this direction
-#	    print "  keep going upstream\n";
-	}else{
-#	    print "  end \n";
-#	    print "... $iesA[$#iesA - $i + 1] $macUpstreamA[$#macUpstreamA - $i]\n";
-	    if($iesA[$#iesA - $i + 1] eq 'A' and $macUpstreamA[$#macUpstreamA - $i] eq 'T'){
-		# is floating
-		$floating = 1;
-		push @altLoc, -($i - 1);
-		print "floating upstream", -$i+1,"\n";
-	    }else{
-		# not floating
-		$floating = 0;
+        if($iesA[$#iesA - $i] eq 'T' and $iesA[$#iesA  - $i + 1] eq 'A'){
+          # is floating
+          $floating = 1;
+          $altLoc = -($i - 1); # location of last matching TA
+          print "floating upstream ", $altLoc, "\n";
+#	      print "  keep going upstream\n";
 	    }
+      }else{
 	    last;
-	}
+      }
     }
-    # if($floating){
-    # 	print $floating,"\n";
-    # 	print "@altLoc\n";
-    # }
-
-    # for(my $i = 0; $i < $maxSeq; $i++){
-    # 	if($iesS[$#iesS - $i] eq $macUpstreamS[$i]){
-    # 	    #keep searching in this direction
-    # 	}
-    # }
-    #}
 # for i++
 # compare ies begin/end to mac up/down
 # if identical continue
