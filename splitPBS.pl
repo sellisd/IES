@@ -6,20 +6,25 @@ use File::Spec::Functions qw(catfile);
 #if a pbs is too long for execution in the cluster split the file to smaller pieces and rerun it
 #find which ones to split
 my $path = $ARGV[0];
+
 opendir(DH, $path) or die $!;
-my @files = grep{/error\.\d+/} readdir(DH);
+#my @files = grep{/error\.\d+(\.\d+)*/} readdir(DH);
+my @files = grep{/error\.\d+\.\d+\.(\d+)*/} readdir(DH);
 close DH;
 my $step = 1;
 my @files2sub;
+
 foreach my $file (@files){
     next unless -s catfile($path, $file); #only error files with not zero size
-    $file =~ /error.(\d+)/; # extract number
+    $file =~ /error.([.\d]+)/; # extract number
     my $number = $1;
     #if error file an expected warning
     open ERR, catfile($path, $file) or die $!;
     my $line = readline(ERR);
     chomp $line;
-    next if $line eq 'mkdir: cannot create directory ‘/data/sellis/msas/’: File exists';
+    if ($line =~ /^mkdir: cannot create directory(.*)File exists$/){
+	next;
+    }
     close ERR;
     open PBS, catfile($path,'msa.'.$number.'.pbs') or die $!;
     my @head;
@@ -29,8 +34,8 @@ foreach my $file (@files){
 	if (substr($line,0,1) eq '#'){
 #if q1hour make q1week
 	    chomp $line;
-	    if ($line eq '#PBS -q q1hour'){
-#		$line = '#PBS -q q1week';
+	    if ($line eq '#PBS -q q1day'){
+		$line = '#PBS -q q1week';
 	    }
 	    push @head,$line."\n";
 	}elsif(substr($line,0,1) eq '/'){
