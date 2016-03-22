@@ -19,6 +19,14 @@ prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
               'PTRED.209.2.'   = 'Paramecium tredecaurelia',
               'PCAU.43c3d.1.'  = 'Paramecium caudatum')
 
+table2dataFrame <- function(l){
+  # convert a table to an x,y data.frame
+  h <- table(l)
+  x <- as.numeric(dimnames(h)[[1]])
+  y <- as.vector(h)
+  data.frame(x = x, y = y, stringsAsFactors = FALSE)
+}
+
 gene2protName <- function(geneNames){
   protNames <- character(length(geneNames))
   for(prefix in names(prefixes)){
