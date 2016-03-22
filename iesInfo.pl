@@ -71,5 +71,5 @@ while(my $feature = $gffI->next_feature()){
 	$length = length($sequence);
     }
     die "$gff name ($name) and id ($id) do not match" if $name ne $id;
-    &printab($id, $scaffold, $#altSequences, $start, $end, $upstreamFlank, $downstreamFlank, $length, substr($sequence, 0, 20), substr($sequence, -20, 20), $sequence);
+    &printab($id, $scaffold, (@altSequences?$#altSequences:0), $start, $end, $upstreamFlank, $downstreamFlank, $length, substr($sequence, 0, 20), substr($sequence, -20, 20), $sequence);
 }
