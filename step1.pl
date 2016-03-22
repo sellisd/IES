@@ -84,4 +84,18 @@ system('makeblastdb -in /home/dsellis/data/IES/analysis/protdb/allprot.fa -dbtyp
 
 # split fasta files for faster processing in parallel
 # ---------------------------------------------------
-system('./preblast.pl /home/dsellis/data/IES/analysis/protdb/allprot.fa /home/dsellis/data/IES/tempdat/fastachunks/');
+if(0){
+    system('./preblast.pl /home/dsellis/data/IES/analysis/protdb/allprot.fa /home/dsellis/data/IES/tempdat/fastachunks/');
+}
+
+# parse basic ies information
+#----------------------------
+system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ppr.ies.gff3 > ~/data/IES/analysis/filtscaf/ppr.ies.tab";
+system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pbi.ies.gff3 > ~/data/IES/analysis/filtscaf/pbi.ies.tab";
+system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pte.ies.gff3 > ~/data/IES/analysis/filtscaf/pte.ies.tab";
+system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ppe.ies.gff3 > ~/data/IES/analysis/filtscaf/ppe.ies.tab";
+system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pse.ies.gff3 > ~/data/IES/analysis/filtscaf/pse.ies.tab";
+system "./iesInfo.pl ~/data/IES/analysis/filtscaf/poc.ies.gff3 > ~/data/IES/analysis/filtscaf/poc.ies.tab";
+system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ptr.ies.gff3 > ~/data/IES/analysis/filtscaf/ptr.ies.tab";
+system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pca.ies.gff3 > ~/data/IES/analysis/filtscaf/pca.ies.tab";
+
