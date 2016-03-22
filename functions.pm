@@ -12,17 +12,17 @@ my %prefixes = (
 
 sub isFloating{
     # check if an IES is floating
+    # returns 0 for not floating, +? or -? if flank sequence is too short and an array of displacements in case of floating
     my $iesS = shift @_;
     my $macUpstreamS = shift @_;
     my $macDownstreamS = shift @_;
     # validate input
-    die "input sequence error" unless($iesS =~ /^[ACTG]+$/
-                                      and $macUpstreamS =~ /^[ACTG]+$/
-                                      and $macDownstreamS =~ /^[ACTG]+$/);
-    die "isFloating function expects upstream Mac sequence to end with TA" unless(substr($macUpstreamS,-2,2) eq 'TA');
-    die "isFloating function expects downstream Mac sequence to start with TA" unless(substr($macDownstreamS,0,2) eq 'TA');
-    die "isFloating function expects that IES sequence includes both beginning and end TAs" unless(substr($iesS, 0, 2) eq 'TA'
-												   and substr($iesS, -2, 2) eq 'TA');
+    die "input sequence error:\n",
+        "  IES:              $iesS\n",
+        "  upstream flank:   $macUpstreamS\n",
+        "  downstream flanK: $macDownsreamS" unless($iesS =~ /^TA[ACTGN]+TA$/
+						    and $macUpstreamS =~ /^[ACTGN]+TA$/
+						    and $macDownstreamS =~ /^TA[ACTGN]+$/);
     # transform strings to arrays for easy handling 
     my @iesA = split('', $iesS);
     my @macUpstreamA = split('', $macUpstreamS);
