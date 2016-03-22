@@ -22,15 +22,15 @@ sub isFloating{
     die "isFloating function expects upstream Mac sequence to end with TA" unless(substr($macUpstreamS,-2,2) eq 'TA');
     die "isFloating function expects downstream Mac sequence to start with TA" unless(substr($macDownstreamS,0,2) eq 'TA');
     die "isFloating function expects that IES sequence includes both beginning and end TAs" unless(substr($iesS, 0, 2) eq 'TA'
-                                                                                               and substr($iesS, -2, 2) eq 'TA');
+												   and substr($iesS, -2, 2) eq 'TA');
     # transform strings to arrays for easy handling 
     my @iesA = split('', $iesS);
     my @macUpstreamA = split('', $macUpstreamS);
     my @macDownstreamA = split('', $macDownstreamS);
-
+    
     #iesS is an array of IES sequence including both TAs
     #macUpstreamS and macDownstreamS is an array both including the TA junction
-
+    
     #default values
     my @altLoc;
     my $floating = 0;
@@ -41,44 +41,44 @@ sub isFloating{
     # search downstream first
     for(my $i = 2; $i < $maxSeq; $i++){
         if($i > $#macDownstreamA){
-            die "Did not reach end of downstream comparison\n";
+            return '+?'; # Did not reach end of downstream comparison
         }
 #      print "$i $iesA[$i] $macDownstreamA[$i] ";
-	  if($iesA[$i] eq $macDownstreamA[$i]){
+	if($iesA[$i] eq $macDownstreamA[$i]){
 	    # keep searching in this direction
 #	    print "  keep going downstream\n";
-        if($iesA[$i - 1] eq 'T' and $iesA[$i] eq 'A'){
-          # is floating
-          $floating = 1;
-          $altLoc = $i - 1; # location of last matching TA
-	  push @altLoc, $altLoc;
-        }       
-	  }else{
+	    if($iesA[$i - 1] eq 'T' and $iesA[$i] eq 'A'){
+		# is floating
+		$floating = 1;
+		$altLoc = $i - 1; # location of last matching TA
+		push @altLoc, $altLoc;
+	    }       
+	}else{
 	    last;
-	  }
+	}
     }
     $floating = 0;
     # search upstream then
     for(my $i = 2 ; $i < $maxSeq; $i++){
-      if($i > $#macUpstreamA){
-        die "Did not reach end of upstream comparison\n";
-      }
-      if($iesA[$#iesA - $i] eq $macUpstreamA[$#macUpstreamA - $i]){ # compare from end
+	if($i > $#macUpstreamA){
+	    return '-?'; # Did not reach end of upstream comparison
+	}
+	if($iesA[$#iesA - $i] eq $macUpstreamA[$#macUpstreamA - $i]){ # compare from end
 	    # keep searching in this direction
-        if($iesA[$#iesA - $i] eq 'T' and $iesA[$#iesA  - $i + 1] eq 'A'){
-          # is floating
-          $floating = 1;
-          $altLoc = -($i - 1); # location of last matching TA
-	  push @altLoc, $altLoc;
+	    if($iesA[$#iesA - $i] eq 'T' and $iesA[$#iesA  - $i + 1] eq 'A'){
+		# is floating
+		$floating = 1;
+		$altLoc = -($i - 1); # location of last matching TA
+		push @altLoc, $altLoc;
 	    }
-      }else{
+	}else{
 	    last;
-      }
+	}
     }
     if(@altLoc){
 	return \@altLoc;
     }else{
-	return -1;
+	return 0;
     }
 # for i++
 # compare ies begin/end to mac up/down
@@ -86,7 +86,7 @@ sub isFloating{
 # if not was the previous one a T-T match or an A-A match and currently the mac has an A or a T?
 # floating
 # if end of ies and fully identical this is a potential repeated floating
-
+    
 }
 
 sub prot2gene{

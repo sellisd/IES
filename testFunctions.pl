@@ -9,7 +9,7 @@ my %floatingTests = (
 	'ies'           => 'TACCTA',
 	'macDownstream' => 'TACGCGCGCGTTA',
 	'macUpstream'   => 'GGCGGGTA',
-        'return'         =>  '-1'},
+        'return'         =>  '0'},
     '02. Floating downstream' => {
 	'ies'           => 'TACCTA',
 	'macDownstream' => 'TACCTAGGGG',
@@ -29,12 +29,12 @@ my %floatingTests = (
 	'ies'           => 'TACCTAGGGTA',
 	'macDownstream' => 'TAC',
 	'macUpstream'   => 'GGGGTA',
-        'return'        => ['']},
+        'return'        => '+?'},
     '06. Possible floating with too short upstream flank' => {
 	'ies'           => 'TACCTAGGGCCCCTA',
 	'macDownstream' => 'TAGGGGG',
 	'macUpstream'   => 'CTA',
-	'return'        => ['']},
+	'return'        => '-?'},
     );
 foreach my $floatTest (sort keys %floatingTests){
     print $floatTest,"\n---------------\n";
