@@ -9,6 +9,7 @@ use functions;
 my $tabF = $ARGV[0];
 open IN, $tabF or die $!;
 my $header = readline(IN);
+&printab('id', 'scaffold', 'altSeqNo', 'start', 'end', 'isFloating', 'startLocs', 'endLocs', 'noAltLocs');
 while(my $line = <IN>){
     chomp $line;
     (my $id, my $scaffold, my $altSeqNo, my $start, my $end, my $upstreamFlank, my $downstreamFlank, my $length, my $front, my $back, my $sequence) = split "\t", $line;
@@ -29,7 +30,7 @@ while(my $line = <IN>){
 	$isFloating = 1;
 	foreach my $displacement(@$float){
 	    push @startLocs, $displacement + $start;
-	    push @startLocs, $displacement + $end;
+	    push @endLocs, $displacement + $end;
 	}
     }else{
 	if($float eq '0'){
@@ -42,6 +43,6 @@ while(my $line = <IN>){
 	push @startLocs, $start;
 	push @endLocs, $end;
     }
-    &printab($id, $scaffold, $altSeqNo, $start, $end, $isFloating, join(',', @startLocs), join(',', @endLocs));
+    &printab($id, $scaffold, $altSeqNo, $start, $end, $isFloating, join(',', @startLocs), join(',', @endLocs), $#startLocs);
 }
 close IN;

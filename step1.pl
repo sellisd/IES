@@ -90,12 +90,29 @@ if(0){
 
 # parse basic ies information
 #----------------------------
-system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ppr.ies.gff3 > ~/data/IES/analysis/filtscaf/ppr.ies.tab";
-system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pbi.ies.gff3 > ~/data/IES/analysis/filtscaf/pbi.ies.tab";
-system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pte.ies.gff3 > ~/data/IES/analysis/filtscaf/pte.ies.tab";
-system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ppe.ies.gff3 > ~/data/IES/analysis/filtscaf/ppe.ies.tab";
-system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pse.ies.gff3 > ~/data/IES/analysis/filtscaf/pse.ies.tab";
-system "./iesInfo.pl ~/data/IES/analysis/filtscaf/poc.ies.gff3 > ~/data/IES/analysis/filtscaf/poc.ies.tab";
-system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ptr.ies.gff3 > ~/data/IES/analysis/filtscaf/ptr.ies.tab";
-system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pca.ies.gff3 > ~/data/IES/analysis/filtscaf/pca.ies.tab";
+if(0){
+    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ppr.ies.gff3 > ~/data/IES/analysis/filtscaf/ppr.ies.tab";
+    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pbi.ies.gff3 > ~/data/IES/analysis/filtscaf/pbi.ies.tab";
+    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pte.ies.gff3 > ~/data/IES/analysis/filtscaf/pte.ies.tab";
+    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ppe.ies.gff3 > ~/data/IES/analysis/filtscaf/ppe.ies.tab";
+    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pse.ies.gff3 > ~/data/IES/analysis/filtscaf/pse.ies.tab";
+    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/poc.ies.gff3 > ~/data/IES/analysis/filtscaf/poc.ies.tab";
+    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ptr.ies.gff3 > ~/data/IES/analysis/filtscaf/ptr.ies.tab";
+    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pca.ies.gff3 > ~/data/IES/analysis/filtscaf/pca.ies.tab";
+}
 
+# find which IES are floating
+if(0){
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ppr.ies.tab > ~/data/IES/analysis/filtscaf/ppr.ies.float";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pbi.ies.tab > ~/data/IES/analysis/filtscaf/pbi.ies.float";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pte.ies.tab > ~/data/IES/analysis/filtscaf/pte.ies.float";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ppe.ies.tab > ~/data/IES/analysis/filtscaf/ppe.ies.float";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pse.ies.tab > ~/data/IES/analysis/filtscaf/pse.ies.float";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/poc.ies.tab > ~/data/IES/analysis/filtscaf/poc.ies.float";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ptr.ies.tab > ~/data/IES/analysis/filtscaf/ptr.ies.float";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pca.ies.tab > ~/data/IES/analysis/filtscaf/pca.ies.float";
+}
+
+
+
+# check if we need to merge floating IES
