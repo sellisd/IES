@@ -25,6 +25,8 @@ while(my $line = <IN>){
     my $isFloating;
     my @startLocs;
     my @endLocs;
+   	push @startLocs, $start;
+	push @endLocs, $end;
     if (ref($float) eq 'ARRAY'){
 	#is floating
 	$isFloating = 1;
@@ -40,8 +42,6 @@ while(my $line = <IN>){
 	}elsif($float eq '-?'){
 	    $isFloating = 'NA';
 	}
-	push @startLocs, $start;
-	push @endLocs, $end;
     }
     &printab($id, $scaffold, $altSeqNo, $start, $end, $isFloating, join(',', @startLocs), join(',', @endLocs), $#startLocs);
 }
