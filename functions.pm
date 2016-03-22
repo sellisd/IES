@@ -39,9 +39,6 @@ sub isFloating{
     #or if sequence ends with ...TA(x)kTA and upstream Mac boundary is TA(x)k
     my $maxSeq = length($iesS);
     # search downstream first
-    print $iesS,"\n";
-    print $macUpstreamS,"\n";
-    print $macDownstreamS, "\n";
     for(my $i = 2; $i < $maxSeq; $i++){
         if($i > $#macDownstreamA){
             die "Did not reach end of downstream comparison\n";
@@ -53,12 +50,10 @@ sub isFloating{
         if($iesA[$i - 1] eq 'T' and $iesA[$i] eq 'A'){
           # is floating
           $floating = 1;
-          $altLoc = $i; # location of last matching TA
-          print "floating downstream: ";
-          print "$altLoc\n";
+          $altLoc = $i - 1; # location of last matching TA
+	  push @altLoc, $altLoc;
         }       
 	  }else{
-#	    print "  end \n";
 	    last;
 	  }
     }
@@ -74,12 +69,16 @@ sub isFloating{
           # is floating
           $floating = 1;
           $altLoc = -($i - 1); # location of last matching TA
-          print "floating upstream ", $altLoc, "\n";
-#	      print "  keep going upstream\n";
+	  push @altLoc, $altLoc;
 	    }
       }else{
 	    last;
       }
+    }
+    if(@altLoc){
+	return \@altLoc;
+    }else{
+	return -1;
     }
 # for i++
 # compare ies begin/end to mac up/down
