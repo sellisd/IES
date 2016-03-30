@@ -4,7 +4,7 @@ use strict;
 use lib'.';
 use functions;
 
-#read tab file and check for floating
+#read tab file (output from iesInfo.pl) with ies information and check if an IES is floating
 
 my $tabF = $ARGV[0];
 open IN, $tabF or die $!;
