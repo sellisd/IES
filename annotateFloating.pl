@@ -25,8 +25,8 @@ while(my $line = <IN>){
     my $isFloating;
     my @startLocs;
     my @endLocs;
-   	push @startLocs, $start;
-	push @endLocs, $end;
+    push @startLocs, $start;
+    push @endLocs, $end;
     if (ref($float) eq 'ARRAY'){
 	#is floating
 	$isFloating = 1;
