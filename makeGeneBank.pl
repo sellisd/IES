@@ -9,6 +9,7 @@ use Bio::SeqFeature::Gene::Transcript;
 use Bio::Location::Split;
 use Getopt::Long;
 use Bio::Species;
+use File::Spec::Functions qw(catfile);
 
 my $help;
 my $species3abr;
@@ -27,16 +28,18 @@ make genebank file from gff3 files
 # Pte Paramecium tetraurelia
 # Ppe Paramecium pentaurelia
 # Pse Paramecium sexaurelia
+# Poc Paramecium octaurelia
+# Ptr Paramecium tredecaurelia
+# Pso Paramecium sonneborni
 
 HERE
 
 die $usage unless (GetOptions('help|?' => \$help,
 			      'datapath=s' => \$dataPath,
-			      'species=s' => \$species3abr,
-			      'floating=i'  => \$floating));
+			      'species=s' => \$species3abr));
 die $usage if $help;
 my $home = '/home/dsellis/';
-$dataPath = $home.'data/IES_data/'; #default for local run
+$dataPath = $home.'data/IES/'; #default for local run
 #$dataPath = '/pandata/IES_data'; #default for cluster
 
 #everything should be in MAC coordinates
@@ -50,13 +53,22 @@ $dataPath = $home.'data/IES_data/'; #default for local run
 #then for ies and then find in which genes they are in
 #make one big file for each species in genbank format with one entry per contig
 my @lineage;
-if($species3abr eq 'Pca' or
-   $species3abr eq 'Pbi' or
-   $species3abr eq 'Pte' or
-   $species3abr eq 'Pse'){
+if(
+    $species3abr eq 'Ppr' or
+    $species3abr eq 'Pbi' or
+    $species3abr eq 'Pte' or
+    $species3abr eq 'Ppe' or
+    $species3abr eq 'Pse' or
+    $species3abr eq 'Poc' or
+    $species3abr eq 'Ptr' or
+    $species3abr eq 'Pso' or
+    $species3abr eq 'Pca' or
+    ){
     @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligohymenophorea','Peniculida','Parameciidae','Paramecium');
 }elsif($species3abr eq 'Tth'){
     @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata', 'Oligohymenophorea', 'Hymenostomatida','Tetrahymenina', 'Tetrahymenidae', 'Tetrahymena');
+}else{
+    die "unknown species";
 }
 
 my $speciesAbr;
@@ -73,89 +85,49 @@ my $outputFile;
 my $iesgffF;
 
 #load defaults
-if ($species3abr eq 'Pbi'){
-    $species = 'Paramecium biaurelia';
-    $taxonId = 65126;
-    $speciesAbr = 'PBIA.V1_4.1.';
-    $dataPath = $dataPath.'pbiaurelia/';
-    $cds = $dataPath.'pbiaurelia_V1-4_annotation_v2.0.cds.fa';
-    $protein = $dataPath.'pbiaurelia_V1-4_annotation_v2.0.protein.fa';
-    $gene = $dataPath.'pbiaurelia_V1-4_annotation_v2.0.gene.fa';
-    $gff3 = $dataPath.'pbiaurelia_V1-4_annotation_v2.0.gff3';
-    $scaffoldsF = $dataPath.'biaurelia_V1-4_assembly_v1.fasta';
-    $outputFile = $dataPath.'Pbi.gnbk';
-    if($floating){
-	$iesgffF = $dataPath.'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.fl.gff3';
-    }else{
-	$iesgffF = $dataPath.'internal_eliminated_sequence_MIC_biaurelia.pb_V1-4.gff3';
-    }
-}elsif($species3abr eq 'Pse'){
-    $species = 'Paramecium sexaurelia';
-    $taxonId = 65128;
-    $speciesAbr = 'PSEX.AZ8_4.';
-    $dataPath = $dataPath.'psexaurelia/';
-    $cds = $dataPath.'psexaurelia_AZ8-4_annotation_v2.0.cds.fa';
-    $protein = $dataPath.'psexaurelia_AZ8-4_annotation_v2.0.protein.fa';
-    $gene = $dataPath.'psexaurelia_AZ8-4_annotation_v2.0.gene.fa';
-    $gff3 = $dataPath.'psexaurelia_AZ8-4_annotation_v2.0.gff3';
-    $scaffoldsF = $dataPath.'sexaurelia_AZ8-4_assembly_v1.fasta';
-    $outputFile = $dataPath.'Pse.gnbk';
-    if($floating){
-	$iesgffF = $dataPath.'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.fl.gff3';
-    }else{
-	$iesgffF = $dataPath.'internal_eliminated_sequence_MIC_sexaurelia.ps_AZ8-4.gff3';
-    }
-}elsif($species3abr eq 'Pte'){
-    $species = 'Paramecium tetraurelia';
-    $taxonId = 5888;
-    $speciesAbr = 'PTET.51.1.';
-    $dataPath = $dataPath.'ptetraurelia/';
-    $cds = $dataPath.'ptetraurelia_mac_51_annotation_v2.0.cds.fa';
-    $protein = $dataPath.'ptetraurelia_mac_51_annotation_v2.0.protein.fa';
-    $gene = $dataPath.'ptetraurelia_mac_51_annotation_v2.0.gene.fa';
-    $gff3 = $dataPath.'ptetraurelia_mac_51_annotation_v2.0.gff3';
-    $scaffoldsF = $dataPath.'ptetraurelia_mac_51.fa';
-    $outputFile = $dataPath.'Pte.gnbk';
-    if($floating){
-	$iesgffF = $dataPath.'internal_eliminated_sequence_PGM_IES51.pt_51.fl.gff3';
-    }else{
-	$iesgffF = $dataPath.'internal_eliminated_sequence_PGM_IES51.pt_51.gff3';
-    }
-}elsif($species3abr eq 'Pca'){
-    $species = 'Paramecium caudatum';
-    $taxonId = 5885;
-    $speciesAbr = 'PCAU.43c3d.1.';
-    $dataPath = $dataPath.'pcaudatum_43c3d_annotation_v2.0/';
-    $cds = $dataPath.'pcaudatum_43c3d_annotation_v2.0.cds.fa';
-    $protein = $dataPath.'pcaudatum_43c3d_annotation_v2.0.protein.fa';
-    $gene = $dataPath.'pcaudatum_43c3d_annotation_v2.0.gene.fa';
-    $gff3 = $dataPath.'pcaudatum_43c3d_annotation_v2.0.gff3';
-    $scaffoldsF = $dataPath.'caudatum_43c3d_assembly_v1.fasta';
-    $outputFile = $dataPath.'Pca.gnbk';
-    if($floating){ # not yet available
-	$iesgffF = $dataPath.'PCAUD_MIC10_IES.fl.gff3';
-    }else{
-	$iesgffF = $dataPath.'PCAUD_MIC10_IES.gff3';
-    }
-}elsif($species3abr eq 'Tth'){
-    $species = 'Tetrahymena thermophila';
-    $taxonId = 5911;
-    $speciesAbr = 'TTHERM_';
-    $dataPath = $dataPath.'tthermophila/';
-    $cds = $dataPath.'T_thermophila_June2014_CDS.fasta';
-    $protein = $dataPath.'T_thermophila_June2014_proteins.fasta';
-    $gene = $dataPath.'T_thermophila_June2014_gene.fasta';
-    $gff3 = $dataPath.'T_thermophila_June2014.gff3';
-    $scaffoldsF = $dataPath.'T_thermophila_June2014_assembly.fasta';
-    $outputFile = $dataPath.'Tth.gnbk';
-    if($floating){ # not available
-	$iesgffF = $dataPath.'';
-    }else{
-	$iesgffF = $dataPath.'';
-    }
-}else{
-    die "unknown species";
+my $homeD = File::HomeDir->my_home;
+my $notationF =  catfile($homeD, 'data/IES/analysis/notation.tab');
+
+open N, $notationF or die $!;
+my $header = readline(N);
+my %notation;
+while(my $line = <N>){
+    chomp $line;
+    my $ar = split "\t", $line;
+    (my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
+    $notation{$binomial} = {
+	'abbreviation'  => $abbreviation,
+	'datapath'      => $datapath,
+	'binomial'	=> $binomial,
+	'taxId'	        => $taxId,
+	'geneGff'	=> $geneGff,
+	'cdsF'	        => $cdsF,
+	'protF'	        => $protF,
+	'geneF'	        => $geneF,
+	'MacF'	        => $MacF,
+	'iesGff'	=> $iesGff,
+	'annotation'    => $annotation,
+	'prefix'        => $prefix
+    };
 }
+close N;
+
+if (defined($notation{$species3abr})){
+}else{
+    die "unknown species abbreviation $species3abr";
+}
+
+$species    = $notation{$species3abr}{'abbreviation'};
+$taxonId    = $notation{$species3abr}{'taxId'};
+$speciesAbr = $notation{$species3abr}{'prefix'};
+$dataPath   = $notation{$species3abr}{'datapath'};
+$cds        = catfile($dataPath, $notation{$species3abr}{'cdsF'});
+$protein    = catfile($dataPath, $notation{$species3abr}{'protF'});
+$gene       = catfile($dataPath, $notation{$species3abr}{'geneF'});
+$gff3       = catfile($dataPath, $notation{$species3abr}{'geneGff'});
+$scaffoldsF = catfile($dataPath, $notation{$species3abr}{'MacF'});
+$outputFile = catfile($dataPath, 'analysis/gnbk/'.$species3abr.'.gnbk');
+$iesgff     = catfile($dataPath, $notation{$species3abr}{'iesGff'});
 
 push @lineage, $species;
 @lineage = reverse(@lineage);
@@ -252,24 +224,12 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
     }
     if ($feature->primary_tag() eq 'gene'){
 	$geneIdNameH{$id[0]}=($feature->get_tag_values('Name'))[0];
-	# if(defined($curGene)){
-	# 	if(defined($CDSH{$curGene})){
-	# 	    $entriesH{$prevScaffold}->add_SeqFeature($CDSH{$curGene});
-	# 	    $curGene = $id[0]; #set the current gene
-	# 	}else{
-	# 	    $curGene = $id[0]; #for a gene without CDS
-	# 	}
-	# }else{
-	# 	$curGene = $id[0];
-	# }
-	#build features
 	#find all entries that are in the same scaffold
 	$geneFeatureH{$id[0]} = new Bio::SeqFeature::Generic(-start       => $feature->start(),
 							     -end         => $feature->end(),
 							     -strand      => $feature->strand(),
 							     -primary_tag => $feature->primary_tag(),
 							     -tag => {gene     => $id[0]});
-#	    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
     }elsif($feature->primary_tag() eq 'CDS'){
 	my $parent = ($feature->get_tag_values('Parent'))[0];
 	my $geneId;# = ($feature->get_tag_values('Parent'))[0];
@@ -312,7 +272,6 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
 							     -tag => {gene => $parent,
 							     }
 	    );
-#	    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$id[0]});
     }elsif($feature->primary_tag() eq 'exon'){
 	my $parent = ($feature->get_tag_values('Parent'))[0];
 	if(defined($rna2geneH{$parent})){
@@ -363,19 +322,13 @@ foreach my $scaffold(sort keys %scaffoldElementsH){
     foreach my $element (@{$scaffoldElementsH{$scaffold}}){
 	if(defined($geneFeatureH{$element})){
 	    $entriesH{$scaffold}->add_SeqFeature($geneFeatureH{$element});
-#	    print $scaffold,' ';
-#	    print $element,' ';
-#	    print $geneFeatureH{$element}->start, ' ';
 	    if(defined($CDSH{$element})){
-#		print $CDSH{$element}->primary_tag();
 		$entriesH{$scaffold}->add_SeqFeature($CDSH{$element});
 	    }
-#	    print "\n";
 	}
     }
     $data_out->write_seq($entriesH{$scaffold});
 }
-
 
 print '  did not include in features: ',join(',', keys(%otherH)),"\n";
 
@@ -384,7 +337,7 @@ $gff3In->close;
 #call postProcess.pl for adding the IES information
 print "adding IES information postProcess.pl:\n";
 print "  ./postProcess.pl -species $species3abr $iesgffF $outputFile\n";
-exec "./postProcess.pl -species $species3abr $iesgffF $outputFile";
+##exec "./postProcess.pl -species $species3abr $iesgffF $outputFile";
 
 sub getProtName{
     # find name of protein from name of gene.
@@ -396,14 +349,12 @@ sub getProtName{
     my $proteinId;
     if($species3abr eq 'Tth'){
 	$proteinId = $geneIdNameH{$geneId};
-    }elsif(($species3abr eq 'Pca') or
-	   ($species3abr eq 'Pbi') or
-	   ($species3abr eq 'Pte') or
-	   ($species3abr eq 'Pse')){
-	$proteinId = $geneId;
-	$proteinId =~s/(.*)G(\d+)/$1P$2/ or die "$proteinId";
     }else{
-	die;
+	$proteinId = &prot2gene($geneId);
     }
-    return $proteinId;
+    if(defined($proteinId)){
+	return $proteinId;
+    }else{
+	die "unable to find protein name for: $geneId";
+    }
 }
