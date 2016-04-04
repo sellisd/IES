@@ -3,24 +3,27 @@ use strict;
 use warnings;
 BEGIN{
     require Exporter;
-    our $VERSION = 1.00;
+    our $VERSION = 1.01;
     our @ISA = qw(Exporter);
-    our @EXPORT = qw(isFloating prot2gene printab buildPaths prefix whichInOne gene2species);
+    our @EXPORT = qw(isFloating prot2gene printab buildPaths prefix whichInOne gene2species gene2prot initF);
     our @EXPORT_OK = qw();
 }
 
-my $notationF =  '/home/dsellis/data/IES/analysis/notation.tab';
-
-open N, $notationF or die $!;
-my $header = readline(N);
-our %prefixes;
-while(my $line = <N>){
-    chomp $line;
-    my $ar = split "\t", $line;
-    (my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
-    $prefixes{$abbreviation} = $prefix;
+sub initF{
+    my $notationF =  '/home/dsellis/data/IES/analysis/notation.tab';
+    open N, $notationF or die $!;
+    my $header = readline(N);
+    my %prefixes;
+    while(my $line = <N>){
+	chomp $line;
+	my $ar = split "\t", $line;
+	(my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
+	$prefixes{$abbreviation} = $prefix;
+    }
+    close N;
+    return \%prefixes;
 }
-close N;
+
 
 # my %prefixes = (
 #     'ppr' => 'PPRIM.AZ9-3.1.',
@@ -115,12 +118,14 @@ sub isFloating{
 
 sub prot2gene{
     my $protId = shift @_;
+    my $prefixesR = shift @_;
     my $found = 0;
     my $geneId;
-    foreach my $prefix (keys %prefixes){
-	if($protId =~ /^$prefixes{$prefix}P(\d+)$/){
+    foreach my $abr (keys %$prefixesR){
+	my $prefix = $prefixesR->{$abr};
+	if($protId =~ /^$prefix[P](\d+)$/){
 	    $found++;
-	    $geneId = $prefixes{$prefix}.'G'.$1;
+	    $geneId = $prefix.'G'.$1;
 	}
     }
     if($found == 1){
@@ -128,6 +133,25 @@ sub prot2gene{
     }else{
 	return;
     }  
+}
+
+sub gene2prot{
+    my $geneId = shift @_;
+    my $prefixesR = shift @_;
+    my $found = 0;
+    my $protId;
+    foreach my $abr (keys %$prefixesR){
+	my $prefix = $prefixesR->{$abr};
+	if($geneId =~ /^$prefix[G](\d+)$/){
+	    $found++;
+	    $protId = $prefix.'P'.$1;
+	}
+    }
+    if($found == 1){
+	return $protId;
+    }else{
+	return;
+    }
 }
 
 sub printab{
@@ -159,6 +183,9 @@ sub buildPaths{
 
 sub prefix{
     my $species = shift @_;
+    my $prefixesR = shift @_;
+    die "missing prefixes" unless defined($prefixesR);
+    my %prefixes = %$prefixesR;
     if (defined($prefixes{$species})){
 	return $prefixes{$species};
     }else{
