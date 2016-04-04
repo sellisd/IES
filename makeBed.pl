@@ -20,9 +20,9 @@ my $inputF = $2;
 my $gnbkIn = Bio::SeqIO->new('-file' => $dataPath.$inputF,
 			     '-format' => 'genbank');
 my $cdsout = $inputF;
-$cdsout =~ s/.IES.gnbk/.CDS.bed/;
+$cdsout =~ s/.IES.gnbk/.CDS.bed/ or die;
 my $iesout = $inputF;
-$iesout =~ s/.IES.gnbk/.IES.bed/;
+$iesout =~ s/.IES.gnbk/.IES.bed/ or die;
 
 open CDSOUT, '>'.$dataPath.$cdsout or die $!;
 open IESOUT, '>'.$dataPath.$iesout or die $!;

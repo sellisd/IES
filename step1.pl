@@ -114,5 +114,42 @@ if(0){
 }
 
 
-
 # check if we need to merge floating IES
+
+# make genebank files and incorporate ies information
+
+if(0){
+    system "./makeGeneBank.pl -species ppr";
+    system "./makeGeneBank.pl -species pbi";
+    system "./makeGeneBank.pl -species pte";
+    system "./makeGeneBank.pl -species ppe";
+    system "./makeGeneBank.pl -species pse";
+    system "./makeGeneBank.pl -species poc";
+    system "./makeGeneBank.pl -species ptr";
+    system "./makeGeneBank.pl -species pso";
+    system "./makeGeneBank.pl -species pca";
+}
+
+if(0){
+    system "./makeBed.pl ~/data/IES/analysis/gnbk/ppr.IES.gnbk";
+    system "./makeBed.pl ~/data/IES/analysis/gnbk/pbi.IES.gnbk";
+    system "./makeBed.pl ~/data/IES/analysis/gnbk/pte.IES.gnbk";
+    system "./makeBed.pl ~/data/IES/analysis/gnbk/ppe.IES.gnbk";
+    system "./makeBed.pl ~/data/IES/analysis/gnbk/pse.IES.gnbk";
+    system "./makeBed.pl ~/data/IES/analysis/gnbk/poc.IES.gnbk";
+    system "./makeBed.pl ~/data/IES/analysis/gnbk/ptr.IES.gnbk";
+    system "./makeBed.pl ~/data/IES/analysis/gnbk/pso.IES.gnbk";
+    system "./makeBed.pl ~/data/IES/analysis/gnbk/pca.IES.gnbk";
+}
+
+if(0){
+    system "bedtools intersect -a ~/data/IES/analysis/gnbk/ppr.CDS.bed -b ~/data/IES/analysis/gnbk/ppr.IES.bed -wo > ~/data/IES/analysis/gnbk/ppr.overlap";
+    system "bedtools intersect -a ~/data/IES/analysis/gnbk/pbi.CDS.bed -b ~/data/IES/analysis/gnbk/pbi.IES.bed -wo > ~/data/IES/analysis/gnbk/pbi.overlap";
+    system "bedtools intersect -a ~/data/IES/analysis/gnbk/pte.CDS.bed -b ~/data/IES/analysis/gnbk/pte.IES.bed -wo > ~/data/IES/analysis/gnbk/pte.overlap";
+    system "bedtools intersect -a ~/data/IES/analysis/gnbk/ppe.CDS.bed -b ~/data/IES/analysis/gnbk/ppe.IES.bed -wo > ~/data/IES/analysis/gnbk/ppe.overlap";
+    system "bedtools intersect -a ~/data/IES/analysis/gnbk/pse.CDS.bed -b ~/data/IES/analysis/gnbk/pse.IES.bed -wo > ~/data/IES/analysis/gnbk/pse.overlap";
+    system "bedtools intersect -a ~/data/IES/analysis/gnbk/poc.CDS.bed -b ~/data/IES/analysis/gnbk/poc.IES.bed -wo > ~/data/IES/analysis/gnbk/poc.overlap";
+    system "bedtools intersect -a ~/data/IES/analysis/gnbk/ptr.CDS.bed -b ~/data/IES/analysis/gnbk/ptr.IES.bed -wo > ~/data/IES/analysis/gnbk/ptr.overlap";
+    system "bedtools intersect -a ~/data/IES/analysis/gnbk/pso.CDS.bed -b ~/data/IES/analysis/gnbk/pso.IES.bed -wo > ~/data/IES/analysis/gnbk/pso.overlap";
+    system "bedtools intersect -a ~/data/IES/analysis/gnbk/pca.CDS.bed -b ~/data/IES/analysis/gnbk/pca.IES.bed -wo > ~/data/IES/analysis/gnbk/pca.overlap";
+}

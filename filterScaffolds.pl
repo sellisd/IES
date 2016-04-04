@@ -48,7 +48,7 @@ die $usage unless (GetOptions(
 		   ));
 
 die $usage if $help;
-my $prefix = &prefix($species);
+my $prefix = abr2prefix($species, initF());
 die unless $prefix;
 make_path($outdir) unless -d $outdir;
 

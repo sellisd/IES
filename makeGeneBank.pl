@@ -10,6 +10,9 @@ use Bio::Location::Split;
 use Getopt::Long;
 use Bio::Species;
 use File::Spec::Functions qw(catfile);
+use File::HomeDir;
+use lib'.';
+use functions;
 
 my $help;
 my $species3abr;
@@ -20,17 +23,17 @@ my $usage = <<HERE;
 make genebank file from gff3 files
     usage makeGeneBank.pl -species Pab -datapath PATH -floating 1
 
-#consistent species abreviations, these are not the same with the abbreviations provided in the sequence files
-# Tth Tetrahymena thermophila
-# Pca Paramecium caudatum
-# Ppr Paramecium primaurelia
-# Pbi Paramecium biaurelia
-# Pte Paramecium tetraurelia
-# Ppe Paramecium pentaurelia
-# Pse Paramecium sexaurelia
-# Poc Paramecium octaurelia
-# Ptr Paramecium tredecaurelia
-# Pso Paramecium sonneborni
+consistent species abreviations, these are not the same with the abbreviations provided in the sequence files
+ tth Tetrahymena thermophila
+ pca Paramecium caudatum
+ ppr Paramecium primaurelia
+ pbi Paramecium biaurelia
+ pte Paramecium tetraurelia
+ ppe Paramecium pentaurelia
+ pse Paramecium sexaurelia
+ poc Paramecium octaurelia
+ ptr Paramecium tredecaurelia
+ pso Paramecium sonneborni
 
 HERE
 
@@ -38,8 +41,10 @@ die $usage unless (GetOptions('help|?' => \$help,
 			      'datapath=s' => \$dataPath,
 			      'species=s' => \$species3abr));
 die $usage if $help;
-my $home = '/home/dsellis/';
-$dataPath = $home.'data/IES/'; #default for local run
+die $usage unless defined($species3abr);
+
+my $homeD = File::HomeDir->my_home;
+$dataPath = catfile($homeD, 'data/IES/'); #default for local run
 #$dataPath = '/pandata/IES_data'; #default for cluster
 
 #everything should be in MAC coordinates
@@ -53,19 +58,18 @@ $dataPath = $home.'data/IES/'; #default for local run
 #then for ies and then find in which genes they are in
 #make one big file for each species in genbank format with one entry per contig
 my @lineage;
-if(
-    $species3abr eq 'Ppr' or
-    $species3abr eq 'Pbi' or
-    $species3abr eq 'Pte' or
-    $species3abr eq 'Ppe' or
-    $species3abr eq 'Pse' or
-    $species3abr eq 'Poc' or
-    $species3abr eq 'Ptr' or
-    $species3abr eq 'Pso' or
-    $species3abr eq 'Pca' or
+if( $species3abr eq 'ppr' or
+    $species3abr eq 'pbi' or
+    $species3abr eq 'pte' or
+    $species3abr eq 'ppe' or
+    $species3abr eq 'pse' or
+    $species3abr eq 'poc' or
+    $species3abr eq 'ptr' or
+    $species3abr eq 'pso' or
+    $species3abr eq 'pca'
     ){
     @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligohymenophorea','Peniculida','Parameciidae','Paramecium');
-}elsif($species3abr eq 'Tth'){
+}elsif($species3abr eq 'tth'){
     @lineage  = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata', 'Oligohymenophorea', 'Hymenostomatida','Tetrahymenina', 'Tetrahymenidae', 'Tetrahymena');
 }else{
     die "unknown species";
@@ -85,7 +89,6 @@ my $outputFile;
 my $iesgffF;
 
 #load defaults
-my $homeD = File::HomeDir->my_home;
 my $notationF =  catfile($homeD, 'data/IES/analysis/notation.tab');
 
 open N, $notationF or die $!;
@@ -95,8 +98,7 @@ while(my $line = <N>){
     chomp $line;
     my $ar = split "\t", $line;
     (my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
-    $notation{$binomial} = {
-	'abbreviation'  => $abbreviation,
+    $notation{$abbreviation} = {
 	'datapath'      => $datapath,
 	'binomial'	=> $binomial,
 	'taxId'	        => $taxId,
@@ -112,14 +114,16 @@ while(my $line = <N>){
 }
 close N;
 
-if (defined($notation{$species3abr})){
-}else{
+#initialize prefix names:
+my $prefixR = initF();
+
+unless (defined($notation{$species3abr})){
     die "unknown species abbreviation $species3abr";
 }
 
-$species    = $notation{$species3abr}{'abbreviation'};
+$species    = $notation{$species3abr}{'binomial'};
 $taxonId    = $notation{$species3abr}{'taxId'};
-$speciesAbr = $notation{$species3abr}{'prefix'};
+$speciesAbr = $notation{$species3abr}{'abbreviation'};
 $dataPath   = $notation{$species3abr}{'datapath'};
 $cds        = catfile($dataPath, $notation{$species3abr}{'cdsF'});
 $protein    = catfile($dataPath, $notation{$species3abr}{'protF'});
@@ -127,7 +131,7 @@ $gene       = catfile($dataPath, $notation{$species3abr}{'geneF'});
 $gff3       = catfile($dataPath, $notation{$species3abr}{'geneGff'});
 $scaffoldsF = catfile($dataPath, $notation{$species3abr}{'MacF'});
 $outputFile = catfile($dataPath, 'analysis/gnbk/'.$species3abr.'.gnbk');
-$iesgff     = catfile($dataPath, $notation{$species3abr}{'iesGff'});
+$iesgffF    = catfile($dataPath, $notation{$species3abr}{'iesGff'});
 
 push @lineage, $species;
 @lineage = reverse(@lineage);
@@ -317,6 +321,8 @@ while(my $feature = $gff3In->next_feature()){ # one line at a time
     }
 }
 
+print "printing output\n";
+
 #add features to scaffolds
 foreach my $scaffold(sort keys %scaffoldElementsH){
     foreach my $element (@{$scaffoldElementsH{$scaffold}}){
@@ -337,7 +343,7 @@ $gff3In->close;
 #call postProcess.pl for adding the IES information
 print "adding IES information postProcess.pl:\n";
 print "  ./postProcess.pl -species $species3abr $iesgffF $outputFile\n";
-##exec "./postProcess.pl -species $species3abr $iesgffF $outputFile";
+exec "./postProcess.pl -species $species3abr $iesgffF $outputFile";
 
 sub getProtName{
     # find name of protein from name of gene.
@@ -347,10 +353,10 @@ sub getProtName{
     #   protein name is gene name
     my $geneId = shift @_;
     my $proteinId;
-    if($species3abr eq 'Tth'){
+    if($species3abr eq 'th'){
 	$proteinId = $geneIdNameH{$geneId};
     }else{
-	$proteinId = &prot2gene($geneId);
+	$proteinId = gene2prot($geneId, $prefixR);
     }
     if(defined($proteinId)){
 	return $proteinId;
