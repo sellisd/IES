@@ -1,14 +1,38 @@
-my %prefixes = (
-    'ppr' => 'PPRIM.AZ9-3.1.',
-    'pbi' => 'PBIA.V1_4.1.',
-    'pte' => 'PTET.51.1.',
-    'ppe' => 'PPENT.87.1.',
-    'pse' => 'PSEX.AZ8_4.1.',
-    'poc' => 'POCTA.138.1.',
-    'ptr' => 'PTRED.209.2.',
-    'pca' => 'PCAU.43c3d.1.'
-#	'tth' => ''	   
-    );
+package functions;
+use strict;
+use warnings;
+BEGIN{
+    require Exporter;
+    our $VERSION = 1.00;
+    our @ISA = qw(Exporter);
+    our @EXPORT = qw(isFloating prot2gene printab buildPaths prefix whichInOne gene2species);
+    our @EXPORT_OK = qw();
+}
+
+my $notationF =  '/home/dsellis/data/IES/analysis/notation.tab';
+
+open N, $notationF or die $!;
+my $header = readline(N);
+our %prefixes;
+while(my $line = <N>){
+    chomp $line;
+    my $ar = split "\t", $line;
+    (my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
+    $prefixes{$abbreviation} = $prefix;
+}
+close N;
+
+# my %prefixes = (
+#     'ppr' => 'PPRIM.AZ9-3.1.',
+#     'pbi' => 'PBIA.V1_4.1.',
+#     'pte' => 'PTET.51.1.',
+#     'ppe' => 'PPENT.87.1.',
+#     'pse' => 'PSEX.AZ8_4.1.',
+#     'poc' => 'POCTA.138.1.',
+#     'ptr' => 'PTRED.209.2.',
+#     'pca' => 'PCAU.43c3d.1.'
+# #	'tth' => ''	   
+#     );
 
 sub isFloating{
     # check if an IES is floating
@@ -20,7 +44,7 @@ sub isFloating{
     die "input sequence error:\n",
         "  IES:              $iesS\n",
         "  upstream flank:   $macUpstreamS\n",
-        "  downstream flanK: $macDownsreamS" unless($iesS =~ /^TA[ACTGN]+TA$/
+        "  downstream flanK: $macDownstreamS" unless($iesS =~ /^TA[ACTGN]+TA$/
 						    and $macUpstreamS =~ /^[ACTGN]+TA$/
 						    and $macDownstreamS =~ /^TA[ACTGN]+$/);
     # transform strings to arrays for easy handling 
@@ -93,7 +117,7 @@ sub prot2gene{
     my $protId = shift @_;
     my $found = 0;
     my $geneId;
-    foreach $prefix (keys %prefixes){
+    foreach my $prefix (keys %prefixes){
 	if($protId =~ /^$prefixes{$prefix}P(\d+)$/){
 	    $found++;
 	    $geneId = $prefixes{$prefix}.'G'.$1;
@@ -194,41 +218,4 @@ sub gene2species{
     }
 }
 
-# sub mergeOverlap{
-# 	# if elements in @A partially overlap return which should be merged
-# 	my $asref = shift @_;
-# 	my $aeref = shift @_;
-#     my $n = $#{$asref} +1;
-#     for (my $i = 0; $i <$n; $i++){
-# 		for (my $j = 0; $j <$n; $j++){
-# 			my $overlap = 0;
-# 			if(@$asref[$i]>=@$asref[$j] and @$asref[$i] <= @$aeref[$j]){
-# 				$overlap = 1;
-# 			}
-# 			if(@$aeref[$i]>=@$asref[$j] and @$aeref[$i] <= @$aeref[$j]){
-# 				$overlap = 1;
-# 			}
-# 		}
-# 	}
-# 	# group pairs
-
-# }
-# 1;
-
-# 0 --- 
-# 1   ---
-# 2    ----
-
-# starti within j
-# or
-# endi within j
-
-# 0.1 =>{0=>1,
-# 	   1=>1}
-# 0.2 => {0=>1,
-#         2=>1}
-# 1.2 => {1=>1,
-#         2=>1}
-
-# 0.1=> {0=>}
 1;
