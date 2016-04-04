@@ -17,7 +17,7 @@ my $header = readline(N);
 my %notation;
 while(my $line = <N>){
     chomp $line;
-    (my $binomial, my $annotation, my $prefix) = split "\t", $line;
+    (my $abr, my $binomial, my $annotation, my $prefix) = split "\t", $line;
     $notation{$binomial} = {
 	'annotation' => $annotation,
 	'prefix'     => $prefix
