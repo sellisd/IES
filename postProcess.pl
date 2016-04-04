@@ -6,6 +6,8 @@ use Bio::Tools::GFF;
 use Data::Dumper;
 use Getopt::Long;
 use Bio::Species;
+use lib'.';
+use functions;
 my $help;
 my $speciesAbr;
 my $usage = <<HERE;
@@ -21,44 +23,34 @@ die $usage if $help;
 my $taxonId;
 my $speciesName;
 my @lineage = ('Eukaryota','Alveolata','Ciliophora','Intramacronucleata','Oligohymenophorea','Peniculida','Parameciidae','Paramecium');
-my $addTA;
 
-if($speciesAbr eq 'Ppr'){
+my $addTA = 1; #always true in new dataset
+
+if($speciesAbr eq 'ppr'){
     $speciesName = 'Paramecium primaurelia';
-    $taxonId = 5886;
-    $addTA = 0;
-}elsif($speciesAbr eq 'Pbi'){
+}elsif($speciesAbr eq 'pbi'){
     $speciesName = 'Paramecium biaurelia';
-    $taxonId = 65126;
-    $addTA = 0;
-#Paremecium biaurelia
-}elsif($speciesAbr eq 'Pte'){
+}elsif($speciesAbr eq 'pte'){
     $speciesName = 'Paramecium tetraurelia';
-    $taxonId = 5888;
-    $addTA = 0;
-#Paramecium tetraurelia
-}elsif($speciesAbr eq 'Pen'){
+}elsif($speciesAbr eq 'ppe'){
     $speciesName = 'Paramecium pentaurelia';
-    $taxonId = 43138;
-    $addTA = 0;
-#Paramecium pentaurelia
-}elsif($speciesAbr eq 'Pse'){
+}elsif($speciesAbr eq 'pse'){
     $speciesName = 'Paramecium sexaurelia';
-    $taxonId = 65128;
-    $addTA = 0;
-#Paramecium sexaurelia
-}elsif($speciesAbr eq 'Pca'){
+}elsif($speciesAbr eq 'poc'){
+    $speciesName = 'Paramecium octaurelia';
+}elsif($speciesAbr eq 'ptr'){
+    $speciesName = 'Paramecium tredecaurelia';
+}elsif($speciesAbr eq 'pso'){
+    $speciesName = 'Paramecium sonneborni';
+}elsif($speciesAbr eq 'pca'){
     $speciesName = 'Paramecium caudatum';
-    $taxonId = 5885;
-    $addTA = 1;
-}elsif($speciesAbr eq 'Tth'){
+}elsif($speciesAbr eq 'tth'){
     $speciesName = 'Tetrahymena thermophila';
-    $taxonId = 5911;
-    $addTA = 0;
 }else{
     print 'Not known species abreviation: $speciesAbr',"\n";
     die $usage;
 }
+
 push @lineage, $speciesName;
 @lineage = reverse(@lineage);
 my $speciesO = Bio::Species->new(-classification => \@lineage);
@@ -75,6 +67,7 @@ my $IESgff = Bio::Tools::GFF->new('-file' => $iesgffF,
 my %IESH;
 open IN, $iesgffF;
 while (my $line = <IN>){
+    next if substr($line, 0, 1) eq '#'; #skip comments
     chomp $line;
     my @ar = split "\t", $line;
     my $scaffold = $ar[0];
