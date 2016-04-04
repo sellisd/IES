@@ -5,7 +5,7 @@ BEGIN{
     require Exporter;
     our $VERSION = 1.01;
     our @ISA = qw(Exporter);
-    our @EXPORT = qw(isFloating prot2gene printab buildPaths prefix whichInOne gene2species gene2prot initF);
+    our @EXPORT = qw(isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot initF);
     our @EXPORT_OK = qw();
 }
 
@@ -181,13 +181,12 @@ sub buildPaths{
     }
 }
 
-sub prefix{
-    my $species = shift @_;
+sub abr2prefix{
+    my $abr = shift @_;
     my $prefixesR = shift @_;
     die "missing prefixes" unless defined($prefixesR);
-    my %prefixes = %$prefixesR;
-    if (defined($prefixes{$species})){
-	return $prefixes{$species};
+    if (defined($prefixesR->{$abr})){
+	return $prefixesR->{$abr};
     }else{
 	return;
     }
