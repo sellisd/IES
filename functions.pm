@@ -5,8 +5,34 @@ BEGIN{
     require Exporter;
     our $VERSION = 1.01;
     our @ISA = qw(Exporter);
-    our @EXPORT = qw(isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot initF);
+    our @EXPORT = qw(isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot initF success);
     our @EXPORT_OK = qw();
+}
+
+sub success{
+    # check if a pbs run was successful
+    # by having an error file with zero size or with an expected warning we can ignore
+    my $argref = shift @_;
+    my $pbsF = $argref->{'pbs'};
+    my $outputF = $argref->{'output'};
+    my $errorF = $argref->{'error'};
+    my $success = 0;
+    if(! -e $errorF){   # does not exist
+	$success = 0;
+    }else{
+	if(-z $errorF){     # has zero size
+	    $success = 1;
+	}else{              # has non-zero size
+	    open ERR, $errorF or die $!;
+	    my $line = readline(ERR);
+	chomp $line;
+	    if ($line =~ /^mkdir: cannot create directory(.*)File exists$/){
+		$success = 1;
+	    }
+	    close ERR;
+	}
+    }
+    return $success;
 }
 
 sub initF{

@@ -20,7 +20,7 @@ close DH;
 print "running t_coffee for each group\n";
 
 #run $block instances in each PBS file as each one is usualy too fast
-
+open OUT, '>run1.dat' or die $!;
 my $counter = 0;
 for(my $i = 0; $i <= $#files ; $i+=$block){
     open PBS, '>msa.'.$counter.'.pbs' or die $!;
@@ -35,15 +35,17 @@ for(my $i = 0; $i <= $#files ; $i+=$block){
 	next unless defined $file;
 	next unless -f $fastaPath.$file;
 	my $cmdl = $t_coffeeBin.' '.$fastaPath.$file.' -multi_core no  &> '.$file.'.log';
- 	print PBS "$cmdl","\n";    
+ 	print PBS "$cmdl","\n";
+	$file =~ /cluster\.(\d+)\.fa/;  
+	print OUT $counter,"\t", $1,"\n";
     }
     print PBS "mkdir $dataPathNode\n"; #make sure the file exists
     print PBS "mv *.log *.aln *.dnd *.html $dataPathNode\n";
     print PBS 'echo telos',"\n";
     print PBS 'date',"\n";
     close PBS;
-    system "qsub msa.".$counter.".pbs";
-#    print "qsub msa.".$counter.".pbs\n";
+#    system "qsub msa.".$counter.".pbs";
+    print "qsub\tmsa.".$counter.".pbs\n";
     $counter++;
  #   my $waiting = `qstat |grep q1hour|awk '\$5!="C"'|wc`;
  #   while((split " ", $waiting)[0] > 2900){ #buffer of 100
@@ -52,5 +54,4 @@ for(my $i = 0; $i <= $#files ; $i+=$block){
  #	sleep 1;
  #   }
 }
-
-
+close OUT;

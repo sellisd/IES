@@ -2,16 +2,51 @@
 use warnings;
 use strict;
 use File::Spec::Functions qw(catfile);
+use Getopt::Long;
 
-#if a pbs is too long for execution in the cluster split the file to smaller pieces and rerun it
-#find which ones to split
-my $path = $ARGV[0];
+my $runNo;
+my $toq;
+my $path;
+my $help;
+my $step;
 
+my $usage = <<HERE;
+
+Check the results of an MSA run on the cluster and rerun those necessary by splitting independent
+multiple sequence alignments and changing waiting queue.
+
+usage: splitPBS.pl [OPTIONS]
+where OPTIONS can be:
+    -run:    number of run, 1 is the first (from msa.pl) and the rest increment
+    -toq:    in which queue to submit the new jobs (q1hour, q1day or q1week)
+    -path:   path where pbs files are located
+    -step:   break each pbs in how many independent runs
+    -help|?: this help screen
+
+HERE
+
+die $usage unless(GetOptions(
+		      'help|?'   => \$help,
+		      'toq=s'    => \$toq,
+		      'run=i'    => \$runNo,
+		      'step=i'   => \$step,
+		      'path=s'   => \$path
+		  ));
+
+die $usage unless -d $path;
 opendir(DH, $path) or die $!;
-#my @files = grep{/error\.\d+(\.\d+)*/} readdir(DH);
-my @files = grep{/error\.\d+\.\d+\.(\d+)*/} readdir(DH);
+my @files;
+if($runNo == 1){
+    @files = grep{/error\.(\d+)*/} readdir(DH);
+}elsif($runNo == 2){
+    @files = grep{/error\.\d+\.(\d+)*/} readdir(DH);
+}elsif($runNo == 3){
+    @files = grep{/error\.\d+\.\d+\.(\d+)*/} readdir(DH);
+}else{
+    die "unexpected run number";
+}
 close DH;
-my $step = 1;
+
 my @files2sub;
 
 foreach my $file (@files){
@@ -32,10 +67,9 @@ foreach my $file (@files){
     my @tail;
     while(my $line = <PBS>){
 	if (substr($line,0,1) eq '#'){
-#if q1hour make q1week
 	    chomp $line;
-	    if ($line eq '#PBS -q q1day'){
-		$line = '#PBS -q q1week';
+	    if ($line =~ /#PBS\s+-q\s+(q1hour)|(q1day)|(q1week)/){
+		$line = '#PBS -q '.$toq;
 	    }
 	    push @head,$line."\n";
 	}elsif(substr($line,0,1) eq '/'){
@@ -45,7 +79,7 @@ foreach my $file (@files){
 	}
     }
     close PBS;
-#split file in pieces
+    #split file in pieces
     my $counter = 0;
     for(my $i = 0; $i<=$#commands; $i+=$step){
 	my $fileName = catfile($path, 'msa.'.$number.'.'.$counter.'.pbs');
@@ -68,7 +102,8 @@ foreach my $file (@files){
 	push @files2sub, $fileName;
     }
 }
+
 foreach my $sub (@files2sub){
     print $sub,"\n";
-    system "qsub $sub";
+#    system "qsub $sub";
 }
