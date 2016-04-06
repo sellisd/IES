@@ -39,7 +39,6 @@ for(my $i = 0; $i <= $#files ; $i+=$block){
 	$file =~ /cluster\.(\d+)\.fa/;  
 	print OUT $counter,"\t", $1,"\n";
     }
-    print PBS "mkdir $dataPathNode\n"; #make sure the file exists
     print PBS "mv *.log *.aln *.dnd *.html $dataPathNode\n";
     print PBS 'echo telos',"\n";
     print PBS 'date',"\n";
