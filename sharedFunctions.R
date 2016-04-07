@@ -19,6 +19,71 @@ prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
               'PTRED.209.2.'   = 'Paramecium tredecaurelia',
               'PCAU.43c3d.1.'  = 'Paramecium caudatum')
 
+exon2intronsBed <- function(exons){
+  #  read a data.frame from a bed file and return the complement keeping fixed a groups
+  genes <- unique(exons$gene)
+  l <- nrow(exons)
+  introns <- data.frame(scaffold = character(l), intronStart = numeric(l), intronEnd = numeric(l), gene = character(l), stringsAsFactors = FALSE)
+  rowCounter <- 1
+  for(gene in genes){
+    # gene <- genes[1]
+    geneI <- which(exons$gene == gene)
+    if(length(geneI) < 2){
+      next # no introns
+    }
+    intronStart <- exons[geneI[-length(geneI)], 3] + 1
+    intronEnd <- exons[geneI[-1], 2] - 1
+    if(!all(intronEnd - intronStart > 0)){
+      stop("zero sized intron???")
+    }
+    for(i in c(1:length(intronStart))){
+      introns[rowCounter, "scaffold"] <- exons[geneI[1], 1]
+      introns[rowCounter, "intronStart"]    <- intronStart[i]
+      introns[rowCounter, "intronEnd"]      <- intronEnd[i]
+      introns[rowCounter, "gene"]     <- gene
+      rowCounter <- rowCounter + 1
+    }
+    cat(rowCounter,"/",l,"\r")
+  }
+  introns[1:(rowCounter-1),]
+}
+
+gene2intergenicBed <- function(genes, scaffoldLengths){
+  #  read a data.frame from a bed file and return the complement keeping fixed a groups
+  scaffolds <- unique(genes$scaffold)
+  l <- nrow(genes)
+  intergenic <- data.frame(scaffold = character(l), interStart = numeric(l), interEnd = numeric(l), stringsAsFactors = FALSE)
+  rowCounter <- 1
+  for(scaffold in scaffolds){
+    # scaffold <- scaffolds[1]
+    scafI <- which(genes$scaffold == scaffold)
+    firstStart <- 1
+    lastEnd <- scaffoldLengths$length[which(scaffoldLengths$scaffold == scaffold)]
+    if(length(scafI) > 0){ # if at least one gene in scaffold
+      firstEnd <- genes[scafI[1], 2] - 1
+      lastStart <- genes[scafI[length(scafI)], 3] + 1
+      if(length(scafI) > 1){ # there is at least one intergenic region between genes
+        interStart <- c(firstStart, genes[scafI[-length(scafI)], 3] + 1, lastStart)
+        interEnd <- c(firstEnd, genes[scafI[-1], 2] - 1, lastEnd)
+      }else{
+        interStart <- c(firstStart, lastStart)
+        interEnd <- c(firstEnd, lastEnd)
+      }
+    }else{ # if no genes
+      interStart <- 1
+      interEnd <- lastEnd
+    }
+    for(i in c(1:length(interStart))){
+      intergenic[rowCounter, "scaffold"] <- scaffold
+      intergenic[rowCounter, "interStart"]  <- interStart[i]
+      intergenic[rowCounter, "interEnd"]      <- interEnd[i]
+      rowCounter <- rowCounter + 1
+      cat(rowCounter,"/",l,"\r")
+    }
+  }
+  intergenic[1:(rowCounter-1),]
+}
+
 table2dataFrame <- function(l){
   # convert a table to an x,y data.frame
   h <- table(l)

@@ -188,7 +188,7 @@ sub buildPaths{
     # return standard file names and paths
     my $binomial = shift @_;
     my $pabAnot = shift @_;
-    $binomial =~ /^([A-Z])[a-z]+\s+([a-z]+)$/ or die;
+    $binomial =~ /^([A-Z])[a-z]+\s+([a-z]+)$/ or die $binomial;
     my $g = lc($1);
     my $spEpithet = $2;
     my $pab = $g.substr($spEpithet, 0, 2);

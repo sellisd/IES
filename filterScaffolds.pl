@@ -82,18 +82,17 @@ my $outgff = Bio::Tools::GFF->new('-file'      => '>'.$gffOut,
 my $geneCount;
 my $geneCountFilt;
 while(my $feature = $gffO->next_feature()){
-    my $type = $feature->primary_tag;
-    next unless($type eq 'gene');
-    $geneCount++;
-    my $name = $feature->primary_id;
-    $name =~ s/($prefix)G// or die;
     my $scaffold = $feature->seq_id;
+    my $type = $feature->primary_tag;
+    $geneCount++ if $type eq 'gene';;
     if(defined($scL{$scaffold})){
+	$outgff->write_feature($feature);
+	next unless($type eq 'gene');
+	my $name = $feature->primary_id;
+	$name =~ s/($prefix)G// or die;
 	$genesInScaf{$name} = $feature->seq_id;
 	$geneCountFilt++;
-	$outgff->write_feature($feature);
     }
-
    #  print $feature->primary_id, "\n";
    #  print $feature->primary_tag, "\n";
    #  print $feature->source_tag, "\n";

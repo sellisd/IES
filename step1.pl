@@ -45,7 +45,7 @@ system("./scaffoldStats.pl /home/dsellis/data/IES/caudatum/caudatum_43c3d_assemb
 # filter scaffolds
 # ----------------
 
-if(1){
+if(0){
     foreach my $sp (keys %notation){
 	my $fsref = buildPaths($sp, $notation{$sp}{'annotation'});
 	my @args = (
@@ -68,7 +68,7 @@ if(1){
 
 #find /home/dsellis/data/IES/analysis/ -name "*.protein.fa"
 if(0){
-make_path("/home/dsellis/data/IES/analysis/protdb/");
+    make_path("/home/dsellis/data/IES/analysis/protdb/");
 system('cat /home/dsellis/data/IES/analysis/filtscaf/ptr.protein.fa \
      /home/dsellis/data/IES/analysis/filtscaf/ppe.protein.fa \
      /home/dsellis/data/IES/analysis/filtscaf/ppr.protein.fa \
@@ -115,7 +115,17 @@ if(0){
 
 
 # check if we need to merge floating IES
-
+if(1){
+    system "mkdir ~/data/IES/analysis/bed/";
+    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/ppr.gff ~/data/IES/analysis/bed/ppr &";
+    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pbi.gff ~/data/IES/analysis/bed/pbi &";
+    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pte.gff ~/data/IES/analysis/bed/pte &";
+    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/ppe.gff ~/data/IES/analysis/bed/ppe &";
+    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pse.gff ~/data/IES/analysis/bed/pse &";
+    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/poc.gff ~/data/IES/analysis/bed/poc &";
+    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/ptr.gff ~/data/IES/analysis/bed/ptr &";
+    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pca.gff ~/data/IES/analysis/bed/pca";
+}
 # make genebank files and incorporate ies information
 
 if(0){

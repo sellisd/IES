@@ -43,7 +43,7 @@ for(my $i = 0; $i <= $#files ; $i+=$block){
     print PBS 'echo telos',"\n";
     print PBS 'date',"\n";
     close PBS;
-#    system "qsub msa.".$counter.".pbs";
+    system "qsub msa.".$counter.".pbs";
     print "qsub\tmsa.".$counter.".pbs\n";
     $counter++;
  #   my $waiting = `qstat |grep q1hour|awk '\$5!="C"'|wc`;
