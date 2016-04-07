@@ -17,7 +17,7 @@ my $header = readline(N);
 my %notation;
 while(my $line = <N>){
     chomp $line;
-    (my $abr, my $binomial, my $annotation, my $prefix) = split "\t", $line;
+(my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
     $notation{$binomial} = {
 	'annotation' => $annotation,
 	'prefix'     => $prefix
@@ -45,22 +45,22 @@ system("./scaffoldStats.pl /home/dsellis/data/IES/caudatum/caudatum_43c3d_assemb
 # filter scaffolds
 # ----------------
 
-if(0){
-foreach my $sp (keys %notation){
-    my $fsref = buildPaths($sp, $notation{$sp}{'annotation'});
-    my @args = (
-	'-length',  catfile($homeD, $fsref->{'scaffoldF'}),
-	'-protein', catfile($homeD, $fsref->{'proteinF'}),
-	'-gff',     catfile($homeD, $fsref->{'anotF'}),
-	'-species', $fsref->{'pab'},
-	'-gene',    catfile($homeD, $fsref->{'geneF'}),
-	'-ies',     catfile($homeD, $fsref->{'iesF'}),
-	'-outdir',  catfile($homeD, '/data/IES/analysis/filtscaf/'),
-	'-cutoff',  $scafCutoff
-	);
-    print "@args\n";
-    system("./filterScaffolds.pl", @args);
-}
+if(1){
+    foreach my $sp (keys %notation){
+	my $fsref = buildPaths($sp, $notation{$sp}{'annotation'});
+	my @args = (
+	    '-length',  catfile($homeD, $fsref->{'scaffoldF'}),
+	    '-protein', catfile($homeD, $fsref->{'proteinF'}),
+	    '-gff',     catfile($homeD, $fsref->{'anotF'}),
+	    '-species', $fsref->{'pab'},
+	    '-gene',    catfile($homeD, $fsref->{'geneF'}),
+	    '-ies',     catfile($homeD, $fsref->{'iesF'}),
+	    '-outdir',  catfile($homeD, '/data/IES/analysis/filtscaf/'),
+	    '-cutoff',  $scafCutoff
+	    );
+	print "@args\n";
+	system("./filterScaffolds.pl", @args);
+    }
 }
 
 # make BLAST protein database
