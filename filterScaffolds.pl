@@ -51,7 +51,7 @@ die $usage if $help;
 my $prefix = abr2prefix($species, initF());
 die unless $prefix;
 make_path($outdir) unless -d $outdir;
-
+my $gffOut = catfile($outdir, $species.'.gff');
 # find which scaffolds are larger than the cutoff
 print "Read scaffold lengths...";
 my %scL;
@@ -77,6 +77,8 @@ print "Building scaffold/gene hash...";
 my %genesInScaf;
 my $gffO = Bio::Tools::GFF->new('-file'        => $gff,
 				'-gff_version' => 3);
+my $outgff = Bio::Tools::GFF->new('-file'      => '>'.$gffOut,
+				  '-gff_version' => 3);
 my $geneCount;
 my $geneCountFilt;
 while(my $feature = $gffO->next_feature()){
@@ -89,7 +91,9 @@ while(my $feature = $gffO->next_feature()){
     if(defined($scL{$scaffold})){
 	$genesInScaf{$name} = $feature->seq_id;
 	$geneCountFilt++;
+	$outgff->write_feature($feature);
     }
+
    #  print $feature->primary_id, "\n";
    #  print $feature->primary_tag, "\n";
    #  print $feature->source_tag, "\n";
