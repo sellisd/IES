@@ -25,6 +25,7 @@ my $counter = 0;
 for(my $i = 0; $i <= $#files ; $i+=$block){
     open PBS, '>msa.'.$counter.'.pbs' or die $!;
     print PBS '#PBS -q q1hour',"\n";
+    print PBS '#PBS -m n', "\n"; # never send emails
     print PBS '#PBS -N msa.',$counter,"\n";
     print PBS '#PBS -e error.',$counter,"\n";
     print PBS '#PBS -o output.',$counter,"\n";
