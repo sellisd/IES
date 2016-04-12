@@ -103,19 +103,19 @@ if(0){
 
 # find which IES are floating
 if(0){
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ppr.ies.tab > ~/data/IES/analysis/filtscaf/ppr.ies.float";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pbi.ies.tab > ~/data/IES/analysis/filtscaf/pbi.ies.float";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pte.ies.tab > ~/data/IES/analysis/filtscaf/pte.ies.float";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ppe.ies.tab > ~/data/IES/analysis/filtscaf/ppe.ies.float";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pse.ies.tab > ~/data/IES/analysis/filtscaf/pse.ies.float";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/poc.ies.tab > ~/data/IES/analysis/filtscaf/poc.ies.float";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ptr.ies.tab > ~/data/IES/analysis/filtscaf/ptr.ies.float";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pca.ies.tab > ~/data/IES/analysis/filtscaf/pca.ies.float";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ppr.ies.tab";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pbi.ies.tab";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pte.ies.tab";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ppe.ies.tab";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pse.ies.tab";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/poc.ies.tab";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ptr.ies.tab";
+    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pca.ies.tab";
 }
 
 
 # check if we need to merge floating IES
-if(1){
+if(0){
     system "mkdir ~/data/IES/analysis/bed/";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/ppr.gff ~/data/IES/analysis/bed/ppr &";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pbi.gff ~/data/IES/analysis/bed/pbi &";
