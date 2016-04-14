@@ -3,14 +3,32 @@ use warnings;
 use strict;
 use lib'.';
 use functions;
+use Getopt::Long;
+my $help;
+my $tabF;
+my $bedF;
+my $floatF;
+my $usage = <<HERE;
 
-#read tab file (output from iesInfo.pl) with ies information and check if an IES is floating
+read tab file (output from iesInfo.pl) with ies information and check if an IES is floating
 
-my $tabF = $ARGV[0];
-my $floatF = $tabF;
-my $bedF = $tabF;
-$floatF =~ s/\.tab/.float/ or die $!;
-$bedF =~ s/\.tab/.be/ or die $!;
+usage annotateFloating.pl [OPTIONS]
+
+where OPTIONS can be:
+
+    -tabF:   input tab file
+    -floatF: output file with floating annotation
+    -bedF:   output file in bed format
+
+HERE
+
+die $usage unless(GetOptions(
+		      'help|?'   => \$help,
+		      'tabF=s'   => \$tabF,
+		      'bedF=s'   => \$bedF,
+		      'floatF=s' => \$floatF
+		  ));
+
 open IN, $tabF or die $!;
 open FL, '>'.$floatF or die $!;
 open BD, '>'.$bedF or die $!;

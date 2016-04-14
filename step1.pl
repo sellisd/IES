@@ -102,15 +102,15 @@ if(0){
 }
 
 # find which IES are floating
-if(0){
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ppr.ies.tab";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pbi.ies.tab";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pte.ies.tab";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ppe.ies.tab";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pse.ies.tab";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/poc.ies.tab";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/ptr.ies.tab";
-    system "./annotateFloating.pl ~/data/IES/analysis/filtscaf/pca.ies.tab";
+if(1){
+    system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/ppr.ies.tab -floatF ~/data/IES/analysis/filtscaf/ppr.ies.float -bedF ~/data/IES/analysis/bed/ppr.ies.be";
+    system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/pbi.ies.tab -floatF ~/data/IES/analysis/filtscaf/pbi.ies.float -bedF ~/data/IES/analysis/bed/pbi.ies.be";
+    system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/pte.ies.tab -floatF ~/data/IES/analysis/filtscaf/pte.ies.float -bedF ~/data/IES/analysis/bed/pte.ies.be";
+    system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/ppe.ies.tab -floatF ~/data/IES/analysis/filtscaf/ppe.ies.float -bedF ~/data/IES/analysis/bed/ppe.ies.be";
+    system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/pse.ies.tab -floatF ~/data/IES/analysis/filtscaf/pse.ies.float -bedF ~/data/IES/analysis/bed/pse.ies.be";
+    system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/poc.ies.tab -floatF ~/data/IES/analysis/filtscaf/poc.ies.float -bedF ~/data/IES/analysis/bed/poc.ies.be";
+    system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/ptr.ies.tab -floatF ~/data/IES/analysis/filtscaf/ptr.ies.float -bedF ~/data/IES/analysis/bed/ptr.ies.be";
+    system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/pca.ies.tab -floatF ~/data/IES/analysis/filtscaf/pca.ies.float -bedF ~/data/IES/analysis/bed/pca.ies.be";
 }
 
 

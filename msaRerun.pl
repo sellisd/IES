@@ -14,11 +14,11 @@ my $help;
 my $step;
 
 #first round: 
-#./msaRerun.pl -toq q1hour -step 1 -in run1.dat -out run2.dat
+#./msaRerun.pl -toq q1hour -step 1 -in run1.dat -out run2.dat >msa2.log
 #second round:
-#./msaRerun.pl -toq q1day -step 1 -in run2.dat -out run3.dat
+#./msaRerun.pl -toq q1day -step 1 -in run2.dat -out run3.dat >msa3.log
 #third round:
-#./msaRerun.pl -toq q1week -step 1 -in run3.dat -out run4.dat
+#./msaRerun.pl -toq q1week -step 1 -in run3.dat -out run4.dat >msa4.log
 
 my $usage = <<HERE;
 
