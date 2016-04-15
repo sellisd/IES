@@ -21,7 +21,15 @@ while(my $line = <N>){
     $notation{$binomial} = {
 	'annotation' => $annotation,
 	'prefix'     => $prefix,
-	'abr'        => $abbreviation
+	'abr'        => $abbreviation,
+	'datapath'   => $datapath,
+	'taxId'      => $taxId,
+	'geneGff'    => $geneGff,
+	'cdsF'       => $cdsF,
+	'protF'      => $protF,
+	'geneF'      => $geneF,
+	'MacF'       => $MacF,
+        'iesGff'     => $iesGff
     };
 }
 close N;
@@ -153,7 +161,7 @@ if(0){
 
 
 # find overlap in bed files
-if(1){
+if(0){
     foreach my $sp (keys %notation){
 	my $abr = $notation{$sp}{'abr'};
 	next if $abr eq 'pso';
