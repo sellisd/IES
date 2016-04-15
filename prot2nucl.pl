@@ -3,6 +3,7 @@ use warnings;
 use strict;
 use Bio::AlignIO;
 use Bio::SeqIO;
+
 #read a protein multiple sequence alignment and replace the aligned proteins by nucleotide sequences
 
 my @dnaF = qw#
@@ -23,22 +24,25 @@ foreach my $fileIN (@dnaF){
 	my $sequence = $seqO->seq();
 	#replace T in name with P
 	$header =~ s/^(.+)T(\d+)$/$1P$2/;
-	$seqIndexH{$header} = $sequence;
+	if(defined($seqIndexH{$header})){
+	    die "duplicate gene name:", $seqIndexH{$header};
+	    #make sure names are unique
+	}else{
+	    $seqIndexH{$header} = $sequence;
+	}
     }
 }
-
 
 my @files = @ARGV;
 print "read alignments\n";
 foreach my $alnF (@files){
     next unless -f $alnF;
-    die unless $alnF =~ /\.aln$/;
-#my $alnF = '/home/dsellis/data/IES_data/msas/alignments/aln/cluster.66.aln';
+    die unless $alnF =~ /\.aln.fa$/;
     my $outputF = $alnF;
     print "  $outputF\n";
-    $outputF =~ s/\.aln/.nucl.fa/ or die $!;
+    $outputF =~ s/\.aln\.fa$/.nucl.fa/ or die $!;
     my $alnStream = Bio::AlignIO->new('-file'   => $alnF,
-				      '-format' => 'clustalw');
+				      '-format' => 'Fasta');
     my $outputStream = Bio::SeqIO->new('-file'   => '>'.$outputF,
 				       '-format' => 'Fasta');
     while(my $alnO = $alnStream->next_aln()){
@@ -49,7 +53,8 @@ foreach my $alnF (@files){
 	    my $curPos = 0; # pointer to the current location in nucleotide coordinates
 	    if(defined($seqIndexH{$id})){	    
 		my $nuclSeq = $seqIndexH{$id};
-		$nuclSeq =~ s/[a-z]+//g; #drop any lowercase introns
+		# there should be no lowercase introns
+		die if $nuclSeq =~ /[a-z]/; #drop any lowercase introns
 		# for each aminoacid (unless it is a gap) print three nucleotides
 		for (my $c = 0; $c < length($seq); $c++){
 		    if (substr($seq,$c,1) eq '-'){
