@@ -18,12 +18,12 @@ make_path($logPath) unless -d $logPath;
 opendir DH, $fastaPath or die "$! $fastaPath";
 my @files = grep {/^cluster\.\d+\.fa$/} readdir(DH);
 
-my @randomSample;
-for(my $i = 0; $i <= 150; $i++){
-    push @randomSample, $files[rand @files];
-}
+# my @randomSample;
+# for(my $i = 0; $i <= 150; $i++){
+#     push @randomSample, $files[rand @files];
+# }
 my $totalTime = 0;
-foreach my $file (@randomSample){
+foreach my $file (@files){
 #    my $pid = $pm->start and next;
     my $outFile = $file;
     my $logFile = $file;
@@ -34,6 +34,9 @@ foreach my $file (@randomSample){
     my $logFP = catfile($logPath, $logFile);
     my $now = [gettimeofday];
     my $cmdl = "mafft --anysymbol --auto $inFP 1> $outFP 2> $logFP";
+    $file =~/^cluster\.(\d+)\.fa$/;
+    my $geneFamily = $1;
+    print $geneFamily, ' ';
     system $cmdl;
     my $elapsed = tv_interval($now);
     print $elapsed, "\n";
@@ -43,4 +46,4 @@ foreach my $file (@randomSample){
 }
 close DH;
 
-print "total: $totalTime sec for $#randomSample gene families\n";
+print "total: $totalTime sec for $#files gene families\n";
