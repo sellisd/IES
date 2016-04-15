@@ -81,11 +81,15 @@ gene2intergenicBed <- function(genes, scaffoldLengths){
       interEnd <- lastEnd
     }
     for(i in c(1:length(interStart))){
-      intergenic[rowCounter, "scaffold"] <- scaffold
-      intergenic[rowCounter, "interStart"]  <- interStart[i]
-      intergenic[rowCounter, "interEnd"]      <- interEnd[i]
-      rowCounter <- rowCounter + 1
-      cat(rowCounter,"/",l,"\r")
+      if(interStart[i] >= interEnd[i]){
+        # Exclude cases where genes are overlapping or have no intergenic space between them
+      }else{
+        intergenic[rowCounter, "scaffold"] <- scaffold
+        intergenic[rowCounter, "interStart"]  <- interStart[i]
+        intergenic[rowCounter, "interEnd"]      <- interEnd[i]
+        rowCounter <- rowCounter + 1
+        cat(rowCounter,"/",l,"\r")
+      }
     }
   }
   intergenic[1:(rowCounter-1),]
