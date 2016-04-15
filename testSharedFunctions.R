@@ -1,3 +1,6 @@
+
+# test function overlapping
+
 a <- data.frame(begin = 10, end = 20, strand = "+") 
 b1 <- data.frame(begin = 1, end = 2, strand = "+")
 b2 <- data.frame(begin = 1, end = 10, strand = "+")
@@ -27,3 +30,35 @@ testResultsB <- c(isTRUE(all.equal(overlapping(a, b1), 0)),
 if(!isTRUE(all(testResultsB))){
   stop(paste("failed tests for function overlapping, test No.",which(testResultsB == FALSE)))
 }
+
+# test function exon2intronsBed
+
+exons <- data.frame(scaffold = rep("sc1", 3),
+                    start = c(2, 7, 12), 
+                    end = c(5, 10, 20), 
+                    name = c("exon1", "exon2", "exon3"), 
+                    gene = rep("gene1", 3), stringsAsFactors = FALSE)
+introns <- data.frame(scaffold = rep("sc1", 2),
+                      intronStart = c(5, 10),
+                      intronEnd = c(7, 12),
+                      gene = rep("gene1", 2), stringsAsFactors = FALSE)
+if(!isTRUE(all.equal(introns, exon2intronsBed(exons)))){
+  stop(paste("failed tests for function exon2intronsBed"))
+}
+
+# test function gene to intergenic
+
+genes <- data.frame(scaffold = rep("sc1", 3),
+                    start = c(2, 7, 12),
+                    end = c(5, 10, 20),
+                    name = c("gene1", "gene2", "gene3"), stringsAsFactors = FALSE)
+scaffoldLengths <- data.frame(scaffold = "sc1", length = 30)
+
+intergenic <- data.frame(scaffold = rep("sc1", 4),
+                         interStart = c(0, 5, 10, 20),
+                         interEnd = c(2, 7, 12, 30), stringsAsFactors = FALSE)
+
+if(!isTRUE(all.equal(intergenic, gene2intergenicBed(genes, scaffoldLengths)))){
+  stop(paste("failed tests for function exon2intergenicBed"))
+}
+

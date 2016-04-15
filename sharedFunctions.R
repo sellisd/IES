@@ -20,7 +20,14 @@ prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
               'PCAU.43c3d.1.'  = 'Paramecium caudatum')
 
 exon2intronsBed <- function(exons){
-  #  read a data.frame from a bed file and return the complement keeping fixed a groups
+  #  read a data.frame from a bed file and return the complement keeping fixed a group
+  # INPUT: exons
+  # scaffold  (start   end]   name  gene
+  # sc1         2       5     exon1 gene1
+  # sc1         7      10     exon2 gene1
+  # sc1         12     20     exon3 gene1
+  # OUTPUT: introns
+
   genes <- unique(exons$gene)
   l <- nrow(exons)
   introns <- data.frame(scaffold = character(l), intronStart = numeric(l), intronEnd = numeric(l), gene = character(l), stringsAsFactors = FALSE)
@@ -31,9 +38,9 @@ exon2intronsBed <- function(exons){
     if(length(geneI) < 2){
       next # no introns
     }
-    intronStart <- exons[geneI[-length(geneI)], 3] + 1
-    intronEnd <- exons[geneI[-1], 2] - 1
-    if(!all(intronEnd - intronStart > 0)){
+    intronStart <- exons[geneI[-length(geneI)], 3]
+    intronEnd <- exons[geneI[-1], 2]
+    if(!all(intronEnd - intronStart > 1)){
       stop("zero sized intron???")
     }
     for(i in c(1:length(intronStart))){
@@ -57,20 +64,20 @@ gene2intergenicBed <- function(genes, scaffoldLengths){
   for(scaffold in scaffolds){
     # scaffold <- scaffolds[1]
     scafI <- which(genes$scaffold == scaffold)
-    firstStart <- 1
+    firstStart <- 0
     lastEnd <- scaffoldLengths$length[which(scaffoldLengths$scaffold == scaffold)]
     if(length(scafI) > 0){ # if at least one gene in scaffold
-      firstEnd <- genes[scafI[1], 2] - 1
-      lastStart <- genes[scafI[length(scafI)], 3] + 1
+      firstEnd <- genes[scafI[1], 2]
+      lastStart <- genes[scafI[length(scafI)], 3]
       if(length(scafI) > 1){ # there is at least one intergenic region between genes
-        interStart <- c(firstStart, genes[scafI[-length(scafI)], 3] + 1, lastStart)
-        interEnd <- c(firstEnd, genes[scafI[-1], 2] - 1, lastEnd)
+        interStart <- c(firstStart, genes[scafI[-length(scafI)], 3], lastStart)
+        interEnd <- c(firstEnd, genes[scafI[-1], 2], lastEnd)
       }else{
         interStart <- c(firstStart, lastStart)
         interEnd <- c(firstEnd, lastEnd)
       }
     }else{ # if no genes
-      interStart <- 1
+      interStart <- 0
       interEnd <- lastEnd
     }
     for(i in c(1:length(interStart))){

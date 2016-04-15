@@ -31,6 +31,7 @@ my $gffI = Bio::Tools::GFF->new('-file' => $gff,
 while(my $feature = $gffI->next_feature()){
     my $scaffold = $feature->seq_id;
     my $start = $feature->start;
+    $start--; # gff3 is [start, end] while in .bed is (start, end]
     my $end = $feature->end;
     my $type = $feature->primary_tag();
     my $id;
