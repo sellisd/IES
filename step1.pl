@@ -20,7 +20,8 @@ while(my $line = <N>){
 (my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
     $notation{$binomial} = {
 	'annotation' => $annotation,
-	'prefix'     => $prefix
+	'prefix'     => $prefix,
+	'abr'        => $abbreviation
     };
 }
 close N;
@@ -102,7 +103,7 @@ if(0){
 }
 
 # find which IES are floating
-if(1){
+if(0){
     system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/ppr.ies.tab -floatF ~/data/IES/analysis/filtscaf/ppr.ies.float -bedF ~/data/IES/analysis/bed/ppr.ies.be";
     system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/pbi.ies.tab -floatF ~/data/IES/analysis/filtscaf/pbi.ies.float -bedF ~/data/IES/analysis/bed/pbi.ies.be";
     system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/pte.ies.tab -floatF ~/data/IES/analysis/filtscaf/pte.ies.float -bedF ~/data/IES/analysis/bed/pte.ies.be";
@@ -126,6 +127,46 @@ if(0){
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/ptr.gff ~/data/IES/analysis/bed/ptr &";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pca.gff ~/data/IES/analysis/bed/pca";
 }
+
+# create bed files
+if(0){
+    system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/ppr.exon.be ~/data/IES/analysis/bed/ppr.intron.be";
+    system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/pbi.exon.be ~/data/IES/analysis/bed/pbi.intron.be";
+    system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/pte.exon.be ~/data/IES/analysis/bed/pte.intron.be";
+    system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/ppe.exon.be ~/data/IES/analysis/bed/ppe.intron.be";
+    system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/pse.exon.be ~/data/IES/analysis/bed/pse.intron.be";
+    system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/poc.exon.be ~/data/IES/analysis/bed/poc.intron.be";
+    system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/ptr.exon.be ~/data/IES/analysis/bed/ptr.intron.be";
+    system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/pca.exon.be ~/data/IES/analysis/bed/pca.intron.be";
+}
+
+if(0){
+    system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/ppr.gene.be ~/data/IES/analysis/bed/ppr.inter.be ~/data/IES/analysis/ppr.scaf";
+    system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/pbi.gene.be ~/data/IES/analysis/bed/pbi.inter.be ~/data/IES/analysis/pbi.scaf";
+    system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/pte.gene.be ~/data/IES/analysis/bed/pte.inter.be ~/data/IES/analysis/pte.scaf";
+    system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/ppe.gene.be ~/data/IES/analysis/bed/ppe.inter.be ~/data/IES/analysis/ppe.scaf";
+    system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/pse.gene.be ~/data/IES/analysis/bed/pse.inter.be ~/data/IES/analysis/pse.scaf";
+    system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/poc.gene.be ~/data/IES/analysis/bed/poc.inter.be ~/data/IES/analysis/poc.scaf";
+    system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/ptr.gene.be ~/data/IES/analysis/bed/ptr.inter.be ~/data/IES/analysis/ptr.scaf";
+    system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/pca.gene.be ~/data/IES/analysis/bed/pca.inter.be ~/data/IES/analysis/pca.scaf";
+}
+
+
+# find overlap in bed files
+if(1){
+    foreach my $sp (keys %notation){
+	my $abr = $notation{$sp}{'abr'};
+	next if $abr eq 'pso';
+	my $cmdl = 'bedtools intersect -a ~/data/IES/analysis/bed/'.$abr.'.ies.be'.
+	    ' -b ~/data/IES/analysis/bed/'.$abr.'.cds.be'.
+	    ' -b ~/data/IES/analysis/bed/'.$abr.'.intron.be'.
+	    ' -b ~/data/IES/analysis/bed/'.$abr.'.inter.be'.
+	    ' -names cds intron intergenic -wo > ~/data/IES/analysis/bed/'.$abr.'.IESin.be';
+	print $cmdl, "\n";
+	system $cmdl;
+    }
+}
+
 # make genebank files and incorporate ies information
 
 if(0){

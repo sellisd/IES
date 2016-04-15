@@ -7,32 +7,37 @@ use lib'.';
 use functions;
 
 # gather the data from 3 rounds of MSA on the cluster, if required prepare for local runs
+my $path = '/home/dsellis/data/IES/analysis/msas/';
+my @runs = qw/1 2/;
 
-my $run1F = '/home/dsellis/data/IES/analysis/msas/run1.dat';
-my $run1TF = '/home/dsellis/data/IES/analysis/msas/run1T.dat';
+foreach my $runNo (@runs){ 
+    my $runF = catfile($path,'run'.$runNo.'.dat');
+    my $runTF = catfile($path, 'run'.$runNo.'T.dat');
+    
+    my %map; # map of gene families in runs
 
-my %map1; # map of gene families in runs
-
-open R1, $run1F or die $!;
-while(my $line = <R1>){
-    chomp $line;
-    (my $run1, my $geneFamily) = split "\t", $line;
-    if(defined($map1{$run1})){
-	push @{$map1{$run1}}, $geneFamily;
-    }else{
-	$map1{$run1} = [$geneFamily];
+    open R, $runF or die $!;
+    while(my $line = <R>){
+	chomp $line;
+	(my $run, my $geneFamily) = split "\t", $line;
+	if(defined($map{$run})){
+	    push @{$map{$run}}, $geneFamily;
+	}else{
+	    $map{$run} = [$geneFamily];
+	}
     }
+    close R;
+    
+    my $failed = gather({'map'   => \%map,
+			 'runTF' => $runTF,
+			 'path'  => '/home/dsellis/data/IES/analysis/msas/run'.$runNo,
+			 'cpto'  => '/home/dsellis/data/IES/analysis/msas/all/'
+			});
+    
+    print 'round '.$runNo.' had: ', $#{$failed}+1, ' failed runs', "\n";
 }
-close R1;
 
-my $failed1 = gather({'map'   => \%map1,
-		  'runTF' => $run1TF,
-		  'path'  => '/home/dsellis/data/IES/analysis/msas/run1',
-		  'cpto'  => '/home/dsellis/data/IES/analysis/msas/all/'
-		 });
-
-print 'round 1 had: ', $#{$failed1}+1, ' failed runs', "\n";
-
+die;
 my %failedRunsH;
 foreach my $run (@$failed1){
     $failedRunsH{$run} = 1;
