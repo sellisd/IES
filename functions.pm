@@ -5,8 +5,41 @@ BEGIN{
     require Exporter;
     our $VERSION = 1.01;
     our @ISA = qw(Exporter);
-    our @EXPORT = qw(isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot initF success);
+    our @EXPORT = qw(run getNotation isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot initF success);
     our @EXPORT_OK = qw();
+}
+
+sub run{
+    my $cmdl = shift @_;
+    my $dryRun = shift @_;
+    print $cmdl,"\n";
+    system $cmdl unless($dryRun);
+}
+
+sub getNotation{
+    my $notationF = shift @_; # file with standard notation
+    open N, $notationF or die $!;
+    my $header = readline(N);
+    my %notation;
+    while(my $line = <N>){
+	chomp $line;
+	(my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
+	$notation{$binomial} = {
+	    'annotation' => $annotation,
+	    'prefix'     => $prefix,
+	    'abr'        => $abbreviation,
+	    'datapath'   => $datapath,
+	    'taxId'      => $taxId,
+	    'geneGff'    => $geneGff,
+	    'cdsF'       => $cdsF,
+	    'protF'      => $protF,
+	    'geneF'      => $geneF,
+	    'MacF'       => $MacF,
+	    'iesGff'     => $iesGff
+	};
+    }
+    close N;
+    return \%notation;
 }
 
 sub success{
