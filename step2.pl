@@ -6,28 +6,23 @@ use lib'.';
 use functions;
 use warnings;
 use strict;
-
 my $homeD = File::HomeDir->my_home;
 my $notationF =  catfile($homeD, 'data/IES/analysis/notation.tab');
 
-open N, $notationF or die $!;
-my $header = readline(N);
-my %notation;
-while(my $line = <N>){
-    chomp $line;
-(my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
-    $notation{$binomial} = {
-	'annotation' => $annotation,
-	'prefix'     => $prefix,
-	'abr'        => $abbreviation
-    };
-}
-close N;
+my $nr = getNotation($notationF);
 
-if(1){
+if(0){
     system "./msaLocal.pl > msaLocal.log";
+    system "Rscript --vanilla ./filterProtAlign.R";
+    my $cmdl = './prot2nucl.pl';
+    foreach my $sp (keys %$nr){
+	my %pab = %{$nr->{$sp}}; #de-reference for less typing
+	$cmdl .= ' -cds '.catfile($pab{'datapath'}, $pab{'cdsF'});
+    }
+    $cmdl .= ' -cds /home/dsellis/data/IES/thermophila/gene/T_thermophila_June2014_CDS.fasta'; #add Tth
+#$cmdl .= ' -cds /home/dsellis/data/IES/thermophila/gene/T_thermophila_June2014.gene.fa'; #add Tth
+    $cmdl .= ' ~/data/IES/analysis/msas/filtered/*.aln.fa';
+    run($cmdl, 0);
 }
+system "./preparePhyldog.pl";
 
-if(1){
-    system "Rscript --vanilla ./filterProtAlign.R"
-}

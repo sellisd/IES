@@ -288,14 +288,24 @@ sub gene2species{
     my $string = shift @_;
     my $speciesName;
     my $abr = substr($string,0,4);
-    if($abr eq 'PCAU'){
-	$speciesName = 'Paramecium_caudatum';
-    }elsif($abr eq 'PSEX'){
-	$speciesName = 'Paramecium_sexaurelia';
-    }elsif($abr eq 'PTET'){
-	$speciesName = 'Paramecium_tetraurelia';
+    if($abr eq 'PPRI'){
+	$speciesName = 'Paramecium_primaurelia';
     }elsif($abr eq 'PBIA'){
 	$speciesName = 'Paramecium_biaurelia';
+    }elsif($abr eq 'PTET'){
+	$speciesName = 'Paramecium_tetraurelia';
+    }elsif($abr eq 'PPEN'){
+	$speciesName = 'Paramecium_pentaurelia';
+    }elsif($abr eq 'PSEX'){
+	$speciesName = 'Paramecium_sexaurelia';
+    }elsif($abr eq 'POCT'){
+	$speciesName = 'Paramecium_octaurelia';
+    }elsif($abr eq 'PTRE'){
+	$speciesName = 'Paramecium_tredecaurelia';
+    }elsif($abr eq 'PSON'){
+	$speciesName = 'Paramecium_sonneborni';
+    }elsif($abr eq 'PCAU'){
+	$speciesName = 'Paramecium_caudatum';
     }elsif($abr eq 'TTHE'){
 	$speciesName = 'Tetrahymena_thermophila';
     }else{

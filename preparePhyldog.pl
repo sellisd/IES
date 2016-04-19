@@ -5,10 +5,10 @@ use File::Path qw(make_path);
 use Bio::SeqIO;
 use lib'.';
 use functions;
-my $inputFiltered = '/home/dsellis/data/IES_data/msas/alignments/filtered/'; 
-#my $inputTreesF = '/home/dsellis/data/IES_data/msas/tree/trees.tre';
+use Getopt::Long;
 
-my $outputPath = '/home/dsellis/data/IES_data/msas/phyldog/';
+my $inputFiltered = '/home/dsellis/data/IES/analysis/msas/filtered/';
+my $outputPath = '/home/dsellis/data/IES/analysis/phyldog/';
 my $fastaPath = 'aln/';
 my $linkPath = 'link/';
 
@@ -16,7 +16,7 @@ my $linkPath = 'link/';
 
 # do not use branch lengths
 #my $speciesTree = '(Tetrahymena_thermophila:5,(Paramecium_caudatum:0.3,(Paramecium_sexaurelia:0.15,(Paramecium_tetraurelia:0.1,Paramecium_biaurelia:0.1)):0.2)):0.01;';
-my $speciesTree = '(Tetrahymena_thermophila,(Paramecium_caudatum,(Paramecium_sexaurelia,(Paramecium_tetraurelia,Paramecium_biaurelia))));';
+#my $speciesTree = '(Tetrahymena_thermophila,(Paramecium_caudatum,(Paramecium_sexaurelia,(Paramecium_tetraurelia,Paramecium_biaurelia))));';
 
 #make required folders
 make_path($outputPath.$fastaPath) unless -d $outputPath.$fastaPath;
@@ -25,9 +25,9 @@ make_path($outputPath.'results') unless -d $outputPath.'results';
 make_path($outputPath.'run') unless -d $outputPath.'run';
 #make_path($outputPath.$treePath) unless -d $outputPath.$treePath;
 
-open ST, '>'.$outputPath.'speciesTree.tre' or die;
-print ST $speciesTree."\n";
-close ST;
+# open ST, '>'.$outputPath.'speciesTree.tre' or die;
+# print ST $speciesTree."\n";
+# close ST;
 
 #read all trees in memory
 #my %treesH;
@@ -46,7 +46,6 @@ my @charMats = grep {/cluster\.\d+\.nucl\.fa/} readdir(DH);
 foreach my $file (@charMats){
     $file =~ /cluster\.(\d+)\.nucl\.fa/;
     my $cluster = $1;
-    print $cluster,"\n";
     my $fastaFileSource = $inputFiltered.'cluster.'.$cluster.'.nucl.fa';
     my $fastaFileTarget = $outputPath.$fastaPath.$cluster.'.fasta'; 
     my $linkFile = $outputPath.$linkPath.$cluster.'.link';
@@ -59,9 +58,9 @@ foreach my $file (@charMats){
     while(my $seqO = $IF->next_seq()){
 	my $geneName = $seqO->display_id();
 	my $speciesName  = &gene2species($geneName);
-	if($speciesName eq 'Tetrahymena_thermophila'){
-	    next;
-	}
+	# if($speciesName eq 'Tetrahymena_thermophila'){
+	#     next;
+	# }
 	if(defined($linkH{$speciesName})){
 	    push @{$linkH{$speciesName}}, $geneName;
 	}else{

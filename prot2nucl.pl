@@ -3,20 +3,28 @@ use warnings;
 use strict;
 use Bio::AlignIO;
 use Bio::SeqIO;
+use Getopt::Long;
+my $help;
+my @cds;
+my $usage = <<HERE;
 
-#read a protein multiple sequence alignment and replace the aligned proteins by nucleotide sequences
+read a protein multiple sequence alignment and replace the aligned proteins by nucleotide sequences
+usage prot2nucl.pl [OPTIONS] 
+where OPTIONS can be:
+    -cds:    alignment file (fasta format). Multiple files can be specified with multiple -cds options
+    -help|?: this help screen
 
-my @dnaF = qw#
-/home/dsellis/data/IES_data/pbiaurelia/pbiaurelia_V1-4_annotation_v2.0.cds.fa
-/home/dsellis/data/IES_data/ptetraurelia/ptetraurelia_mac_51_annotation_v2.0.cds.fa
-/home/dsellis/data/IES_data/psexaurelia/psexaurelia_AZ8-4_annotation_v2.0.cds.fa
-/home/dsellis/data/IES_data/pcaudatum_43c3d_annotation_v2.0/pcaudatum_43c3d_annotation_v2.0.cds.fa
-/home/dsellis/data/IES_data/tthermophila/T_thermophila_June2014_CDS.fasta
-#;
+HERE
+
+die $usage unless (GetOptions('help|?' => \$help,
+			      'cds=s'  => \@cds));
+die $usage if $help;
+die $usage if $#ARGV < 0;
 
 my %seqIndexH;
 print " build a hash of gene names and sequences\n";
-foreach my $fileIN (@dnaF){
+foreach my $fileIN (@cds){
+    print $fileIN, "\n";
     my $stream = Bio::SeqIO->new('-file'   => $fileIN,
 				 '-format' => 'Fasta');
     while(my $seqO = $stream->next_seq){
@@ -39,7 +47,6 @@ foreach my $alnF (@files){
     next unless -f $alnF;
     die unless $alnF =~ /\.aln.fa$/;
     my $outputF = $alnF;
-    print "  $outputF\n";
     $outputF =~ s/\.aln\.fa$/.nucl.fa/ or die $!;
     my $alnStream = Bio::AlignIO->new('-file'   => $alnF,
 				      '-format' => 'Fasta');
@@ -68,7 +75,7 @@ foreach my $alnF (@files){
 					    '-seq'        => $newseq);
 		$outputStream->write_seq($newSeqO);
 	    }else{
-		die;
+		die $id;
 	    }
 	}
     }
