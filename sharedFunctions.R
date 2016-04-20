@@ -59,9 +59,10 @@ gene2intergenicBed <- function(genes, scaffoldLengths){
   #  read a data.frame from a bed file and return the complement keeping fixed a groups
   scaffolds <- unique(genes$scaffold)
   l <- nrow(genes)
-  intergenic <- data.frame(scaffold = character(l), interStart = numeric(l), interEnd = numeric(l), stringsAsFactors = FALSE)
+  intergenic <- data.frame(scaffold = character(l), interStart = numeric(l), interEnd = numeric(l), name = character(l), stringsAsFactors = FALSE)
   rowCounter <- 1
   for(scaffold in scaffolds){
+    nameId <- 1
     # scaffold <- scaffolds[1]
     scafI <- which(genes$scaffold == scaffold)
     firstStart <- 0
@@ -84,9 +85,11 @@ gene2intergenicBed <- function(genes, scaffoldLengths){
       if(interStart[i] >= interEnd[i]){
         # Exclude cases where genes are overlapping or have no intergenic space between them
       }else{
-        intergenic[rowCounter, "scaffold"] <- scaffold
-        intergenic[rowCounter, "interStart"]  <- interStart[i]
-        intergenic[rowCounter, "interEnd"]      <- interEnd[i]
+        intergenic[rowCounter, "scaffold"]   <- scaffold
+        intergenic[rowCounter, "interStart"] <- interStart[i]
+        intergenic[rowCounter, "interEnd"]   <- interEnd[i]
+        intergenic[rowCounter, "name"]       <- paste0(scaffold, '.', nameId)
+        nameId <- nameId + 1
         rowCounter <- rowCounter + 1
         cat(rowCounter,"/",l,"\r")
       }

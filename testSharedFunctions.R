@@ -56,7 +56,8 @@ scaffoldLengths <- data.frame(scaffold = "sc1", length = 30)
 
 intergenic <- data.frame(scaffold = rep("sc1", 4),
                          interStart = c(0, 5, 10, 20),
-                         interEnd = c(2, 7, 12, 30), stringsAsFactors = FALSE)
+                         interEnd = c(2, 7, 12, 30),
+                         name = c("sc1.1", "sc1.2", "sc1.3", "sc1.4"), stringsAsFactors = FALSE)
 
 if(!isTRUE(all.equal(intergenic, gene2intergenicBed(genes, scaffoldLengths)))){
   stop(paste("failed tests for function exon2intergenicBed"))
