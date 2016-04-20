@@ -24,5 +24,10 @@ if(0){
     $cmdl .= ' ~/data/IES/analysis/msas/filtered/*.aln.fa';
     run($cmdl, 0);
 }
-system "./preparePhyldog.pl";
 
+run('./runGblocks.pl ~/data/IES/analysis/msas/filtered/ > ~/data/IES/analysis/msas/filtered/gblocks.log', 1);
+run('./parseGblocks.pl  ~/data/IES/analysis/msas/filtered/ > ~/data/IES/analysis/msas/filtered/parsegblocks.log', 1);
+
+if(0){
+    system "./preparePhyldog.pl";
+}
