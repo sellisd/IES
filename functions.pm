@@ -12,8 +12,12 @@ BEGIN{
 sub run{
     my $cmdl = shift @_;
     my $dryRun = shift @_;
-    print $cmdl,"\n";
-    system $cmdl unless($dryRun);
+    if($dryRun){
+	print 'DRY-RUN ';
+    }else{
+	system $cmdl;
+    }
+    print $cmdl, "\n";
 }
 
 sub getNotation{
