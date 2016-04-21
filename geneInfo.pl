@@ -14,8 +14,6 @@ usage iesInfo.pl file
 usage: geneInfo.pl gffFile outBaseName
 HERE
 
-
-
 my $gff = $ARGV[0];
 my $outbn = $ARGV[1];
 my $cdsBEF = $outbn.'.cds.be';
@@ -34,6 +32,7 @@ while(my $feature = $gffI->next_feature()){
     $start--; # gff3 is [start, end] while in .bed is (start, end]
     my $end = $feature->end;
     my $type = $feature->primary_tag();
+    my $strand = $feature->strand();
     my $id;
     my $name;
     my $sequence;

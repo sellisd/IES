@@ -5,7 +5,7 @@ BEGIN{
     require Exporter;
     our $VERSION = 1.01;
     our @ISA = qw(Exporter);
-    our @EXPORT = qw(run getNotation isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot initF success);
+    our @EXPORT = qw(run getNotation isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot X2Y initF success);
     our @EXPORT_OK = qw();
 }
 
@@ -14,10 +14,12 @@ sub run{
     my $dryRun = shift @_;
     if($dryRun){
 	print 'DRY-RUN ';
+	print $cmdl, "\n";
     }else{
+	print $cmdl, "\n";
 	system $cmdl;
     }
-    print $cmdl, "\n";
+
 }
 
 sub getNotation{
@@ -184,6 +186,7 @@ sub prot2gene{
     my $prefixesR = shift @_;
     my $found = 0;
     my $geneId;
+    return $protId if(substr($protId, 0, 7) eq'TTHERM_'); # T. thermophila doesn't change naming
     foreach my $abr (keys %$prefixesR){
 	my $prefix = $prefixesR->{$abr};
 	if($protId =~ /^$prefix[P](\d+)$/){
@@ -203,6 +206,7 @@ sub gene2prot{
     my $prefixesR = shift @_;
     my $found = 0;
     my $protId;
+    return $geneId if(substr($geneId, 0, 7) eq'TTHERM_'); # T. thermophila doesn't change naming
     foreach my $abr (keys %$prefixesR){
 	my $prefix = $prefixesR->{$abr};
 	if($geneId =~ /^$prefix[G](\d+)$/){
@@ -212,6 +216,29 @@ sub gene2prot{
     }
     if($found == 1){
 	return $protId;
+    }else{
+	return;
+    }
+}
+
+sub X2Y{
+# transcript to gene: X2Y transcriptName, prefixesR, 'T', 'G'
+    my $XId = shift @_;
+    my $prefixesR = shift @_;
+    my $found = 0;
+    my $YId;
+    my $from = shift @_;
+    my $to = shift @_;
+    return $XId if(substr($XId, 0, 7) eq'TTHERM_'); # T. thermophila doesn't change naming
+    foreach my $abr (keys %$prefixesR){
+	my $prefix = $prefixesR->{$abr};
+	if($XId =~ /^$prefix$from(\d+)$/){
+	    $found++;
+	    $YId = $prefix.$to.$1;
+	}
+    }
+    if($found == 1){
+	return $YId;
     }else{
 	return;
     }

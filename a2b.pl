@@ -17,6 +17,7 @@ where OPTIONS can be:
   -to:     output file format
   -msa:    true if input is multiple sequence alignment (False by default)
   -help|?: this help screen
+
 HERE
 
 die $usage unless (GetOptions('help|?' => \$help,

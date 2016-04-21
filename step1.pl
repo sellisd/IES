@@ -142,32 +142,40 @@ if(0){
 
 
 # find overlap in bed files
-if(0){
-    foreach my $sp (keys %notation){
-	my $abr = $notation{$sp}{'abr'};
-	next if $abr eq 'pso';
-	my $cmdl = 'bedtools intersect -a ~/data/IES/analysis/bed/'.$abr.'.ies.be'.
-	    ' -b ~/data/IES/analysis/bed/'.$abr.'.cds.be'.
-	    ' -b ~/data/IES/analysis/bed/'.$abr.'.intron.be'.
-	    ' -b ~/data/IES/analysis/bed/'.$abr.'.inter.be'.
-	    ' -names cds intron intergenic -wo > ~/data/IES/analysis/bed/'.$abr.'.IESin.be';
-	print $cmdl, "\n";
-	system $cmdl;
-    }
+foreach my $sp (keys %$nr){
+    my %pab = %{$nr->{$sp}};
+    my $abr = $pab{'abr'};
+#    next if $abr eq 'pso';
+    my $cmdl = 'bedtools intersect -a ~/data/IES/analysis/bed/'.$abr.'.ies.be'.
+	' -b ~/data/IES/analysis/bed/'.$abr.'.cds.be'.
+	' -b ~/data/IES/analysis/bed/'.$abr.'.intron.be'.
+	' -b ~/data/IES/analysis/bed/'.$abr.'.inter.be'.
+	' -names cds intron intergenic -wo > ~/data/IES/analysis/bed/'.$abr.'.IESin.be';
+    run($cmdl, 1);
 }
 
+# make IES table for iesDB
+my $mergeF = '~/data/IES/analysis/filtscaf/ies2merge.dat';
+$cmdl = "./reannotateFloating.pl ~/data/IES/analysis/filtscaf/*.ies.float > $mergeF";
+run($cmdl, 1);
+foreach my $sp (keys %$nr){
+    my %pab = %{$nr->{$sp}};
+    my $abr = $pab{'abr'};
+    my $cmdl = './iesdbTable.pl -merge '.$mergeF.
+	' -iesin ~/data/IES/analysis/bed/'.$abr.'.IESin.be'.
+	' -iestab ~/data/IES/analysis/filtscaf/'.$abr.'.ies.tab'.
+	' -float ~/data/IES/analysis/filtscaf/'.$abr.'.ies.float'.
+	' > ~/data/IES/analysis/iesdb/'.$abr.'.iesdb';
+    run($cmdl, 1);
+}
+#./maleTables.pl 
 # make genebank files and incorporate ies information
 
-if(0){
-    system "./makeGeneBank.pl -species ppr";
-    system "./makeGeneBank.pl -species pbi";
-    system "./makeGeneBank.pl -species pte";
-    system "./makeGeneBank.pl -species ppe";
-    system "./makeGeneBank.pl -species pse";
-    system "./makeGeneBank.pl -species poc";
-    system "./makeGeneBank.pl -species ptr";
-    system "./makeGeneBank.pl -species pso";
-    system "./makeGeneBank.pl -species pca";
+die;
+for my $sp (keys %$nr){
+    my %pab = %{$nr->{$sp}};
+    my $cmdl = './makeGeneBank.pl -species '.$pab{'abr'};
+    run($cmdl, 1);
 }
 
 if(0){
