@@ -13,6 +13,7 @@ my $homeD = File::HomeDir->my_home;
 my $notationF =  catfile($homeD, 'data/IES/analysis/notation.tab');
 
 my $nr = getNotation($notationF);
+
 my %notation;
 
 # Variables
@@ -187,6 +188,7 @@ make_path($tablesP) unless -d $tablesP;
 foreach my $sp (keys %$nr){
     my %pab = %{$nr->{$sp}};
     my $abr = $pab{'abr'};
+#    next if $abr eq 'pso';
     my $cmdl = 'Rscript --vanilla ./iesInGenes.R '.
 	'~/data/IES/analysis/bed/'.$abr.'.IESin.be '.
 	'~/data/IES/analysis/iesdb/'.$abr.'.cdsdb '.
