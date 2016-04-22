@@ -18,6 +18,7 @@ my %notation;
 # Variables
 my $scafCutoff = 10_000;
 
+my $tablesP = catfile($homeD, 'data/IES/analysis/tables');
 
 # calculate scaffold lengths
 # --------------------------
@@ -168,6 +169,32 @@ foreach my $sp (keys %$nr){
 	' > ~/data/IES/analysis/iesdb/'.$abr.'.iesdb';
     run($cmdl, 1);
 }
+
+# make CDS table for iesDB
+my $silixout = '/home/dsellis/data/IES/analysis/allvsall/blastout/silix.output';
+foreach my $sp (keys %$nr){
+    my %pab = %{$nr->{$sp}};
+    my $abr = $pab{'abr'};
+    my $cmdl = './cdsdbTable.pl -silixout '.$silixout.
+	' -gff '.catfile($pab{'datapath'}, $pab{'geneGff'}).
+	' > ~/data/IES/analysis/iesdb/'.$abr.'.cdsdb';
+    run($cmdl, 1);
+}
+
+# find transcript coordinates for IES in genes
+
+make_path($tablesP) unless -d $tablesP;
+foreach my $sp (keys %$nr){
+    my %pab = %{$nr->{$sp}};
+    my $abr = $pab{'abr'};
+    my $cmdl = 'Rscript --vanilla ./iesInGenes.R '.
+	'~/data/IES/analysis/bed/'.$abr.'.IESin.be '.
+	'~/data/IES/analysis/iesdb/'.$abr.'.cdsdb '.
+	catfile($tablesP, $abr.'.iesInGenes');
+    run($cmdl, 1);
+}
+
+exit(0);
 #./maleTables.pl 
 # make genebank files and incorporate ies information
 
