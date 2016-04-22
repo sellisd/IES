@@ -58,11 +58,12 @@ while(my $line = <FL>){
     $ies{$id}{'inCDS'} = 0;
     $ies{$id}{'inInter'} = 0;
     $ies{$id}{'inIntron'} = 0;
+    $ies{$id}{'startLocs'} = [split(',', $startLocs)];
+    $ies{$id}{'endLocs'} = [split(',', $endLocs)];
 }
-
 close FL;
 
-# read ies that overlap some element of interest
+# read ies that (partially or fully) overlap some element of interest
 open T, $iesinF or die $!;
 while(my $line = <T>){
     chomp $line;
@@ -81,21 +82,9 @@ while(my $line = <T>){
 }
 close T;
 
-# calculate if fully within CDS
-foreach my $name (keys %ies){
-    if($ies{$name}{'inInter'} == 0 and
-       $ies{$name}{'inIntron'} == 0 and
-       $ies{$name}{'inCDS'} > 0){
-# fully in CDS
-	$ies{$name}{'innCDS'} = 1;
-    }else{
-	$ies{$name}{'innCDS'} = 0;
-    }	
-}
-
 open TAB, $iestabF or die $!;
 readline(TAB); # header
-printab(('id', 'scaffold', 'altSeqNo', 'start', 'end', 'upstreamFlank', 'downstreamFlank', 'length', 'isFloating', 'merged', 'inCDS', 'inInter', 'inIntron', 'innCDS', 'front', 'back', 'seq'));
+printab(('id', 'scaffold', 'altSeqNo', 'startLocs', 'endLocs', 'upstreamFlank', 'downstreamFlank', 'length', 'isFloating', 'merged', 'inCDS', 'inInter', 'inIntron', 'front', 'back', 'seq'));
 while(my $line = <TAB>){
     chomp $line;
     (my $id, my $scaffold, my $altSeqNo, my $start, my $end, my $upstreamFlank, my $downstreamFlank, my $length, my $front, my $back, my $seq) = split " ", $line;
@@ -107,18 +96,12 @@ while(my $line = <TAB>){
 	    }
 	}
     }
-    my @ar = ($id, $scaffold, $altSeqNo, $start, $end, $upstreamFlank, $downstreamFlank, $length, $ies{$id}{'isFloating'}, $merged, $ies{$id}{'inCDS'}, $ies{$id}{'inInter'}, $ies{$id}{'inIntron'}, $ies{$id}{'innCDS'}, $front, $back, $seq);
+    my $floating = $ies{$id}{'isFloating'};
+    if($floating){
+	$start = join(',', @{$ies{$id}{'startLocs'}});
+	$end = join(',', @{$ies{$id}{'endLocs'}});
+    }
+    my @ar = ($id, $scaffold, $altSeqNo, $start, $end, $upstreamFlank, $downstreamFlank, $length, $floating, $merged, $ies{$id}{'inCDS'}, $ies{$id}{'inInter'}, $ies{$id}{'inIntron'}, $front, $back, $seq);
     printab(@ar);
-    # if(!defined($ies{$id}{'isFloating'})){
-    # 	# this ies exists in the tab file but not in the be?
-    # 	print $id;die;
-    #}
 }
 close TAB;
-# read tab
-# print line and add columns for floating inCD inInter inIntron fullyInCDS
-
-# IES location fullyInCDS nameOfGene orientation CDScoordinates
-
-# read from genebank file make table with 
-# scaffold geneBegin geneEnd strand gene orientation CDSlocations
