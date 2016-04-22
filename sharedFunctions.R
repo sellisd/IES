@@ -19,6 +19,64 @@ prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
               'PTRED.209.2.'   = 'Paramecium tredecaurelia',
               'PCAU.43c3d.1.'  = 'Paramecium caudatum')
 
+
+inTranscript <- function(cds, strand, qrange, inCDS){
+  #data frame should be sorted
+  if(!all(cds$start == sort(cds$start))){
+    stop("unsorted input")
+  }
+  cumLength <- 0
+  found <- 0
+  if(strand == 1){
+    for(i in c(1:nrow(cds))){
+      cdsL <- cds$end[i] - cds$start[i]
+      if(inCDS == cds$name[i]){
+        # partial sum
+        startT <- qrange[1] - cds$start[i]
+        endT <- qrange[2] - cds$start[i]
+        if(startT < 0){ # if partial match
+          startT <- 0
+        }
+        if(endT > cdsL){
+          endT <- cdsL
+        }
+        startT <- startT + cumLength
+        endT <- endT + cumLength
+        found <- 1
+        break
+      }else{
+        cumLength <- cumLength + cdsL
+      } 
+    }
+  }else if(strand == -1){
+    for(i in c(nrow(cds):1)){ # count backwards
+      cdsL <- cds$end[i] - cds$start[i]
+      if(inCDS == cds$name[i]){
+        startT <- cds$end[i] - qrange[2]
+        endT <- cds$end[i] - qrange[1]
+        if(startT < 0){
+          startT <- 0
+        }
+        if(endT > cdsL){
+          endT <- cdsL
+        }
+        startT <- startT + cumLength
+        endT <- endT + cumLength
+        found <- 1
+        break
+      }else{
+       cumLength <- cumLength + cdsL 
+      }
+    }
+  }else{
+    stop(paste("unknown strand", strand))
+  }
+  if(found == 0){
+    stop("query not in cds")
+  }
+  c(startT, endT)
+}
+
 exon2intronsBed <- function(exons){
   #  read a data.frame from a bed file and return the complement keeping fixed a group
   # INPUT: exons

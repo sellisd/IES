@@ -63,3 +63,22 @@ if(!isTRUE(all.equal(intergenic, gene2intergenicBed(genes, scaffoldLengths)))){
   stop(paste("failed tests for function exon2intergenicBed"))
 }
 
+
+# test function inTranscript
+cds <- data.frame(name = c("cds1", "cds2"), start = c(2, 8), end = c(6, 12), stringsAsFactors = FALSE)
+testResults <- c(isTRUE(all.equal(inTranscript(cds, 1, c(1, 3), "cds1"), c(0, 1))),
+                 isTRUE(all.equal(inTranscript(cds, 1, c(4, 6), "cds1"), c(2, 4))),
+                 isTRUE(all.equal(inTranscript(cds, 1, c(5, 7), "cds1"), c(3, 4))),
+                 isTRUE(all.equal(inTranscript(cds, 1, c(8, 9), "cds2"), c(4, 5))),
+                 isTRUE(all.equal(inTranscript(cds, -1, c(1, 3), "cds1"), c(7, 8))),
+                 isTRUE(all.equal(inTranscript(cds, -1, c(4, 6), "cds1"), c(4, 6))),
+                 isTRUE(all.equal(inTranscript(cds, -1, c(5, 7), "cds1"), c(4, 5))),
+                 isTRUE(all.equal(inTranscript(cds, -1, c(8, 9), "cds2"), c(3, 4))))
+
+
+if(!isTRUE(all(testResults))){
+  stop(paste("failed tests for function inTrancsript, test No.", which(testResults == FALSE), "\n"))
+}
+#inTranscript(cds, -1, c(1, 3), "cds1")
+
+                 
