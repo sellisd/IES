@@ -73,7 +73,7 @@ while(my $line = <T>){
     die if $start >= $end;
     die if $inStart > $inEnd;
     if($inType eq 'cds'){
-	$ies{$name}{'inCDS'}++;
+	$ies{$name}{'inCDS'} = $name1; # set now
     }elsif($inType eq 'intergenic'){
 	$ies{$name}{'inInter'}++;
     }elsif($inType eq 'intron'){
