@@ -48,12 +48,7 @@ foreach my $file (@charMats){
     $file =~ /cluster\.(\d+)\.nucl\.fa/;
     my $cluster = $1;
     my $fastaFileSource = $inputFiltered.'cluster.'.$cluster.'.nucl.fa';
-    my $fastaFileTarget = $outputPath.$fastaPath.$cluster.'.fasta'; 
-    my $linkFile = $outputPath.$linkPath.$cluster.'.link';
-#    my $treeFile = $outputPath.$treePath.$cluster.'.tre';
     my $IF = Bio::SeqIO->new('-file'   => $fastaFileSource,
-			     '-format' => 'Fasta');
-    my $OF = Bio::SeqIO->new('-file'   => '>'.$fastaFileTarget,
 			     '-format' => 'Fasta');
     my %linkH;
     my @seqObjects;
@@ -74,6 +69,10 @@ foreach my $file (@charMats){
 	print "skipping $cluster\n";
 	next;
     }
+    my $fastaFileTarget = $outputPath.$fastaPath.$cluster.'.fasta'; 
+    my $linkFile = $outputPath.$linkPath.$cluster.'.link';
+    my $OF = Bio::SeqIO->new('-file'   => '>'.$fastaFileTarget,
+			     '-format' => 'Fasta');
     foreach my $seqO (@seqObjects){
 	$OF->write_seq($seqO);
     }
