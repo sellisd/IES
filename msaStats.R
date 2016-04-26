@@ -3,8 +3,8 @@ library(seqinr)
 library(ape)
 #colorCodes<-c("PCAU"=cbrown1,"PBIA"=cred1,"PTET"=cgreen1,"PSEX"=cblue1,"TTHE"= "black")
 #pathT <- "/home/dsellis/data/IES_data/msas/alignments/dnd/"
-pathA <- "/home/dsellis/data/IES/analysis/msas/aln/"
-filesF <- dir(path=pathA,pattern="*.aln.fa")
+pathA <- "/home/dsellis/data/IES/analysis/msas/filtered/"
+filesF <- dir(path=pathA,pattern="*.nucl.fa")
 m <- data.frame(matrix(nrow=length(filesF),ncol=4))
 #pdf("/home/dsellis/projects/IES/allTrees.pdf")
 #par(mfcol=c(2,2))
@@ -17,6 +17,9 @@ for(f in filesF){
   seqL <- length(cns) # length of consensus
   seqN <- b$nb #number of sequences
   ident <- 100*(1-sum(is.na(cns))/length(cns))
+  if(sum(is.na(cns)) == length(cns)){
+    stop("identical")
+  }
   m[counter,] <- c(f, seqN, seqL, ident)
   counter <- counter + 1
   #a<-read.tree(paste(pathT,f,sep=""))  
@@ -26,5 +29,5 @@ for(f in filesF){
   # }
 }
 #dev.off()
-write.table(m,file="/home/dsellis/projects/IES/reports/pipeline/msaStats.dat",row.names=FALSE,col.names=FALSE,quote=FALSE)
+#write.table(m,file="/home/dsellis/projects/IES/reports/pipeline/msaStats.dat",row.names=FALSE,col.names=FALSE,quote=FALSE)
 
