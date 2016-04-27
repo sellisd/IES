@@ -2,18 +2,20 @@
 #read IESin file and for each line find transcript coordinates
 #then print per gene
 # read exon bed files and print corresponding intron bed files
+# Output gene start end IES
 source("~/projects/IES/src/sharedFunctions.R")
 args<-commandArgs(TRUE);
 inFile <- args[1]
 cdsdbF <- args[2]
 outFile <- args[3]
 #Rscript --vanilla iesInGenes.R inFile cdsdbF
-# inFile <- "~/data/IES/analysis/bed/ppr.IESin.be"
-# cdsdbF <- "/home/dsellis/data/IES/analysis/iesdb/ppr.cdsdb"
+# inFile <- "~/data/IES/analysis/bed/pte.IESin.be"
+# cdsdbF <- "/home/dsellis/data/IES/analysis/iesdb/pte.cdsdb"
+
 
 iesin <- read.table(inFile, stringsAsFactors = FALSE)
 cdsdb <- read.table(cdsdbF, stringsAsFactors = FALSE, header = TRUE)
-
+cdsdb$start <- cdsdb$start - 1 # make 0-based to combine with the other be files
 
 iesin <- iesin[which(iesin$V6 == "cds"), ]
 matchIndex <- match(iesin$V10, cdsdb$id)
@@ -23,7 +25,8 @@ outFileCon <- file(outFile, open = "at")
 
 for(i in unique(genes)){
   index <- which(genes == i)
-  cds <- data.frame(name = iesin[index, 10], start = iesin[index, 8], end = iesin[index, 9], stringsAsFactors = FALSE)
+  allCDS <- which(cdsdb$geneName == i)
+  cds <- data.frame(name = cdsdb$id[allCDS], start = cdsdb$start[allCDS], end = cdsdb$end[allCDS], stringsAsFactors = FALSE)
   strand <- strands[index][1]
   for(loc in index){
     inCDS <- iesin[loc, 10]
@@ -32,6 +35,3 @@ for(i in unique(genes)){
     cat(file = outFileCon, i,inT[1], inT[2], iesin[loc,4], "\n", sep = "\t", append = TRUE)
   }
 }
-
-
-#write.table(intergenic, file = outFile, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
