@@ -19,6 +19,15 @@ prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
               'PTRED.209.2.'   = 'Paramecium tredecaurelia',
               'PCAU.43c3d.1.'  = 'Paramecium caudatum')
 
+withinRange <- function(q, r){
+  # if a be range is partially within another be range
+  if((q[1]>=r[1]) & (q[1]<r[2])      # if query beginning is within range
+     | ((q[2]>r[1]) & (q[2]<=r[2]))){ # or query end is within range
+    return(1)
+  }else{
+    return(0)
+  }
+}
 
 inTranscript <- function(cds, strand, qrange, inCDS){
   #data frame should be sorted
@@ -31,6 +40,10 @@ inTranscript <- function(cds, strand, qrange, inCDS){
     for(i in c(1:nrow(cds))){
       cdsL <- cds$end[i] - cds$start[i]
       if(inCDS == cds$name[i]){
+        # check if at least partially within
+        if(!(withinRange(qrange, c(cds$start[i], cds$end[i])))){  #  or end is within CDS
+          stop("IES is not in ", inCDS)
+        }
         # partial sum
         startT <- qrange[1] - cds$start[i]
         endT <- qrange[2] - cds$start[i]
@@ -50,8 +63,13 @@ inTranscript <- function(cds, strand, qrange, inCDS){
     }
   }else if(strand == -1){
     for(i in c(nrow(cds):1)){ # count backwards
+      #cat(cumLength,"\n")
       cdsL <- cds$end[i] - cds$start[i]
       if(inCDS == cds$name[i]){
+        # check if at least partially within
+        if(!(withinRange(qrange, c(cds$start[i], cds$end[i])))){  #  or end is within CDS
+          stop(stop("IES is not in ", inCDS))
+        }
         startT <- cds$end[i] - qrange[2]
         endT <- cds$end[i] - qrange[1]
         if(startT < 0){
@@ -60,6 +78,7 @@ inTranscript <- function(cds, strand, qrange, inCDS){
         if(endT > cdsL){
           endT <- cdsL
         }
+       # cat("   ",startT, endT,"\n")
         startT <- startT + cumLength
         endT <- endT + cumLength
         found <- 1
