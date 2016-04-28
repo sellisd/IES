@@ -79,6 +79,3 @@ testResults <- c(isTRUE(all.equal(inTranscript(cds, 1, c(1, 3), "cds1"), c(0, 1)
 if(!isTRUE(all(testResults))){
   stop(paste("failed tests for function inTrancsript, test No.", which(testResults == FALSE), "\n"))
 }
-#inTranscript(cds, -1, c(1, 3), "cds1")
-
-                 

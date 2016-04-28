@@ -14,17 +14,19 @@ my $nr = getNotation($notationF);
 run("./msaLocal.pl > msaLocal.log", 1);
 run("Rscript --vanilla ./filterProtAlign.R", 1);
 my $cmdl = './prot2nucl.pl';
-foreach my $sp (keys %$nr){
+foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}}; #de-reference for less typing
     $cmdl .= ' -cds '.catfile($pab{'datapath'}, $pab{'cdsF'});
 }
 $cmdl .= ' -cds /home/dsellis/data/IES/thermophila/gene/T_thermophila_June2014_CDS.fasta'; #add Tth
 $cmdl .= ' ~/data/IES/analysis/msas/filtered/*.aln.fa';
 run($cmdl, 1);
-run("./preparePhyldog.pl", 0);
+run("./preparePhyldog.pl", 1);
 
 run('./runGblocks.pl ~/data/IES/analysis/msas/filtered/ > ~/data/IES/analysis/msas/filtered/gblocks.log', 1);
 run('./parseGblocks.pl  ~/data/IES/analysis/msas/filtered/ > ~/data/IES/analysis/msas/filtered/parsegblocks.log', 1);
 
 
 
+$cmdl = './inAlign.pl -iesig /home/dsellis/data/IES/analysis/tables/ -alnPath /home/dsellis/data/IES/analysis/msas/filtered/ -out /home/dsellis/data/IES/analysis/tables/iesInGenes.msa.tab';
+run($cmdl, 1);

@@ -23,7 +23,7 @@ my $tablesP = catfile($homeD, 'data/IES/analysis/tables');
 
 # calculate scaffold lengths
 # --------------------------
-foreach my $sp (keys %$nr){
+foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}}; #de-reference for less typing
     my $genome = catfile($pab{'datapath'}, $pab{'MacF'});
     my $scafF = catfile($pab{'datapath'}, 'analysis', $pab{'abr'}.'.scaf');
@@ -34,7 +34,7 @@ foreach my $sp (keys %$nr){
 # filter scaffolds
 # ----------------
 
-foreach my $sp (keys %$nr){
+foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}};
     my $scafF   = catfile($pab{'datapath'}, 'analysis', $pab{'abr'}.'.scaf');
     my $protein = catfile($pab{'datapath'}, $pab{'protF'}),
@@ -50,7 +50,7 @@ foreach my $sp (keys %$nr){
 	' -gene '.$gene.
 	' -gff '.$gff.
 	' -cutoff '.$cutoff.
-	' -species '.$sp.
+	' -species '.$pab{'abr'}.
 	' -outdir '.$outdir;
     run($cmdl, 1);
 }
@@ -79,18 +79,12 @@ run($cmdl, 1);
 # ---------------------------------------------------
 run('./preblast.pl /home/dsellis/data/IES/analysis/protdb/allprot.fa /home/dsellis/data/IES/tempdat/fastachunks/', 1);
 
-
 # parse basic ies information
 #----------------------------
-if(0){
-    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ppr.ies.gff3 > ~/data/IES/analysis/filtscaf/ppr.ies.tab";
-    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pbi.ies.gff3 > ~/data/IES/analysis/filtscaf/pbi.ies.tab";
-    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pte.ies.gff3 > ~/data/IES/analysis/filtscaf/pte.ies.tab";
-    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ppe.ies.gff3 > ~/data/IES/analysis/filtscaf/ppe.ies.tab";
-    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pse.ies.gff3 > ~/data/IES/analysis/filtscaf/pse.ies.tab";
-    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/poc.ies.gff3 > ~/data/IES/analysis/filtscaf/poc.ies.tab";
-    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/ptr.ies.gff3 > ~/data/IES/analysis/filtscaf/ptr.ies.tab";
-    system "./iesInfo.pl ~/data/IES/analysis/filtscaf/pca.ies.gff3 > ~/data/IES/analysis/filtscaf/pca.ies.tab";
+for my $sp (sort keys %$nr){
+    my %pab = %{$nr->{$sp}};
+    my $cmdl = './iesInfo.pl ~/data/IES/analysis/filtscaf/'.$pab{'abr'}.'.ies.gff3 > ~/data/IES/analysis/filtscaf/'.$pab{'abr'}.'.ies.tab';
+    run($cmdl, 1);
 }
 
 # find which IES are floating
@@ -102,9 +96,9 @@ if(0){
     system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/pse.ies.tab -floatF ~/data/IES/analysis/filtscaf/pse.ies.float -bedF ~/data/IES/analysis/bed/pse.ies.be";
     system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/poc.ies.tab -floatF ~/data/IES/analysis/filtscaf/poc.ies.float -bedF ~/data/IES/analysis/bed/poc.ies.be";
     system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/ptr.ies.tab -floatF ~/data/IES/analysis/filtscaf/ptr.ies.float -bedF ~/data/IES/analysis/bed/ptr.ies.be";
+    system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/pso.ies.tab -floatF ~/data/IES/analysis/filtscaf/pso.ies.float -bedF ~/data/IES/analysis/bed/pso.ies.be";
     system "./annotateFloating.pl -tabF ~/data/IES/analysis/filtscaf/pca.ies.tab -floatF ~/data/IES/analysis/filtscaf/pca.ies.float -bedF ~/data/IES/analysis/bed/pca.ies.be";
 }
-
 
 # check if we need to merge floating IES
 if(0){
@@ -116,6 +110,7 @@ if(0){
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pse.gff ~/data/IES/analysis/bed/pse &";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/poc.gff ~/data/IES/analysis/bed/poc &";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/ptr.gff ~/data/IES/analysis/bed/ptr &";
+    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pso.gff ~/data/IES/analysis/bed/pso &";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pca.gff ~/data/IES/analysis/bed/pca";
 }
 
@@ -128,6 +123,7 @@ if(0){
     system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/pse.exon.be ~/data/IES/analysis/bed/pse.intron.be";
     system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/poc.exon.be ~/data/IES/analysis/bed/poc.intron.be";
     system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/ptr.exon.be ~/data/IES/analysis/bed/ptr.intron.be";
+    system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/pso.exon.be ~/data/IES/analysis/bed/pso.intron.be";
     system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/pca.exon.be ~/data/IES/analysis/bed/pca.intron.be";
 }
 
@@ -139,15 +135,14 @@ if(0){
     system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/pse.gene.be ~/data/IES/analysis/bed/pse.inter.be ~/data/IES/analysis/pse.scaf";
     system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/poc.gene.be ~/data/IES/analysis/bed/poc.inter.be ~/data/IES/analysis/poc.scaf";
     system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/ptr.gene.be ~/data/IES/analysis/bed/ptr.inter.be ~/data/IES/analysis/ptr.scaf";
+    system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/pso.gene.be ~/data/IES/analysis/bed/pso.inter.be ~/data/IES/analysis/pso.scaf";
     system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/pca.gene.be ~/data/IES/analysis/bed/pca.inter.be ~/data/IES/analysis/pca.scaf";
 }
 
-
 # find overlap in bed files
-foreach my $sp (keys %$nr){
+foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}};
     my $abr = $pab{'abr'};
-#    next if $abr eq 'pso';
     my $cmdl = 'bedtools intersect -a ~/data/IES/analysis/bed/'.$abr.'.ies.be'.
 	' -b ~/data/IES/analysis/bed/'.$abr.'.cds.be'.
 	' -b ~/data/IES/analysis/bed/'.$abr.'.intron.be'.
@@ -160,7 +155,8 @@ foreach my $sp (keys %$nr){
 my $mergeF = '~/data/IES/analysis/filtscaf/ies2merge.dat';
 $cmdl = "./reannotateFloating.pl ~/data/IES/analysis/filtscaf/*.ies.float > $mergeF";
 run($cmdl, 1);
-foreach my $sp (keys %$nr){
+
+foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}};
     my $abr = $pab{'abr'};
     my $cmdl = './iesdbTable.pl -merge '.$mergeF.
@@ -173,7 +169,7 @@ foreach my $sp (keys %$nr){
 
 # make CDS table for iesDB
 my $silixout = '/home/dsellis/data/IES/analysis/allvsall/blastout/silix.output';
-foreach my $sp (keys %$nr){
+foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}};
     my $abr = $pab{'abr'};
     my $cmdl = './cdsdbTable.pl -silixout '.$silixout.
@@ -183,19 +179,17 @@ foreach my $sp (keys %$nr){
 }
 
 # find transcript coordinates for IES in genes
-
 make_path($tablesP) unless -d $tablesP;
 foreach my $sp (keys %$nr){
     my %pab = %{$nr->{$sp}};
     my $abr = $pab{'abr'};
-#    next if $abr eq 'pso';
     my $cmdl = 'Rscript --vanilla ./iesInGenes.R '.
 	'~/data/IES/analysis/bed/'.$abr.'.IESin.be '.
 	'~/data/IES/analysis/iesdb/'.$abr.'.cdsdb '.
 	catfile($tablesP, $abr.'.iesInGenes');
-    run($cmdl, 1);
+    run($cmdl, 0);
 }
-
+die;
 exit(0);
 #./maleTables.pl 
 # make genebank files and incorporate ies information

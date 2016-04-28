@@ -17,9 +17,6 @@ for(f in filesF){
   seqL <- length(cns) # length of consensus
   seqN <- b$nb #number of sequences
   ident <- 100*(1-sum(is.na(cns))/length(cns))
-  if(sum(is.na(cns)) == length(cns)){
-    stop("identical")
-  }
   m[counter,] <- c(f, seqN, seqL, ident)
   counter <- counter + 1
   #a<-read.tree(paste(pathT,f,sep=""))  
