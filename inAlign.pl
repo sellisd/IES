@@ -120,7 +120,7 @@ foreach my $file (@files){
 			}
 		    }
 		    my $beStart = $iesRanges{$ies}[0];
-		    $beStart++; # from 0-indexed to 1-indexed
+		    $beStart--; # from 0-indexed to 1-indexed
 		    my $beEnd = $iesRanges{$ies}[1];
 		    print BE $geneFamily,"\t", $beStart, "\t", $beEnd, "\t", $ies, "\t", $id, "\n";
 		}

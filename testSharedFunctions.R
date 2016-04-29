@@ -79,3 +79,9 @@ testResults <- c(isTRUE(all.equal(inTranscript(cds, 1, c(1, 3), "cds1"), c(0, 1)
 if(!isTRUE(all(testResults))){
   stop(paste("failed tests for function inTrancsript, test No.", which(testResults == FALSE), "\n"))
 }
+
+cds <- data.frame(name = c("CDS1", "CDS2", "CDS3", "CDS4"), start = c(683884, 684221, 684475, 685028), end = c(684200, 684447, 685002, 685191), stringsAsFactors = FALSE)
+query <- c(683883,683884)
+cds$start <- cds$start - 1
+query[1] <- query[1] - 1
+inTranscripts(cds, 1, query, "CDS1")

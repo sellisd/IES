@@ -2,7 +2,7 @@
 #read IESin file and for each line find transcript coordinates
 #then print per gene
 # read exon bed files and print corresponding intron bed files
-# Output gene start end IES
+# Output gene start end IES with zero based indexing (although not a bed file!)
 source("~/projects/IES/src/sharedFunctions.R")
 args<-commandArgs(TRUE);
 inFile <- args[1]
