@@ -25,9 +25,12 @@ run("./preparePhyldog.pl", 1);
 run('./paraGblocks.pl ~/data/IES/analysis/msas/filtered/ > ~/data/IES/analysis/msas/filtered/gblocks.log', 1);
 
 $cmdl = './inAlign.pl -iesig /home/dsellis/data/IES/analysis/tables/ -alnPath /home/dsellis/data/IES/analysis/msas/filtered/ -out /home/dsellis/data/IES/analysis/tables/iesInGenes.msa';
-run($cmdl, 0);
+run($cmdl, 1);
 
 $cmdl = 'sort -k 1,1 -k 2,2n /home/dsellis/data/IES/analysis/tables/iesInGenes.msa.be  > /home/dsellis/data/IES/analysis/tables/iesInGenes.msa.sorted.be';
-run($cmdl, 0);
+run($cmdl, 1);
 $cmdl = 'bedtools merge -i /home/dsellis/data/IES/analysis/tables/iesInGenes.msa.sorted.be -c 4 -o collapse > /home/dsellis/data/IES/analysis/tables/homColumns.be';
-run($cmdl, 0);
+run($cmdl, 1);
+
+$cmdl= './withinGblocks.pl > /home/dsellis/data/IES/analysis/tables/homColinB.be';
+run($cmdl, 1);
