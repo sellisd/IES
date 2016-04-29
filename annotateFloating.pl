@@ -74,9 +74,9 @@ while(my $line = <IN>){
     # make also a .bed file
     for(my $i = 0; $i <= $#startLocs; $i++){
     	my $start = $startLocs[$i];
-   	    $start--; # gff3 is [start, end] while in .bed is (start, end]
-		my @bedRowEntry = ($scaffold, $start, $endLocs[$i], $id, $isFloating);
-		print BD join("\t", @bedRowEntry), "\n";
+	$start--; # gff3 is [start, end] while in .bed is (start, end]
+	my @bedRowEntry = ($scaffold, $start, $endLocs[$i], $id, $isFloating);
+	print BD join("\t", @bedRowEntry), "\n";
     }
 }
 close IN;
