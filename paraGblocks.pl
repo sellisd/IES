@@ -1,16 +1,30 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use Parallel::ForkManager;
 use File::Spec::Functions qw(catfile);
-# parse Gblocks output and translate results to nucleotide coordinates
+
+# run Gblocks on the protein alignments and parse output
+
 my $path = $ARGV[0];
 
+my $pm = Parallel::ForkManager->new(7);
+
 opendir(DH, $path) or die $!;
-
-open OUT, '>', catfile($path,'gblocks.dat') or die $!;
-
-my @files = grep { /-gb.htm/ } readdir(DH);
+my @files = grep { /cluster\..*\.aln\.fa$/ } readdir(DH);
 foreach my $file (@files){
+    my $pid = $pm->start and next;
+    my $cmdl = 'Gblocks '.$path.$file.' -t="protein"';
+    print $cmdl,"\n";
+    system $cmdl;
+    $pm->finish;
+}
+$pm->wait_all_children;
+
+
+foreach my $file (@files){
+    my $pid = $pm->start and next;
+    $file .= '-gb.html';
     print $file,"\n";
     open IN, $path.$file or die $!;
     $file =~ /^cluster\.(\d+)\.aln\.fa-gb\.htm$/;
@@ -39,5 +53,6 @@ foreach my $file (@files){
     $gbf =~ s/-gb.htm/-gb/;
     unlink $path.$gbf;
     unlink $path.$file;
+    $pm->finish;
 }
 close OUT;
