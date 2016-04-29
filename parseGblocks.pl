@@ -1,19 +1,20 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use File::Spec::Functions qw(catfile);
 # parse Gblocks output and translate results to nucleotide coordinates
 my $path = $ARGV[0];
 
 opendir(DH, $path) or die $!;
+
+open OUT, '>', catfile($path,'gblocks.dat') or die $!;
+
 my @files = grep { /-gb.htm/ } readdir(DH);
 foreach my $file (@files){
     print $file,"\n";
     open IN, $path.$file or die $!;
-    my $output = $file;
-    $output =~ s/-gb\.htm/.gblocks/ or die $!; # make sure it changes the name
-    $output =~ /cluster\.(\d+)\./;
+    $file =~ /^cluster\.(\d+)\.aln\.fa-gb\.htm$/;
     my $cluster = $1;
-    open OUT, '>'.$path.$output or die $!;
     while(my $line = <IN>){
 	if(substr($line,0,7) eq 'Flanks:'){
 	    chomp $line;
@@ -33,10 +34,10 @@ foreach my $file (@files){
 	    }
 	}
     }
-    close OUT;
     close IN;
     my $gbf = $file;
     $gbf =~ s/-gb.htm/-gb/;
     unlink $path.$gbf;
     unlink $path.$file;
 }
+close OUT;
