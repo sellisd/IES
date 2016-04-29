@@ -22,9 +22,7 @@ $cmdl .= ' -cds /home/dsellis/data/IES/thermophila/gene/T_thermophila_June2014_C
 $cmdl .= ' ~/data/IES/analysis/msas/filtered/*.aln.fa';
 run($cmdl, 1);
 run("./preparePhyldog.pl", 1);
-
-run('./runGblocks.pl ~/data/IES/analysis/msas/filtered/ > ~/data/IES/analysis/msas/filtered/gblocks.log', 1);
-run('./parseGblocks.pl  ~/data/IES/analysis/msas/filtered/ > ~/data/IES/analysis/msas/filtered/parsegblocks.log', 1);
+run('./paraGblocks.pl ~/data/IES/analysis/msas/filtered/ > ~/data/IES/analysis/msas/filtered/gblocks.log', 1);
 
 $cmdl = './inAlign.pl -iesig /home/dsellis/data/IES/analysis/tables/ -alnPath /home/dsellis/data/IES/analysis/msas/filtered/ -out /home/dsellis/data/IES/analysis/tables/iesInGenes.msa';
 run($cmdl, 0);
