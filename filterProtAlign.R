@@ -14,7 +14,7 @@ for(fileName in files){
   distM <- dist.alignment(a,matrix="identity")
   id <- append(id,mean(1-distM*distM)) #average pairwise identity
 }
-write.table(data.frame(file=files,sequenceNo=nb,avPairId=id),file="~/data/IES/analysis/msas/protAlignStats.dat", quote=FALSE)
+write.table(data.frame(file=files,sequenceNo=nb,avPairId=id),file="~/data/IES/analysis/msas/protAlignStats.dat", quote=FALSE, row.names = FALSE)
 highId <- files[which(id>0.5)]
 enoughSeq <- files[which(nb>3)]
 filtered <- intersect(enoughSeq,highId)
