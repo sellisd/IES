@@ -44,7 +44,7 @@ make_path($outputPath.'run') unless -d $outputPath.'run';
 opendir(DH,$inputFiltered) or die $!;
 my @charMats = grep {/cluster\.\d+\.nucl\.fa/} readdir(DH);
 
-foreach my $file (@charMats){
+foreach my $file (@charMats[1..100]){
     $file =~ /cluster\.(\d+)\.nucl\.fa/;
     my $cluster = $1;
     my $fastaFileSource = $inputFiltered.'cluster.'.$cluster.'.nucl.fa';

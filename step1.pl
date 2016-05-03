@@ -62,7 +62,7 @@ foreach my $sp (sort keys %$nr){
 
 my $protdbP = '/home/dsellis/data/IES/analysis/protdb/';
 my $allprotF = catfile($protdbP, 'allprot.fa');
-my $tthGenome = '/home/dsellis/data/IES/thermophila/gene/T_thermophila_June2014.protein.fa';
+my $tthGenome = '/home/dsellis/data/IES/thermophila/gene/tth.protein.fa';
 make_path($protdbP) unless -d $protdbP;
 my @proteinF;
 for my $sp (keys %$nr){
