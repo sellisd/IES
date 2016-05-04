@@ -8,7 +8,7 @@ my $pm = Parallel::ForkManager->new(7);
 my %reruns;
 
 # chunks that should rerun
-my $rerunF = '/home/dsellis/data/IES/analysis/allvsall/2rerun.dat';
+my $rerunF = '/home/dsellis/data/IES/analysis/allvsall/runs/2rerun.dat';
 
 # results from cluster
 my $blastoutD = '/home/dsellis/data/IES/analysis/allvsall/blastout/';
