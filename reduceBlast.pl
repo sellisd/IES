@@ -4,59 +4,65 @@ use strict;
 use File::Spec::Functions qw(catfile);
 use Parallel::ForkManager;
 
-my $pm = Parallel::ForkManager->new(7);
-my %reruns;
+# gather all blast runs from cluster and local and combine results for SiliX
 
-# chunks that should rerun
-my $rerunF = '/home/dsellis/data/IES/analysis/allvsall/runs/2rerun.dat';
+# load local copies
+# load cluster nodes
+# copy cluster nodes that were not run locally and check if they are unique
+my $baseP = '/home/dsellis/data/IES/analysis/allvsall/blastout';
+my $localP = 'local';
+my @clusterP =qw/*.dat_pbil-deb_pbil-deb11-local
+*.dat_pbil-deb_pbil-deb12-local
+*.dat_pbil-deb_pbil-deb13-local
+*.dat_pbil-deb_pbil-deb6-local
+*.dat_pbil-deb_pbil-deb8-local
+/;
 
-# results from cluster
-my $blastoutD = '/home/dsellis/data/IES/analysis/allvsall/blastout/';
+my $out = '/home/dsellis/data/IES/analysis/allvsall/blastout/4silix.dat';
+my @in;
 
-#read files that need to be rerun
-
-open IN, $rerunF or die $!;
-while(my $line = <IN>){
-    $line =~ /^(\d+),.*/;
-    $reruns{$1} = 1;
-}
-close IN;
-
-opendir(DH, $blastoutD) or die $!;
-my @nodes = readdir(DH);
-close DH;
-my %clusterF;
-my @rerunLocally;
-foreach my $node (@nodes){
-    next if $node eq '.' or $node eq '..';
-    my $nodePath = catfile($blastoutD, $node);
-    if (-d $nodePath){
-	print $nodePath,"\n";
-	opendir(ND, $nodePath);
-	my @files = grep {/\.dat$/} readdir(ND);
-	foreach my $file (@files){
-	    $file =~ /blastout\.chunk\.(\d+)\.fa\.dat/;
-	    my $chunk = $1;
-	    if(defined($clusterF{$file})){
-		die $file," duplicated \n";
-	    }else{
-		if(defined($reruns{$chunk})){
-		    push @rerunLocally, $chunk;
-	#	    print $file," should rerun\n";
-		}else{
-		    $clusterF{$file} = $node
-		}
-	    }
-	}
-	close ND;
+# check local files
+my %locals;
+opendir(DH, catfile($baseP, $localP)) or die $!;
+my @lF = grep {/^blastout\.chunk\.(\d+)\.fa\.dat$/} readdir(DH);
+foreach my $f (@lF){
+    if(defined($locals{$f})){
+	die "double local file $f";
+    }else{
+	$locals{$f} = 1;
+	push @in, catfile($baseP, $localP, $f);
     }
 }
+close DH;
 
-
-foreach my $chunk (@rerunLocally){
-    my $pid = $pm->start and next;
-    my $cmdl = 'blastp -query /home/dsellis/data/IES/tempdat/fastachunks/chunk.'.$chunk.'.fa -db /home/dsellis/data/IES/analysis/protdb/allprot -outfmt 6 -out /home/dsellis/data/IES/analysis/allvsall/blastout/local/blastout.chunk.'.$chunk.'.fa.dat -seg yes';
-    print $cmdl,"\n";
-    system $cmdl;
-    $pm->finish;
+# check files on cluster
+my %clusterF;
+foreach my $nodeP (@clusterP){
+    opendir(DH, catfile($baseP, $nodeP)) or die $!;
+    my @nodeF = grep {/^blastout\.chunk\.(\d+)\.fa\.dat$/} readdir(DH);
+    foreach my $f (@nodeF){
+	if(defined($clusterF{$f})){
+	    die "double node file $f";
+	}else{
+	    $clusterF{$f} = 1;
+	}
+	if(defined($locals{$f})){
+	    # if also run locally use the local version
+	}else{
+	    push @in, catfile($baseP, $nodeP, $f);
+	}
+    }
+    close DH;
 }
+close OUT;
+
+# merge blast output
+open OUT, '>', $out or die $!;
+foreach my $f (@in){
+    print $f,"\n";
+    open IN, $f or die $!;
+    my @lines = <IN>;
+    close IN;
+    print OUT @lines;
+}
+close OUT;
