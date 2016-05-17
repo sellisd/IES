@@ -101,7 +101,7 @@ if(0){
 }
 
 # check if we need to merge floating IES
-if(0){
+if(1){
     system "mkdir ~/data/IES/analysis/bed/";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/ppr.gff ~/data/IES/analysis/bed/ppr &";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pbi.gff ~/data/IES/analysis/bed/pbi &";
@@ -110,12 +110,12 @@ if(0){
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pse.gff ~/data/IES/analysis/bed/pse &";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/poc.gff ~/data/IES/analysis/bed/poc &";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/ptr.gff ~/data/IES/analysis/bed/ptr &";
-    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pso.gff ~/data/IES/analysis/bed/pso &";
+    system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pso.gff ~/data/IES/analysis/bed/pso";
     system "./geneInfo.pl ~/data/IES/analysis/filtscaf/pca.gff ~/data/IES/analysis/bed/pca";
 }
 
 # create bed files
-if(0){
+if(1){
     system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/ppr.exon.be ~/data/IES/analysis/bed/ppr.intron.be";
     system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/pbi.exon.be ~/data/IES/analysis/bed/pbi.intron.be";
     system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/pte.exon.be ~/data/IES/analysis/bed/pte.intron.be";
@@ -127,7 +127,7 @@ if(0){
     system "Rscript --vanilla exon2intron.R ~/data/IES/analysis/bed/pca.exon.be ~/data/IES/analysis/bed/pca.intron.be";
 }
 
-if(0){
+if(1){
     system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/ppr.gene.be ~/data/IES/analysis/bed/ppr.inter.be ~/data/IES/analysis/ppr.scaf";
     system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/pbi.gene.be ~/data/IES/analysis/bed/pbi.inter.be ~/data/IES/analysis/pbi.scaf";
     system "Rscript --vanilla gene2intergenic.R ~/data/IES/analysis/bed/pte.gene.be ~/data/IES/analysis/bed/pte.inter.be ~/data/IES/analysis/pte.scaf";
@@ -148,13 +148,13 @@ foreach my $sp (sort keys %$nr){
 	' -b ~/data/IES/analysis/bed/'.$abr.'.intron.be'.
 	' -b ~/data/IES/analysis/bed/'.$abr.'.inter.be'.
 	' -names cds intron intergenic -wo > ~/data/IES/analysis/bed/'.$abr.'.IESin.be';
-    run($cmdl, 1);
+    run($cmdl, 0);
 }
 
 # make IES table for iesDB
 my $mergeF = '~/data/IES/analysis/filtscaf/ies2merge.dat';
 $cmdl = "./reannotateFloating.pl ~/data/IES/analysis/filtscaf/*.ies.float > $mergeF";
-run($cmdl, 1);
+run($cmdl, 0);
 
 foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}};
@@ -164,7 +164,7 @@ foreach my $sp (sort keys %$nr){
 	' -iestab ~/data/IES/analysis/filtscaf/'.$abr.'.ies.tab'.
 	' -float ~/data/IES/analysis/filtscaf/'.$abr.'.ies.float'.
 	' > ~/data/IES/analysis/iesdb/'.$abr.'.iesdb';
-    run($cmdl, 1);
+    run($cmdl, 0);
 }
 
 # make CDS table for iesDB
@@ -175,7 +175,7 @@ foreach my $sp (sort keys %$nr){
     my $cmdl = './cdsdbTable.pl -silixout '.$silixout.
 	' -gff '.catfile($pab{'datapath'}, $pab{'geneGff'}).
 	' > ~/data/IES/analysis/iesdb/'.$abr.'.cdsdb';
-    run($cmdl, 1);
+    run($cmdl, 0);
 }
 
 # find transcript coordinates for IES in genes
