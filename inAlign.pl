@@ -75,17 +75,17 @@ foreach my $iesigF (@iesigF){
 print "done\n";
 
 #once all are read go trhough alignments one by one
-print "reading alignments ...";
+print "reading alignments ... \n";
 opendir DH, $alnPath or die "$! $alnPath";
 my @files = grep {/\.nucl\.fa$/} readdir(DH);
 close DH;
 
 open OUT, '>', $outTab or die $!;
 open BE, '>', $outBed or die $!;
-print OUT "geneFamily\tgene\tbegin\tend\ties\n";
+print OUT "geneFamily\tgene\tbeginMSA\tendMSA\tbeginGene\tendGene\ties\n";
 my $fileCounter = 0;
 foreach my $file (@files){
-    print $fileCounter, $#files, "\r";
+    print $fileCounter, '/', $#files, "\r";
     $file =~/^cluster\.(\d+)\.nucl\.fa$/;
     my $geneFamily = $1;
     my $alnF = catfile($alnPath, $file);    
@@ -107,7 +107,7 @@ foreach my $file (@files){
 			}
 			my $msaLocBegin = $alnO->column_from_residue_number($id, $inGbegin);
 			my $msaLocStop  = $alnO->column_from_residue_number($id, $inGstop);
-			print OUT $geneFamily,"\t", $id, "\t", $msaLocBegin, "\t", $msaLocStop, "\t", $ies,"\n";
+			print OUT $geneFamily,"\t", $id, "\t", $msaLocBegin, "\t", $msaLocStop, "\t", $inGbegin, "\t", $inGstop, "\t", $ies,"\n";
 			if(defined($iesRanges{$ies})){
 			    if($msaLocBegin < $iesRanges{$ies}[0]){
 				$iesRanges{$ies}[0] = $msaLocBegin;
