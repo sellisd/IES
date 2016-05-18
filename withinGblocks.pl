@@ -3,10 +3,12 @@ use warnings;
 use strict;
 
 # find which ies columns are within Gblocks
+
 # read gblocks.dat
 
 my $gblocksF = '/home/dsellis/data/IES/analysis/msas/filtered/gblocks.dat';
 my $homcolF = '/home/dsellis/data/IES/analysis/tables/homColumns.be';
+my $homcolBF = '/home/dsellis/data/IES/analysis/tables/homColumnsB.be';
 
 my %gblocks;
 open GB, $gblocksF or die $!;
@@ -27,12 +29,13 @@ close GB;
 
 # read homColumns.be
 open HC, $homcolF or die $!;
+open OUT, '>', $homcolBF or die $!;
 while (my $line = <HC>){
     chomp $line;
     (my $geneFamily, my $hcStart, my $hcEnd, my $ies) = split " ", $line;
     my @ies = split ",", $ies;
     if(!defined $gblocks{$geneFamily}){
-	die $geneFamily;
+	print $geneFamily, " has no Gblocks\n";
     }
     #loop through homologous IES positions
     for(my $i = 0; $i<= $#{$gblocks{$geneFamily}{'begin'}}; $i++){
@@ -42,10 +45,12 @@ while (my $line = <HC>){
 	if(($hcStart >= $bStart) and ($hcStart < $bEnd)
 	   and(($hcEnd > $bStart) and ($hcEnd <= $bEnd))){
 	    # fully within
-	    print $line, "\n";
+# id geneFamily msaColumn
+	    print OUT $line, "\n";
 	}
     }
 
 }
 close HC;
+close OUT;
 
