@@ -8,7 +8,7 @@ use strict;
 
 my $gblocksF = '/home/dsellis/data/IES/analysis/msas/filtered/gblocks.dat';
 my $homcolF = '/home/dsellis/data/IES/analysis/tables/homColumns.be';
-my $homcolBF = '/home/dsellis/data/IES/analysis/tables/homColumnsB.be';
+my $homcolBF = '/home/dsellis/data/IES/analysis/tables/homColinB.be';
 
 my %gblocks;
 open GB, $gblocksF or die $!;
