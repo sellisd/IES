@@ -8,6 +8,10 @@ args<-commandArgs(TRUE);
 inFile <- args[1]
 cdsdbF <- args[2]
 outFile <- args[3]
+
+if(file.exists(outFile)){
+  stop(paste(outFile, "already exists!"))
+}
 #Rscript --vanilla iesInGenes.R inFile cdsdbF
 # inFile <- "~/data/IES/analysis/bed/pte.IESin.be"
 # cdsdbF <- "/home/dsellis/data/IES/analysis/iesdb/pte.cdsdb"
