@@ -93,7 +93,8 @@ foreach my $file (@files){
 				  -format => 'fasta');
     while(my $alnO = $alnIO->next_aln){ # open alignment and find position of ies in alignment
 	foreach my $seq ($alnO->each_seq()) {     #find which genes
-	    my $id = $seq->id();
+	    my $id = $seq->id(); # protein name
+	    my $geneId = X2Y($id, $prefixesR, 'P', 'G');
 	    # find if they have IES
 	    if(defined($geneH{$id})){
 		my %iesRanges;
@@ -107,7 +108,7 @@ foreach my $file (@files){
 			}
 			my $msaLocBegin = $alnO->column_from_residue_number($id, $inGbegin);
 			my $msaLocStop  = $alnO->column_from_residue_number($id, $inGstop);
-			print OUT $geneFamily,"\t", $id, "\t", $msaLocBegin, "\t", $msaLocStop, "\t", $inGbegin, "\t", $inGstop, "\t", $ies,"\n";
+			print OUT $geneFamily,"\t", $geneId, "\t", $msaLocBegin, "\t", $msaLocStop, "\t", $inGbegin, "\t", $inGstop, "\t", $ies,"\n";
 			if(defined($iesRanges{$ies})){
 			    if($msaLocBegin < $iesRanges{$ies}[0]){
 				$iesRanges{$ies}[0] = $msaLocBegin;
@@ -122,7 +123,7 @@ foreach my $file (@files){
 		    my $beStart = $iesRanges{$ies}[0];
 		    $beStart--; # from 0-indexed to 1-indexed
 		    my $beEnd = $iesRanges{$ies}[1];
-		    print BE $geneFamily,"\t", $beStart, "\t", $beEnd, "\t", $ies, "\t", $id, "\n";
+		    print BE $geneFamily,"\t", $beStart, "\t", $beEnd, "\t", $ies, "\t", $geneId, "\n";
 		}
 	    }
 	}
