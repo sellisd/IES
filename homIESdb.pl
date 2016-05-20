@@ -73,6 +73,7 @@ while(my $line = <HCB>){
 	chomp $line;
 	(my $geneFamily, my $beginMSA, my $endMSA, my $iesL) = split " ", $line;
 	$id++; # each row is an entry
+	$beginMSA++; # transform to 1-base index
 #	print $id,"\t$geneFamily\t";
 	my @iesList = split ",", $iesL;
 #	print "@iesList\n";
@@ -83,6 +84,9 @@ while(my $line = <HCB>){
             # homIESid geneFamily beginMSA endMSA gene beginGene(s) endGene(s) IESid
 #	    print "\t", $gene,' ';
 	    # does the gene have IESs
+	    my $beginGene = 'NA'; # genomic coordinates of IESs of current homologous IES group
+	    my $endGene   = 'NA'; # by default NA if there are no IES annotated
+	    my $iesId     = 'NA';
 	    if(defined($genesH{$gene})){
 #		print 'has ies ';
 		my @geneHomIES;
@@ -99,17 +103,17 @@ while(my $line = <HCB>){
 			push @endMSAInHomIES, @{$iesH{$iesLH{$iesInGene}}{'endMSA'}};
 			push @beginGeneInHomIES, @{$iesH{$iesLH{$iesInGene}}{'beginGene'}};
 			push @endGeneInHomIES, @{$iesH{$iesLH{$iesInGene}}{'endGene'}};
-		    }else{
-			
 		    }
 		}
-		printab($id, $geneFamily, $beginMSA, $endMSA, $gene, join(',',@beginGeneInHomIES), join(',', @endGeneInHomIES), join(',', @geneHomIES));
-		unless(@geneHomIES){use Data::Dumper; print Dumper $genesH{$gene}; die $line;}
-	    }else{
-		printab($id, $geneFamily, $beginMSA, $endMSA, $gene, 'NA', 'NA', 'NA');
-#		print 'no ies';
+		if(@geneHomIES){ # if gene has an IES from the current homologous IES group
+		    $beginGene = join(',',@beginGeneInHomIES);
+		    $endGene   = join(',', @endGeneInHomIES);
+		    $iesId     = join(',', @geneHomIES);
+		}
 	    }
-#	    print "\n";
+	    printab($id, $geneFamily, $beginMSA, $endMSA, $gene, $beginGene, $endGene, $iesId);
+#		print 'no ies';
+	    #	    print "\n";
 
 	}
 }
