@@ -55,7 +55,7 @@ close ING;
 
 my $id = 0;
 open HCB, $homColinBF or die $!; # only look at homologous columns that are fully within Gblocks
-
+printab('id', 'geneFamily', 'beginMSArange', 'endMSArange', 'gene', 'beginGene', 'endGene', 'beginMSA', 'endMSA', 'ies'); # gene has other IESs, not in current homologous IES group
 while(my $line = <HCB>){
 	chomp $line;
 	(my $geneFamily, my $beginMSA, my $endMSA, my $iesL) = split " ", $line;
@@ -70,19 +70,22 @@ while(my $line = <HCB>){
 	    my $endGene   = 'NA'; # by default NA if there are no IES annotated
 	    my $iesId     = 'NA';
 	    if(defined($genesH{$gene})){ # has ies
+		my $found = 0;
 		foreach my $iesInGene (keys %{$genesH{$gene}}){ # for all IES in the current gene
 		    if($iesLH{$iesInGene}){                # is any found in the IES list of the current homologous group?
 			$iesId = $iesLH{$iesInGene};
 			my $locations = $#{$iesH{$iesId}{'beginGene'}} + 1;
 			for(my $c = 0; $c < $locations; $c++){
-			    printab($id, $geneFamily, $beginMSA, $endMSA, $gene, ${$iesH{$iesId}{'beginGene'}}[$c], ${$iesH{$iesId}{'endGene'}}[$c], $iesId);
+			    printab($id, $geneFamily, $beginMSA, $endMSA, $gene, ${$iesH{$iesId}{'beginGene'}}[$c], ${$iesH{$iesId}{'endGene'}}[$c], ${$iesH{$iesId}{'beginMSA'}}[$c], ${$iesH{$iesId}{'endMSA'}}[$c],$iesId);
 			}
-		    }else{
-			printab($id, $geneFamily, $beginMSA, $endMSA, $gene, 'NA', 'NA', 'NA'); # gene has other IESs, not in current homologous IES group
+			$found = 1;
 		    }
 		}
+		if($found == 0){
+		    printab($id, $geneFamily, $beginMSA, $endMSA, $gene, 'NA', 'NA', 'NA', 'NA', 'NA'); # gene has other IESs, not in current homologous IES group
+		}
 	    }else{
-		printab($id, $geneFamily, $beginMSA, $endMSA, $gene, 'NA', 'NA', 'NA'); # gene does not have IESs
+		printab($id, $geneFamily, $beginMSA, $endMSA, $gene, 'NA', 'NA', 'NA', 'NA', 'NA'); # gene does not have IESs
 	    }
 	}
 }
