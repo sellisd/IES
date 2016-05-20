@@ -57,12 +57,12 @@ foreach my $iesigF (@iesigF){
 	$begin++; # from 0 based indexing to 1-based
 	my $protName = gene2prot($gene, $prefixesR);
 	die "$line" if $begin == 0;
-	if(defined($iesH{$ies})){
-	    push @{$iesH{$ies}{'begin'}}, $begin;
-	    push @{$iesH{$ies}{'stop'}}, $stop;
+	if(defined($iesH{$ies.'.'.$gene})){
+	    push @{$iesH{$ies.'.'.$gene}{'begin'}}, $begin;
+	    push @{$iesH{$ies.'.'.$gene}{'stop'}}, $stop;
 	}else{
-	    $iesH{$ies} = {'begin' => [$begin],
-			   'stop'   => [$stop]};
+	    $iesH{$ies.'.'.$gene} = {'begin' => [$begin],
+				     'stop'   => [$stop]};
 	}
 	if(defined($geneH{$protName})){
 	    $geneH{$protName}{$ies} = 1;
@@ -100,9 +100,9 @@ foreach my $file (@files){
 		my %iesRanges;
 		# in which location and translate location to alignment coordinates
 		foreach my $ies (keys %{$geneH{$id}}){
-		    for(my $i = 0; $i <= $#{$iesH{$ies}{'begin'}}; $i++){
-			my $inGbegin = $iesH{$ies}{'begin'}[$i];
-			my $inGstop  = $iesH{$ies}{'stop'}[$i];
+		    for(my $i = 0; $i <= $#{$iesH{$ies.'.'.$geneId}{'begin'}}; $i++){
+			my $inGbegin = $iesH{$ies.'.'.$geneId}{'begin'}[$i];
+			my $inGstop  = $iesH{$ies.'.'.$geneId}{'stop'}[$i];
 			if ($inGbegin == 0){
 			    die;
 			}
