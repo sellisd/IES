@@ -7,6 +7,7 @@ suppressPackageStartupMessages(library(ggtree))
 suppressPackageStartupMessages(library(binom))
 suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(tidyr))
+suppressPackageStartupMessages(library(RColorBrewer))
 
 printIESalign <- function(geneFamily, iesColumn, pad, filtered, introns){
   # plot a multiple sequence alignment around an IES
@@ -201,14 +202,21 @@ colBySpec <- function(tree){
   names <- tree$tip.label
   speciesAbr <- substr(names,0,4)
   colV <- speciesAbr
-  colV[which(speciesAbr == "PBIA")] <- cgreen1
-  colV[which(speciesAbr == "PTET")] <- cred1
-  colV[which(speciesAbr == "PSEX")] <- cblue1
-  colV[which(speciesAbr == "PCAU")] <- "grey60"
-  colV[which(speciesAbr == "TTHE")] <- cbrown1
+  cls <- brewer.pal(10, "Set3")
+  colV[which(speciesAbr == "PPRI")] <- cls[1]
+  colV[which(speciesAbr == "PBIA")] <- cls[3]
+  colV[which(speciesAbr == "PTET")] <- cls[4]
+  colV[which(speciesAbr == "PPEN")] <- cls[5]
+  colV[which(speciesAbr == "PSEX")] <- cls[6]
+  colV[which(speciesAbr == "POCT")] <- cls[7]
+  colV[which(speciesAbr == "PTRE")] <- cls[8]
+  colV[which(speciesAbr == "PSON")] <- cls[9]
+  colV[which(speciesAbr == "PCAU")] <- cls[10]
+  colV[which(speciesAbr == "TTHE")] <- "black"
   names(colV) <- names
   colV
 }
+
 
 plotConsPast <- function(pattern){
   # function to plot conservation barplots
