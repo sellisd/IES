@@ -17,7 +17,9 @@ prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
               'PSEX.AZ8_4.1.'  = 'Paramecium sexaurelia',
               'POCTA.138.1.'   = 'Paramecium octaurelia',
               'PTRED.209.2.'   = 'Paramecium tredecaurelia',
-              'PCAU.43c3d.1.'  = 'Paramecium caudatum')
+              'PSON.ATCC_30995.1.'     = 'Paramecium sonneborni',
+              'PCAU.43c3d.1.'  = 'Paramecium caudatum',
+              'TTHERM_'        = 'Tetrahymena thermophila')
 
 withinRange <- function(q, r){
   # if a be range is partially within another be range
@@ -187,7 +189,7 @@ gene2protName <- function(geneNames){
   protNames <- character(length(geneNames))
   for(prefix in names(prefixes)){
     index <- which(substr(geneNames, 0, nchar(prefix)) == prefix) 
-    protNames[index] <- paste0(prefix, "P", substr(geneNames[index], nchar(prefix) + 2, nchar(geneNames)))
+    protNames[index] <- paste0(prefix, "P", substr(geneNames[index], nchar(prefix) + 2, nchar(geneNames[index])))
   }
   if(all(protNames != "")){
     return(protNames)
@@ -838,8 +840,8 @@ presenceAbsence <- function(sp){
 gene2species <- function(string){
   # get a character vector of species names from 
   # a character vector of gene names
-  knownSpeciesNames <- c("Paramecium_caudatum", "Paramecium_primaurelia", "Paramecium_sexaurelia", "Paramecium_tetraurelia", "Paramecium_biaurelia", "Tetrahymena_thermophila")
-  names(knownSpeciesNames) <-  c("PCAU", "PPRI", "PSEX", "PTET", "PBIA", "TTHE")
+  knownSpeciesNames <- c("Paramecium_primaurelia", "Paramecium_biaurelia", "Paramecium_tetraurelia", "Paramecium_pentaurelia", "Paramecium_sexaurelia", "Paramecium_octaurelia", "Paramecium_tredecaurelia", "Paramecium_sonneborni",  "Paramecium_caudatum", "Tetrahymena_thermophila")
+  names(knownSpeciesNames) <-  c("PPRI", "PBIA", "PTET", "PPEN", "PSEX", "POCT", "PSON", "PTRE", "PCAU", "TTHE")
   speciesNames <- knownSpeciesNames[substr(string, 0, 4)]
   if(any(is.na(speciesNames))){
     stop(paste("unknown name", string[which(is.na(speciesNames))]))
