@@ -1,19 +1,21 @@
 # prepare data for revBayes
 library(reshape2)
 library(ape)
-source("sharedFunctions.R")
-load("~/data/IES_data/rdb/charMats")
+source("~/projects/IES/src/sharedFunctions.R")
+charMats <- read.table("~/data/IES/analysis/iesdb/charMats.tab", stringsAsFactors = FALSE, header = TRUE)
+#load("~/data/IES_data/rdb/charMats")
 clusters <- unique(charMats$cluster)
 geneFamiliesProcessed <- character()
+skippedFamilies <- character()
 for(i in c(1:length(clusters))){
   cat(i, "/", length(clusters), "\r")
   nex <- save2nexus(clusters[i])
   spNames <- gene2species(names(nex))
   # if data matrix has T. thermophila exclude list elements
-  nex <- nex[which(spNames != "Tetrahymena_thermophila")]
+  #nex <- nex[which(spNames != "Tetrahymena_thermophila")]
  #check if we have a tree file
-  dataNexusOut <- paste0("~/data/IES_data/msas/asr/charMat",clusters[i],".nexus")
-  treeFileIn <- paste0("~/data/IES_data/msas/phyldog/results/",clusters[i],".ReconciledTree")
+  dataNexusOut <- paste0("~/data/IES/analysis/asr/charMat",clusters[i],".nexus")
+  treeFileIn <- paste0("~/data/IES/analysis/phyldog/results/",clusters[i],".ReconciledTree")
   if(file.exists(treeFileIn)){
     # write a nexus data file for each gene family
     modif.write.nexus.data(nex, file = dataNexusOut, format = "Standard")
@@ -25,16 +27,16 @@ for(i in c(1:length(clusters))){
     # source("~/projects/IES/src/sharedPlotFunctions.R")
     # cl <- colBySpec(geneTree)
     # plot(geneTree, tip.col = cl)
-    if(length(geneTree$tip.label) != length(names(nex))){
-      stop(paste("Genes do not match between tree and character matrix!: ", clusters[i]))
-    }else if (!all(sort(geneTree$tip.label) == sort(names(nex)))){
-      stop(paste("Genes do not match between tree and character matrix!: ", clusters[i]))
+    if (!identical(sort(geneTree$tip.label), sort(gene2protName(names(nex))))){
+      stop(paste("Genes do not match between tree and character matrix!: ", clusters[i], i))
     }
-    write.nexus(geneTree, file = paste0("~/data/IES_data/msas/asr/tree",clusters[i],".nexus"))
+    write.nexus(geneTree, file = paste0("~/data/IES/analysis/asr/tree",clusters[i],".nexus"))
     geneFamiliesProcessed <- append(geneFamiliesProcessed, clusters[i])
   }else{
-    # skip gene family
+    skippedFamilies <- append(skippedFamilies, clusters[i])
   }
 }
 
-write.table(geneFamiliesProcessed, file = "~/data/IES_data/msas/asr/geneFamilies.dat", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+write.table(geneFamiliesProcessed, file = "~/data/IES/analysis/asr/geneFamilies.dat", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+print("skipped families")
+print(skippedFamilies)

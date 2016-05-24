@@ -2,22 +2,20 @@
 print("starting script")
 system("date")
 # load file with gene families to read
-system("cat /home/dsellis/data/IES_data/msas/asr/geneFamilies.dat > /home/dsellis/data/IES_data/msas/asr/geneFamilies1.dat")
-#system("head -n 50 /home/dsellis/data/IES_data/msas/asr/geneFamilies.dat > /home/dsellis/data/IES_data/msas/asr/geneFamilies1.dat")
-#system("echo 3865 > /home/dsellis/data/IES_data/msas/asr/geneFamilies1.dat")
-#system("echo 997 > /home/dsellis/data/IES_data/msas/asr/geneFamilies1.dat")
+system("cat /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
+#system("head -n 100 /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
+#system("echo 3 > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
 
-geneFamilies = readCharacterDataDelimited(file = "/home/dsellis/data/IES_data/msas/asr/geneFamilies1.dat", type = "Standard", delimiter = "\t")
+geneFamilies = readCharacterDataDelimited(file = "/home/dsellis/data/IES/analysis/asr/geneFamilies1.dat", type = "Standard", delimiter = "\t")
 geneFamilyNames = geneFamilies.names()
 for(i in 1:geneFamilyNames.size()){
   clusterS = geneFamilies.names()[i].getSpeciesName()
-  if(clusterS == "3865"){
-    # skip this family as it is very hard to compute starting probabilities
-  }else{
-    data[i] = readDiscreteCharacterData("/home/dsellis/data/IES_data/msas/asr/charMat"+ clusterS + ".nexus")
-    psi[i] = readTrees("/home/dsellis/data/IES_data/msas/asr/tree" + clusterS + ".nexus")[1]  
+#  if(clusterS == "3865"){    # skip this family as it is very hard to compute starting probabilities
+#  }else{
+    data[i] = readDiscreteCharacterData("/home/dsellis/data/IES/analysis/asr/charMat"+ clusterS + ".nexus")
+    psi[i] = readTrees("/home/dsellis/data/IES/analysis/asr/tree" + clusterS + ".nexus")[1]  
 #    write(psi[i], filename = "/home/dsellis/data/IES_data/msas/asr/rbNodeIndexes/nodeIndex." + clusterS + ".tre") # save file with trees and node indexes
-  }
+#  }
 }
 #setOption("scalingDensity", 1) #scale at every node!
 
@@ -53,15 +51,17 @@ system("date")
 for(i in 1:geneFamilyNames.size()){
   system("printf 'adding model "+ i + " out of " + geneFamilyNames.size() + "\r'")
   clusterS = geneFamilies.names()[i].getSpeciesName()
-  monitors[i] = mnJointConditionalAncestralState(tree = psi[i], ctmc = ctmc[i], filename = "ancStates" + clusterS + ".log", type = "Restriction", printgen = 100, withStartStates = false)
+  monitors[i] = mnJointConditionalAncestralState(tree = psi[i], ctmc = ctmc[i], filename = "OUTPATH/ancStates" + clusterS + ".log", type = "Restriction", printgen = 100, withStartStates = false)
 # withStartStates = false does not print both start and end states for each node
 }
 
-monitors[++i] = mnFile(filename = "parameters1.log", insertionRate, lossRate, likelihood = true, printgen=100)
+monitors[++i] = mnFile(filename = "OUTPATH/parameters1.log", insertionRate, lossRate, likelihood = true, printgen=100)
 monitors[++i] = mnScreen(insertionRate, lossRate, printgen=1000)
 
 mymcmc = mcmc(mymodel, monitors, moves)
 mymcmc.burnin(generations=10000,tuningInterval=1000)
 mymcmc.run(1000000)
+#mymcmc.run(100000)
+quit()
 
 

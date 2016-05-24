@@ -2,9 +2,9 @@
 use warnings;
 use strict;
 #parse ancestral state reconstructions from rev bayes and prepare it for easy processing
-my $asrPath = '/home/dsellis/data/IES_data/msas/asr/';
-my @runs = qw/run4 run5/;
-open GF, '/home/dsellis/data/IES_data/msas/asr/geneFamilies.dat' or die;
+my $asrPath = '/home/dsellis/data/IES/analysis/asr/';
+my @runs = qw/run1 run2/;
+open GF, '/home/dsellis/data/IES/analysis/asr/geneFamilies.dat' or die;
 my @clusters = <GF>;
 close GF;
 map(chomp, @clusters);

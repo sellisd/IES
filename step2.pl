@@ -41,5 +41,7 @@ run($cmdl, 1);
 
 run('./homIESdb.pl > /home/dsellis/data/IES/analysis/iesdb/homIESdb.dat', 1);
 
-#'iqtree -s '..' -st CODON6 -m TESTNEWONLY'
 run("./preparePhyldog.pl", 1);
+
+# gene family tree inference for single copy gene trees
+#'iqtree -s '..' -st CODON6 -m TESTNEWONLY'

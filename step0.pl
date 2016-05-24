@@ -12,14 +12,19 @@ my $bamD = '/home/dsellis/data/IES/bam/';
 my $bedD = '/home/dsellis/data/IES/analysis/bed';
 
 #files
-my $pcaCovFiltered = catfile($bedD, 'pca.cov.be'); # coverage over 14x
-my $pcaCovFiltmerge = catfile($bedD, 'pca.covm.be'); # merged
-# calculate regions of P. caudatum with genomic coverage > 14x
-my $cmdl = 'bedtools genomecov -ibam '.
-    catfile($bamD, 'PCAUD_MIC10_BCP_AFIOSF_2.BOWTIE.pc_mac_43c3d_v1.1.pe.sorted.bam').
-    ' -bg | awk \'$4 > 14\' > '.
-    $pcaCovFiltered;
-run($cmdl, 0);
+my $pcaCovFiltered = catfile($bedD, 'pca.cov.be'); # coverage
+my $genesF = catfile($bedD, 'pca.gene.be'); # genes
 
-$cmdl = "bedtools merge -i $pcaCovFiltered > $pcaCovFiltmerge";
+# calculate average per nulcotide coverage over genes
+my $cmdl = './geneCov.pl > /home/dsellis/data/IES/analysis/tables/pca.gene.cov';
 run($cmdl, 0);
+# my $pcaCovFiltmerge = catfile($bedD, 'pca.covm.be'); # merged
+# # calculate regions of P. caudatum with genomic coverage > 14x
+# my $cmdl = 'bedtools genomecov -ibam '.
+#     catfile($bamD, 'PCAUD_MIC10_BCP_AFIOSF_2.BOWTIE.pc_mac_43c3d_v1.1.pe.sorted.bam').
+#     ' -bg | awk \'$4 > 14\' > '.
+#     $pcaCovFiltered;
+# run($cmdl, 0);
+
+# $cmdl = "bedtools merge -i $pcaCovFiltered > $pcaCovFiltmerge";
+# run($cmdl, 0);
