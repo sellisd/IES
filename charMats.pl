@@ -4,6 +4,9 @@ use strict;
 use lib'.';
 use functions;
 
+# load gene/protein notation
+my $prefixesR = initF();
+
 # prepare character matrices
 
 # read read coverage per gene (Only for P. caudatum) if a gene has on average coverage more than cutoff (15x) we are confident on the absence of IES, otherwise it should be coded as ?
@@ -48,16 +51,15 @@ while(my $line = <IN>){
 }
 close IN;
 
-# character matrix output
-my $count = 0;
+# character matrix output, translate geneId to protId to keep it comparable with the trees
 printab(('cluster', 'column', 'geneId', 'begin', 'end', 'ies'));
 foreach my $geneFamily (sort {$a<=>$b} keys %charMats){
     foreach my $id (sort {$a <=> $b} keys %{$charMats{$geneFamily}}){
 	foreach my $gene (sort keys  %{$charMats{$geneFamily}{$id}}){
-	    printab($geneFamily, $id, $gene, $charMats{$geneFamily}{$id}{$gene}{'begin'},
+	    printab($geneFamily, $id, X2Y($gene, $prefixesR, 'G', 'P'), $charMats{$geneFamily}{$id}{$gene}{'begin'},
 		    $charMats{$geneFamily}{$id}{$gene}{'end'},
 		    $charMats{$geneFamily}{$id}{$gene}{'ies'});
 	}
     }
 }
-print "$count\n";
+

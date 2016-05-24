@@ -222,7 +222,9 @@ sub gene2prot{
 }
 
 sub X2Y{
-# transcript to gene: X2Y transcriptName, prefixesR, 'T', 'G'
+    # transform name notation, e.g:
+    # X2Y(id, prefixesRef, 'T', 'G') # transcript to gene
+    # X2Y(id, prefixesRef, 'G', 'P') # gene to protein
     my $XId = shift @_;
     my $prefixesR = shift @_;
     my $found = 0;
