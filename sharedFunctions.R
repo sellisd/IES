@@ -18,8 +18,7 @@ prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
               'POCTA.138.1.'   = 'Paramecium octaurelia',
               'PTRED.209.2.'   = 'Paramecium tredecaurelia',
               'PSON.ATCC_30995.1.'     = 'Paramecium sonneborni',
-              'PCAU.43c3d.1.'  = 'Paramecium caudatum',
-              'TTHERM_'        = 'Tetrahymena thermophila')
+              'PCAU.43c3d.1.'  = 'Paramecium caudatum')
 
 withinRange <- function(q, r){
   # if a be range is partially within another be range
@@ -190,6 +189,10 @@ gene2protName <- function(geneNames){
   for(prefix in names(prefixes)){
     index <- which(substr(geneNames, 0, nchar(prefix)) == prefix) 
     protNames[index] <- paste0(prefix, "P", substr(geneNames[index], nchar(prefix) + 2, nchar(geneNames[index])))
+  }
+  tindex <- which(substr(geneNames, 0, 7) == "TTHERM_")
+  if(length(tindex) !=0 ){
+    protNames[tindex] <- paste0("TTHERM_", substr(geneNames[tindex], 8, nchar(geneNames[tindex])))
   }
   if(all(protNames != "")){
     return(protNames)
