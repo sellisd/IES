@@ -89,7 +89,7 @@ my $outputFile;
 my $iesgffF;
 
 #load defaults
-my $notationF =  catfile($homeD, 'data/IES/analysis/notation.tab');
+my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
 
 open N, $notationF or die $!;
 my $header = readline(N);

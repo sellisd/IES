@@ -10,7 +10,7 @@ use strict;
 # Evolution of IES in *Paramecium*
 
 my $homeD = File::HomeDir->my_home;
-my $notationF =  catfile($homeD, 'data/IES/analysis/notation.tab');
+my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
 
 my $nr = getNotation($notationF);
 
@@ -26,7 +26,7 @@ my $tablesP = catfile($homeD, 'data/IES/analysis/tables');
 foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}}; #de-reference for less typing
     my $genome = catfile($pab{'datapath'}, $pab{'MacF'});
-    my $scafF = catfile($pab{'datapath'}, 'analysis', $pab{'abr'}.'.scaf');
+    my $scafF = catfile($pab{'datapath'}, 'analysis/filtscaf', $pab{'abr'}.'.scaf');
     my $cmdl = './scaffoldStats.pl '.$genome.' > '.$scafF;
     run($cmdl, 1);
 }
@@ -36,7 +36,7 @@ foreach my $sp (sort keys %$nr){
 
 foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}};
-    my $scafF   = catfile($pab{'datapath'}, 'analysis', $pab{'abr'}.'.scaf');
+    my $scafF   = catfile('/home/dsellis/data/IES/analysis/filtscaf', $pab{'abr'}.'.scaf');
     my $protein = catfile($pab{'datapath'}, $pab{'protF'}),
     my $gff     = catfile($pab{'datapath'}, $pab{'geneGff'}),
     my $gene    = catfile($pab{'datapath'}, $pab{'geneF'}),
@@ -54,6 +54,7 @@ foreach my $sp (sort keys %$nr){
 	' -outdir '.$outdir;
     run($cmdl, 1);
 }
+
 
 # make BLAST protein database
 # ---------------------------

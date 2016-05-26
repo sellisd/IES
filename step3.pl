@@ -7,7 +7,7 @@ use functions;
 use warnings;
 use strict;
 my $homeD = File::HomeDir->my_home;
-my $notationF =  catfile($homeD, 'data/IES/analysis/notation.tab');
+my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
 my $rbResultsP = catfile($homeD, 'data/IES/analysis/asr/');
 
 # directories with rb output
@@ -36,14 +36,14 @@ make_path($rbRun2) unless -e $rbRun2;
 setOutAsr($asrRevF, $rbRun1, $rbRun1Rev);
 setOutAsr($asrRevF, $rbRun2, $rbRun2Rev);
 
-run("rb $rbRun1Rev", 1, 1);
+run("rb $rbRun1Rev", 0, 1);
 run("rb $rbRun2Rev", 1, 0);
 
-run('./parseRevBayesAsr.pl > ~/data/IES/analysis/tables/avNodeProb.dat', 0);
+run('./parseRevBayesAsr.pl > ~/data/IES/analysis/tables/avNodeProb.dat', 1);
 
 # make a dictionary of node Ids across software
-run('./nhxNodes.pl ~/data/IES/analysis/phyldog/results/*.ReconciledTree', 0)
-run('./nhxNodes.pl -rb ~/data/IES/analysis/asr/rbNodeIndexes/nodeIndex.*.tre', 0)
+run('./nhxNodes.pl ~/data/IES/analysis/phyldog/results/*.ReconciledTree', 1);
+run('./nhxNodes.pl -rb ~/data/IES/analysis/asr/rbNodeIndexes/nodeIndex.*.tre', 1);
 
 sub setOutAsr{
     # modify the basic Rev script for multiple runs, and optionally keep specific lines

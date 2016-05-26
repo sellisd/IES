@@ -7,10 +7,21 @@ use functions;
 use warnings;
 use strict;
 my $homeD = File::HomeDir->my_home;
-my $notationF =  catfile($homeD, 'data/IES/analysis/notation.tab');
+my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
 
 my $nr = getNotation($notationF);
 
+
+foreach my $sp (sort keys %$nr){
+    my %pab = %{$nr->{$sp}};
+    my $cmdl = './genedb.pl'.
+	' -silixout '.'/home/dsellis/data/IES/analysis/allvsall/blastout/silix.output'.
+	' -origff '.catfile($pab{'datapath'}, $pab{'geneGff'}).
+	' -gff '.catfile('/home/dsellis/data/IES/analysis/filtscaf/', $pab{'abr'}.'.gff').
+	' > /home/dsellis/data/IES/analysis/iesdb/'.$pab{'abr'}.'.genedb';
+    run($cmdl, 0);
+}
+die;
 run("./msaLocal.pl > /home/dsellis/data/IES/analysis/log/msaLocal.log", 1);
 run("Rscript --vanilla ./filterProtAlign.R", 1);
 my $cmdl = './prot2nucl.pl';
@@ -37,7 +48,7 @@ $cmdl= './withinGblocks.pl';
 run($cmdl, 1);
 
 $cmdl = './geneFamilydb.pl';
-run($cmdl, 1);
+run($cmdl, 0);
 
 run('./homIESdb.pl > /home/dsellis/data/IES/analysis/iesdb/homIESdb.dat', 1);
 

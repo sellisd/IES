@@ -42,6 +42,7 @@ while(my $line = <FS>){
 close FS;
 
 open OUT, '>', $outF or die $!;
+print OUT join("\t", ("id", "seqNo", "avPairId", "genes", "geneNumber")), "\n";
 foreach my $gf (sort keys %geneFamily){
     print OUT $gf,"\t";
     if(defined($geneFamily{$gf}{'seqNo'})){ # not filtered !
@@ -51,7 +52,7 @@ foreach my $gf (sort keys %geneFamily){
 	print OUT 'NA',"\t";
 	print OUT 'NA',"\t";
     }
-    print OUT join(',', @{$geneFamily{$gf}{'genes'}});
+    print OUT join(',', @{$geneFamily{$gf}{'genes'}}), "\t";
     print OUT "\n";
 }
 close OUT;

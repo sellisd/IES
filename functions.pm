@@ -12,14 +12,20 @@ BEGIN{
 sub run{
     my $cmdl = shift @_;
     my $dryRun = shift @_;
+    my $background = shift @_;
+    my $bg;
+    if($background){
+	$bg = ' &';
+    }else{
+	$bg = '';
+    }
     if($dryRun){
 	print 'DRY-RUN ';
-	print $cmdl, "\n";
+	print $cmdl, "$bg\n";
     }else{
-	print $cmdl, "\n";
-	system $cmdl;
+	print $cmdl, "$bg\n";
+	system "$cmdl $bg";
     }
-
 }
 
 sub getNotation{
@@ -29,7 +35,7 @@ sub getNotation{
     my %notation;
     while(my $line = <N>){
 	chomp $line;
-	(my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
+	(my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix, my $micbam, my $micbamalt) = split "\t", $line;
 	$notation{$binomial} = {
 	    'annotation' => $annotation,
 	    'prefix'     => $prefix,
@@ -41,7 +47,9 @@ sub getNotation{
 	    'protF'      => $protF,
 	    'geneF'      => $geneF,
 	    'MacF'       => $MacF,
-	    'iesGff'     => $iesGff
+	    'iesGff'     => $iesGff,
+	    'micbam'     => $micbam,
+	    'micbamalt'  => $micbamalt
 	};
     }
     close N;
@@ -75,14 +83,14 @@ sub success{
 }
 
 sub initF{
-    my $notationF =  '/home/dsellis/data/IES/analysis/notation.tab';
+    my $notationF =  '/home/dsellis/data/IES/analysis/notation.csv';
     open N, $notationF or die $!;
     my $header = readline(N);
     my %prefixes;
     while(my $line = <N>){
 	chomp $line;
 	my $ar = split "\t", $line;
-	(my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix) = split "\t", $line;
+	(my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix, my $micbam, my $micbamalt) = split "\t", $line;
 	$prefixes{$abbreviation} = $prefix;
     }
     close N;
