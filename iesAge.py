@@ -7,13 +7,13 @@ for each IES find most recent common ancestor in species tree
 """
 
 # load species tree
-t = Tree('/home/dsellis/data/IES_data/msas/phyldog/results/OutputSpeciesTree_ConsensusNumbered.tree', format = 1)
+t = Tree('/home/dsellis/data/IES/analysis/phyldog/results/OutputSpeciesTree_ConsensusNumbered.tree', format = 1)
 
 
 # replace species names with speciation events and add 0 to root node label
 for l in t.traverse():
     if(l.is_leaf()):
-        l.name = (re.sub(r'Paramecium_.+_(\d+)', r'\1', l.name))
+        l.name = (re.sub(r'.+_.+_(\d+)', r'\1', l.name))
     elif(l.is_root()):
         if(l.name):
             quit(l.name)
@@ -21,8 +21,9 @@ for l in t.traverse():
         else:
             l.name = '0'
 
+
 # read line by line firstIES.dat
-f = open('/home/dsellis/data/IES_data/msas/firstIES.dat', 'r')
+f = open('/home/dsellis/data/IES/analysis/tables/firstIES.dat', 'r')
 header = f.readline()
 print('\t'.join(['cluster', 'iesColumn', 'spEvent']))
 for line in f:

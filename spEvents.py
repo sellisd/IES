@@ -6,8 +6,8 @@ from ete3 import Tree
 find which phyldog nodes correspond to which speciation event
 """
 
-phyldogPath = '/home/dsellis/data/IES_data/msas/phyldog/results/'
-inputF = open('/home/dsellis/data/IES_data/msas/asr/geneFamilies.dat', 'r')
+phyldogPath = '/home/dsellis/data/IES/analysis/phyldog/results/'
+inputF = open('/home/dsellis/data/IES/analysis/asr/geneFamilies.dat', 'r')
 clusters = inputF.readlines()
 clusters = [i.rstrip() for i in clusters]
 print('cluster\tnodeP\tspEvent')

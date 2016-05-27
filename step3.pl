@@ -13,7 +13,7 @@ my $rbResultsP = catfile($homeD, 'data/IES/analysis/asr/');
 # directories with rb output
 my $rbRun1 = catfile($rbResultsP, 'run1');
 my $rbRun2 = catfile($rbResultsP, 'run2');
-my $nodeIndexesP = catfile($rbResultsP, 'rbNodeIndexes');
+my $rbNodeIndexesP = catfile($rbResultsP, 'rbNodeIndexes');
 
 # Rev scripts
 my $rbRun1Rev = catfile($rbRun1, 'asr1.Rev');
@@ -29,21 +29,38 @@ run($cmdl, 1);
 $cmdl = 'Rscript --vanilla preRev.R > /home/dsellis/data/IES/analysis/preRev.log';
 run($cmdl, 1);
 
-
+make_path($rbNodeIndexesP) unless -e $rbNodeIndexesP;
 make_path($rbRun1) unless -e $rbRun1;
 make_path($rbRun2) unless -e $rbRun2;
 
-setOutAsr($asrRevF, $rbRun1, $rbRun1Rev);
-setOutAsr($asrRevF, $rbRun2, $rbRun2Rev);
+setOutAsr($asrRevF, $rbRun1, $rbRun1Rev, 1); # first time through print node index
+setOutAsr($asrRevF, $rbRun2, $rbRun2Rev, 0);
 
-run("rb $rbRun1Rev", 0, 1);
-run("rb $rbRun2Rev", 1, 0);
+run("rb $rbRun1Rev", 1);
+run("rb $rbRun2Rev", 1);
 
-run('./parseRevBayesAsr.pl > ~/data/IES/analysis/tables/avNodeProb.dat', 1);
+run('./parseRevBayesAsr.pl -gf /home/dsellis/data/IES/analysis/asr/geneFamilies.dat -burnin 1000 -asr /home/dsellis/data/IES/analysis/asr/ -output ~/data/IES/analysis/tables/avNodeProb.dat', 1);
 
 # make a dictionary of node Ids across software
 run('./nhxNodes.pl ~/data/IES/analysis/phyldog/results/*.ReconciledTree', 1);
-run('./nhxNodes.pl -rb ~/data/IES/analysis/asr/rbNodeIndexes/nodeIndex.*.tre', 1);
+run("./nhxNodes.pl -rb ".$rbNodeIndexesP."/nodeIndex.*.tre", 1);
+
+# make dictionary of node indexes linking revBayes, PHYLDOG and ape(R) notation
+run("Rscript --vanilla ./nodeDictionary.R", 1);
+
+# find age of individual IES (MRCA of group of homologous IES)
+# 1. spEvents.py creates a table with nodes of trees that correspond to speciation events
+run("./spEvents.py > ~/data/IES/analysis/tables/spEvents.dat", 1);
+# 2. then find speciation tree node is the most recent common ancestor
+run("Rscript --vanilla firstIES.R > ~/data/IES/analysis/tables/firstIES.dat", 1);
+# 3. then find the most recent common ancestor
+run("./iesAge.py > ~/data/IES/analysis/tables/iesAge.dat", 0);
+#use charMats to link iesCol to ies name
+
+# find per branch gain and loss events
+# generate pairs of all speciation nodes:
+#PSEUDO CODE:
+#
 
 sub setOutAsr{
     # modify the basic Rev script for multiple runs, and optionally keep specific lines
@@ -57,6 +74,7 @@ sub setOutAsr{
 	$line =~ s/OUTPATH/$outpath/g;
 	if($optline){
 	    $line =~ s/^#OPTLINE(.*)$/$1/;
+	    $line =~ s/rbNodeIndexesP/$rbNodeIndexesP/;
 	}
 	print OUT $line;
     }

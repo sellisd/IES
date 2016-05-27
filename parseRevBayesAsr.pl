@@ -1,11 +1,37 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-#parse ancestral state reconstructions from rev bayes and prepare it for easy processing
-my $asrPath = '/home/dsellis/data/IES/analysis/asrPilot/';
+use Getopt::Long;
+my $help;
+my $asrPath;
+my $outputF;
+my $burnin;
+my $gf;
+my $usage = <<HERE;
+
+Parse ancestral state reconstructions from revBayes output and prepare it in a tidy format
+usage parseRevBayesAsr.pl [OPTIONS]
+where OPTIONS can be:
+  -asr:    path for one or more revbayes runs (each in a runX file, where X = 1,2,...)
+  -output: output file
+  -burnin: burn in period
+  -gf:     file with list of gene families expected
+  -help|?: this help screen
+
+HERE
+
+die $usage unless (GetOptions('help|?'   => \$help,
+			      'output=s' => \$outputF,
+			      'burnin=s' => \$burnin,
+			      'asr=s'    => \$asrPath,
+			      'gf=s'     => \$gf
+		   ));
+
+die $usage if $help;
+
+
 my @runs = qw/run1 run2/;
-my $outputF = '/home/dsellis/data/IES/analysis/tables/avNodeProb.dat';
-open GF, '/home/dsellis/data/IES/analysis/asr/geneFamilies.dat' or die;
+open GF, $gf or die;
 my @clusters = <GF>;
 close GF;
 map(chomp, @clusters);

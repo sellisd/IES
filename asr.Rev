@@ -2,7 +2,7 @@
 print("starting script")
 system("date")
 # load file with gene families to read
-#system("cat /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
+system("cat /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
 #system("head -n 100 /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
 #system("echo 3 > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
 
@@ -10,11 +10,11 @@ geneFamilies = readCharacterDataDelimited(file = "/home/dsellis/data/IES/analysi
 geneFamilyNames = geneFamilies.names()
 for(i in 1:geneFamilyNames.size()){
   clusterS = geneFamilies.names()[i].getSpeciesName()
-  if(clusterS == "2825"){    # skip this family as it is very hard to compute starting probabilities
+  if(clusterS == "2825" || clusterS == "10007" || clusterS == "5033" || clusterS == "11561"){    # skip these families as it is very hard to compute starting probabilities
   }else{
     data[i] = readDiscreteCharacterData("/home/dsellis/data/IES/analysis/asr/charMat"+ clusterS + ".nexus")
     psi[i] = readTrees("/home/dsellis/data/IES/analysis/asr/tree" + clusterS + ".nexus")[1]  
-#OPTLINE   write(psi[i], filename = "/home/dsellis/data/IES/analysis/asr/rbNodeIndexes/nodeIndex." + clusterS + ".tre") # save file with trees and node indexes
+#OPTLINE   write(psi[i], filename = "rbNodeIndexesP/nodeIndex." + clusterS + ".tre") # save file with trees and node indexes
   }
 }
 #setOption("scalingDensity", 1) #scale at every node!

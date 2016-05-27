@@ -47,9 +47,9 @@ def subpaths(pairS, L):
 
 #pairs of speciation nodes
 pairS = ((0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(2,3),(2,4),(2,5),(2,6),(4,5),(4,6))
-phyldogPath = '/home/dsellis/data/IES_data/msas/phyldog/results/'
+phyldogPath = '/home/dsellis/data/IES/analysis/phyldog/results/'
 
-inputF = open('/home/dsellis/data/IES_data/msas/asr/geneFamilies.dat', 'r')
+inputF = open('/home/dsellis/data/IES/analysis/asr/geneFamilies.dat', 'r')
 clusters = inputF.readlines()
 clusters = [i.rstrip() for i in clusters]
 print('cluster\tfrom\tto\tpath')

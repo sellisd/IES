@@ -1,7 +1,7 @@
-spEvents <- read.table("~/data/IES_data/msas/spEvents.dat", header = TRUE)
+spEvents <- read.table("~/data/IES/analysis/tables/spEvents.dat", header = TRUE)
 # Find the speciation events where gene tree nodes are inferred to have an IES (with p > 0.99)
 cutoff <- 0.99
-asrs <- read.table("~/data/IES_data/msas/nodeAsr.dat", header = TRUE) # nodes are in rb index notation
+asrs <- read.table("~/data/IES/analysis/tables/avNodeProb.dat", header = TRUE) # nodes are in rb index notation
 haveIES <- asrs[which(asrs$presence > cutoff), ]
 keys <- paste0(haveIES$cluster, '.', haveIES$iesColumn)
 cat("cluster", "iesColumn", "spEvents", "\n")

@@ -31,9 +31,14 @@ foreach my $sp (sort keys %$nr){
       ' -g '.catfile($pab{'datapath'}, $pab{'MacF'}).
       ' -d > '.$coverageF;
   run($cmdl, 1);
+  # and also genome coverage per scaffold
+
   # calculate average per nucleotide read coverage over genes
-  run("./geneCov.pl -cov $coverageF -bed $geneBedF -out $geneCovF", 0);
+  run("./geneCov.pl -cov $coverageF -bed $geneBedF -out $geneCovF", 1);
 }
+
+
+
 # directories
 # my $bamD = '/home/dsellis/data/IES/bam/';
 # my $bedD = '/home/dsellis/data/IES/analysis/bed';
