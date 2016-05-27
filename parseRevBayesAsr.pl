@@ -2,15 +2,17 @@
 use warnings;
 use strict;
 #parse ancestral state reconstructions from rev bayes and prepare it for easy processing
-my $asrPath = '/home/dsellis/data/IES/analysis/asr/';
+my $asrPath = '/home/dsellis/data/IES/analysis/asrPilot/';
 my @runs = qw/run1 run2/;
+my $outputF = '/home/dsellis/data/IES/analysis/tables/avNodeProb.dat';
 open GF, '/home/dsellis/data/IES/analysis/asr/geneFamilies.dat' or die;
 my @clusters = <GF>;
 close GF;
 map(chomp, @clusters);
 
 my $burnIn = 1000;
-print "cluster\tnode\tiesColumn\tpresence\n";
+open OUT, '>', $outputF or die $!;
+print OUT "cluster\tnode\tiesColumn\tpresence\n";
 foreach my $cluster (@clusters){
     my @nodes;
     my $iesColumns = 0;
@@ -18,6 +20,10 @@ foreach my $cluster (@clusters){
     my $its = 0;
     foreach my $run (@runs){
 	my $file = $asrPath.$run.'/ancStates'.$cluster.'.log';
+	if (! -e $file){
+	    print "skipping $file\n";
+	    next;
+	}
 	open IN, $file or die "$! $file";
 	my $lineCounter = 0;
 	while(my $line = <IN>){
@@ -60,9 +66,10 @@ foreach my $cluster (@clusters){
     my $counter = 0;
     foreach my $node (@nodes){
 	for (my $col = 0; $col < $iesColumns; $col++){
-	    print join("\t", ($cluster, $node, $col, $sums[$counter]/$its)), "\n";
+	    print OUT join("\t", ($cluster, $node, $col, $sums[$counter]/$its)), "\n";
 	    $counter++;
 	}
     }
     close IN;
 }
+close OUT;
