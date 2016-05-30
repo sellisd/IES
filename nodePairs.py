@@ -30,9 +30,9 @@ def nodePairs(list):
     From a path of nodes generate all pairs
     """
     pairs = {}
-    for i in list:
-        for j in list[(i+1):]:
-            pairs[i] = j
+    for i, itemI in enumerate(list):
+        for j, itemJ in enumerate(list[(i+1):]):
+            pairs[(itemI,itemJ)] = 1
     return pairs
 
 # load species tree
@@ -51,14 +51,18 @@ for l in t.traverse():
             l.name = '0'
 
 allPairs = {}
-print(t.get_ascii(show_internal=True))
+#print(t.get_ascii(show_internal=True))
 # get all paths to root
 for l in t.get_leaves():
     p = path2anc(l)
     pairsInPath = nodePairs(p)
     allPairs.update(pairsInPath)
 
-for i in allPairs:
-    print(i,allPairs[i])
+# sort
+lp = sorted(allPairs.keys(), key=lambda tup: (tup[0], tup[1]))
+
+# and print
+for i in lp:
+    print(i[0], i[1])
 
 

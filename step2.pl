@@ -19,9 +19,9 @@ foreach my $sp (sort keys %$nr){
 	' -origff '.catfile($pab{'datapath'}, $pab{'geneGff'}).
 	' -gff '.catfile('/home/dsellis/data/IES/analysis/filtscaf/', $pab{'abr'}.'.gff').
 	' > /home/dsellis/data/IES/analysis/iesdb/'.$pab{'abr'}.'.genedb';
-    run($cmdl, 0);
+    run($cmdl, 1);
 }
-die;
+
 run("./msaLocal.pl > /home/dsellis/data/IES/analysis/log/msaLocal.log", 1);
 run("Rscript --vanilla ./filterProtAlign.R", 1);
 my $cmdl = './prot2nucl.pl';
@@ -48,11 +48,24 @@ $cmdl= './withinGblocks.pl';
 run($cmdl, 1);
 
 $cmdl = './geneFamilydb.pl';
-run($cmdl, 0);
+run($cmdl, 1);
 
 run('./homIESdb.pl > /home/dsellis/data/IES/analysis/iesdb/homIESdb.dat', 1);
 
 run("./preparePhyldog.pl", 1);
 
-# gene family tree inference for single copy gene trees
-#'iqtree -s '..' -st CODON6 -m TESTNEWONLY'
+# infer single gene families phylogeny
+
+my $singleGeneP = '/home/dsellis/data/IES/analysis/singleGene';
+opendir DH, $singleGeneP or die $!;
+my @nuclAlnF = grep {/.*\.nucl\.fa/} readdir(DH);
+close DH;
+my $iqtreeB = '/home/dsellis/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp'; #binary
+foreach my $file (@nuclAlnF){
+#strip stop codons from alignments
+# read alignment file
+# for each sequence 
+    my $cmdl = "$iqtreeB -s ".catfile($singleGeneP, $file).
+	' -m TESTNEWONLY -nt 2';
+    run($cmdl,0);
+}

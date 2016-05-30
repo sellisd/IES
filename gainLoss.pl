@@ -4,7 +4,7 @@ use strict;
 use Data::Dumper;
 
 # make a hash to translate phyldog to rb node notation
-open DICT,'/home/dsellis/data/IES/tables/nodeDictionary.dat' or die $!;
+open DICT,'/home/dsellis/data/IES/analysis/tables/nodeDictionary.dat' or die $!;
 my %phyldog2rb;
 while(my $line = <DICT>){
     chomp $line;
@@ -15,7 +15,7 @@ close DICT;
 
 # make a hash to translate from rbnode id to presence probability per ies column
 my %asr;
-open ASR, '/home/dsellis/data/IES/analysis/avNodeProb.dat' or die $!;
+open ASR, '/home/dsellis/data/IES/analysis/tables/avNodeProb.dat' or die $!;
 while(my $line = <ASR>){
     chomp $line;
     (my $cluster, my $rb, my $iesColumn, my $presence) = split " ", $line;

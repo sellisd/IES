@@ -54,13 +54,24 @@ run("./spEvents.py > ~/data/IES/analysis/tables/spEvents.dat", 1);
 # 2. then find speciation tree node is the most recent common ancestor
 run("Rscript --vanilla firstIES.R > ~/data/IES/analysis/tables/firstIES.dat", 1);
 # 3. then find the most recent common ancestor
-run("./iesAge.py > ~/data/IES/analysis/tables/iesAge.dat", 0);
+run("./iesAge.py > ~/data/IES/analysis/tables/iesAge.dat", 1);
 #use charMats to link iesCol to ies name
 
 # find per branch gain and loss events
-# generate pairs of all speciation nodes:
-#PSEUDO CODE:
-#
+# calculate total length (nt) of conserved blocks in alignments for each gene family
+
+# calculate all pairs of speciation nodes on species tree
+run("./nodePairs.py > ~/data/IES/analysis/tables/spNodePairs.dat", 1);
+# calculate  node paths for each pair of speciation nodes
+run("./nodePaths.py > ~/data/IES/analysis/tables/nodePaths.dat", 1);
+
+# for all paths connecting speciation nodes (Nanc-N1-N2-Noffspring)
+# calculate the difference in probability at each step
+# sum all the positive differences and all the negative differences
+run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 0);
+
+# for each path calculate probability of gain and loss    
+
 
 sub setOutAsr{
     # modify the basic Rev script for multiple runs, and optionally keep specific lines

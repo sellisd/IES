@@ -46,7 +46,10 @@ def subpaths(pairS, L):
     return subpaths
 
 #pairs of speciation nodes
-pairS = ((0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(2,3),(2,4),(2,5),(2,6),(4,5),(4,6))
+
+spNodePairsF = '/home/dsellis/data/IES/analysis/tables/spNodePairs.dat'
+pairS = [i.rstrip().split(" ") for i in open(spNodePairsF, 'r')]
+#pairS = ((0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(2,3),(2,4),(2,5),(2,6),(4,5),(4,6))
 phyldogPath = '/home/dsellis/data/IES/analysis/phyldog/results/'
 
 inputF = open('/home/dsellis/data/IES/analysis/asr/geneFamilies.dat', 'r')
