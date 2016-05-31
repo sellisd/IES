@@ -55,7 +55,9 @@ run("./spEvents.py > ~/data/IES/analysis/tables/spEvents.dat", 1);
 run("Rscript --vanilla firstIES.R > ~/data/IES/analysis/tables/firstIES.dat", 1);
 # 3. then find the most recent common ancestor
 run("./iesAge.py > ~/data/IES/analysis/tables/iesAge.dat", 1);
-#use charMats to link iesCol to ies name
+
+# 4. create homIESdb with age and other information
+run("./addAge.pl > ~/data/IES/analysis/iesdb/homIESdb.tab", 0);
 
 # find per branch gain and loss events
 # calculate total length (nt) of conserved blocks in alignments for each gene family

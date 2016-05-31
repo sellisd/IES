@@ -2,18 +2,23 @@
 library(reshape2)
 library(ape)
 source("~/projects/IES/src/sharedFunctions.R")
+# source("~/projects/IES/src/sharedPlotFunctions.R") # to print each tree
 charMats <- read.table("~/data/IES/analysis/iesdb/charMats.tab", stringsAsFactors = FALSE, header = TRUE)
 #load("~/data/IES_data/rdb/charMats")
 clusters <- unique(charMats$cluster)
 geneFamiliesProcessed <- character()
 skippedFamilies <- character()
+# build arrays with homologous IES group and column numbering correspondance
+TgeneFamily <- numeric(0)
+Tid <- numeric(0)
+Tcolumn <- numeric(0)
+
 for(i in c(1:length(clusters))){
   cat(i, "/", length(clusters), "\r")
-  nex <- save2nexus(clusters[i])
+  l <- save2nexus(clusters[i])
+  nex <- l[[1]]
   spNames <- gene2species(names(nex))
-  # if data matrix has T. thermophila exclude list elements
-  #nex <- nex[which(spNames != "Tetrahymena_thermophila")]
- #check if we have a tree file
+  #check if we have a tree file
   dataNexusOut <- paste0("~/data/IES/analysis/asr/charMat",clusters[i],".nexus")
   treeFileIn <- paste0("~/data/IES/analysis/phyldog/results/",clusters[i],".ReconciledTree")
   if(file.exists(treeFileIn)){
@@ -24,7 +29,6 @@ for(i in c(1:length(clusters))){
     geneTreeString <- gsub("\\[&&NHX:Ev=[SD]:S=\\d+:ND=\\d+\\]","",geneTreeString, perl = TRUE)
     geneTree <- read.tree(text = geneTreeString)
     # we could nicely plot the trees also
-    # source("~/projects/IES/src/sharedPlotFunctions.R")
     # cl <- colBySpec(geneTree)
     # plot(geneTree, tip.col = cl)
     if (!identical(sort(geneTree$tip.label), sort(gene2protName(names(nex))))){
@@ -32,6 +36,12 @@ for(i in c(1:length(clusters))){
     }
     write.nexus(geneTree, file = paste0("~/data/IES/analysis/asr/tree",clusters[i],".nexus"))
     geneFamiliesProcessed <- append(geneFamiliesProcessed, clusters[i])
+    # gather information linking homologous IES group id and order of columns in character matrix
+    homCol <- l[[2]]
+    columnsIGF  <- length(homCol) # homologous IES columns in gene family
+    TgeneFamily <- append(TgeneFamily, rep(clusters[i], columnsIGF))
+    Tcolumn     <- append(Tcolumn, c(0:(columnsIGF-1))) # 0-based
+    Tid         <- append(Tid, homCol)
   }else{
     skippedFamilies <- append(skippedFamilies, clusters[i])
   }
@@ -40,3 +50,9 @@ for(i in c(1:length(clusters))){
 write.table(geneFamiliesProcessed, file = "~/data/IES/analysis/asr/geneFamilies.dat", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 print("skipped families")
 print(skippedFamilies)
+write.table(data.frame(geneFamily = TgeneFamily, homIES = Tid, column = Tcolumn, stringsAsFactors = FALSE), 
+            file = "~/data/IES/analysis/tables/homIES.columns.link",
+            sep = "\t", 
+            quote = FALSE,
+            row.names = FALSE,
+            col.names = TRUE)

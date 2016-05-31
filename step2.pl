@@ -50,7 +50,7 @@ run($cmdl, 1);
 $cmdl = './geneFamilydb.pl';
 run($cmdl, 1);
 
-run('./homIESdb.pl > /home/dsellis/data/IES/analysis/iesdb/homIESdb.dat', 1);
+run('./homIESdb.pl > /home/dsellis/data/IES/analysis/table/homIES.dat', 1);
 
 run("./preparePhyldog.pl", 1);
 

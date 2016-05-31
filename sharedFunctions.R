@@ -1154,6 +1154,7 @@ save2nexus <- function(geneFamily){
     names(sequenceL)<-DFcasted$geneId[i]
     list4nexus <- append(list4nexus, sequenceL)
   }
-  list4nexus
+  homIESids <- names(DFcasted[2:ncol(DFcasted)])
+  list(list4nexus, homIESids)
 }
 source("~/projects/IES/src/testSharedFunctions.R")
