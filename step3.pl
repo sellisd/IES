@@ -68,7 +68,7 @@ run("./nodePaths.py > ~/data/IES/analysis/tables/nodePaths.dat", 1);
 # for all paths connecting speciation nodes (Nanc-N1-N2-Noffspring)
 # calculate the difference in probability at each step
 # sum all the positive differences and all the negative differences
-run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 0);
+run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 1);
 
 # for each path calculate probability of gain and loss    
 

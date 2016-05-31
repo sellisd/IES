@@ -6,6 +6,7 @@ use Data::Dumper;
 # make a hash to translate phyldog to rb node notation
 open DICT,'/home/dsellis/data/IES/analysis/tables/nodeDictionary.dat' or die $!;
 my %phyldog2rb;
+readline(DICT); #header
 while(my $line = <DICT>){
     chomp $line;
     (my $cluster, my $r, my $phyldog, my $rb) = split " ", $line;
