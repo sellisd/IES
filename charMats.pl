@@ -28,8 +28,8 @@ close CV;
 
 #floatingIES ptr.MICA.7180000129095.207151
 
-my $homIESdb = '/home/dsellis/data/IES/analysis/iesdb/homIESdb.dat';
-open IN, $homIESdb or die $!;
+my $homIESdb = '/home/dsellis/data/IES/analysis/tables/homIES.tab';
+open IN, $homIESdb or die "$! $homIESdb";
 readline(IN); # header
 my %charMats;
 while(my $line = <IN>){

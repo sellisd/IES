@@ -47,6 +47,9 @@ run($cmdl, 1);
 $cmdl= './withinGblocks.pl';
 run($cmdl, 1);
 
+$cmdl = './charMats.pl > /home/dsellis/data/IES/analysis/iesdb/charMats.tab';
+run($cmdl, 1);
+
 $cmdl = './geneFamilydb.pl';
 run($cmdl, 1);
 
@@ -58,14 +61,22 @@ run("./preparePhyldog.pl", 1);
 
 my $singleGeneP = '/home/dsellis/data/IES/analysis/singleGene';
 opendir DH, $singleGeneP or die $!;
-my @nuclAlnF = grep {/.*\.nucl\.fa/} readdir(DH);
+my @nuclAlnF = grep {/.*\.nucl\.fa.renamed$/} readdir(DH);
 close DH;
-my $iqtreeB = '/home/dsellis/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp'; #binary
+my $iqtreeB = '/home/dsellis/tools/iqtree-1.4.2-Linux/bin/iqtree'; #binary
 foreach my $file (@nuclAlnF){
 #strip stop codons from alignments
 # read alignment file
 # for each sequence 
     my $cmdl = "$iqtreeB -s ".catfile($singleGeneP, $file).
-	' -m TESTNEWONLY -nt 2';
-    run($cmdl,0);
+	' -m TESTNEWONLY -b 100 -redo';
+    run($cmdl, 1);
 }
+
+# infer phylogeny of concatenated genes partitioned by gene, and reusing the model test choices
+
+run('./nameReplaceAlign.pl -nex ~/data/IES/analysis/singleGene/part.nexus ~/data/IES/analysis/singleGene/cluster.*.nucl.fa', 1);
+run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 4 -spp  ~/data/IES/analysis/singleGene/part.nexus -bb 1000 > ~/data/IES/analysis/log/concatGenes.log', 1);
+
+
+#cat ~/data/IES/analysis/singleGenes/cluster.*.nucl.fa.renamed

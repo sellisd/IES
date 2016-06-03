@@ -23,10 +23,7 @@ my $nr = getNotation($notationF);
 my $asrRevF = '/home/dsellis/projects/IES/src/asr.Rev';
 
 
-my $cmdl = './charMats.pl > /home/dsellis/data/IES/analysis/iesdb/charMats.tab';
-run($cmdl, 1);
-
-$cmdl = 'Rscript --vanilla preRev.R > /home/dsellis/data/IES/analysis/preRev.log';
+my $cmdl = 'Rscript --vanilla preRev.R > /home/dsellis/data/IES/analysis/preRev.log';
 run($cmdl, 1);
 
 make_path($rbNodeIndexesP) unless -e $rbNodeIndexesP;
@@ -35,9 +32,9 @@ make_path($rbRun2) unless -e $rbRun2;
 
 setOutAsr($asrRevF, $rbRun1, $rbRun1Rev, 1); # first time through print node index
 setOutAsr($asrRevF, $rbRun2, $rbRun2Rev, 0);
-
-run("rb $rbRun1Rev", 1);
-run("rb $rbRun2Rev", 1);
+my $rbP = '/home/dsellis/tools/revbayes/projects/cmake/rb';
+run("$rbP $rbRun1Rev", 1);
+run("$rbP $rbRun2Rev", 1);
 
 run('./parseRevBayesAsr.pl -gf /home/dsellis/data/IES/analysis/asr/geneFamilies.dat -burnin 1000 -asr /home/dsellis/data/IES/analysis/asr/ -output ~/data/IES/analysis/tables/avNodeProb.dat', 1);
 
@@ -57,7 +54,7 @@ run("Rscript --vanilla firstIES.R > ~/data/IES/analysis/tables/firstIES.dat", 1)
 run("./iesAge.py > ~/data/IES/analysis/tables/iesAge.dat", 1);
 
 # 4. create homIESdb with age and other information
-run("./addAge.pl > ~/data/IES/analysis/iesdb/homIESdb.tab", 0);
+run("./addAge.pl > ~/data/IES/analysis/iesdb/homIESdb.tab", 1);
 
 # find per branch gain and loss events
 # calculate total length (nt) of conserved blocks in alignments for each gene family
@@ -70,7 +67,7 @@ run("./nodePaths.py > ~/data/IES/analysis/tables/nodePaths.dat", 1);
 # for all paths connecting speciation nodes (Nanc-N1-N2-Noffspring)
 # calculate the difference in probability at each step
 # sum all the positive differences and all the negative differences
-run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 1);
+run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 0);
 
 # for each path calculate probability of gain and loss    
 

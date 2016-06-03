@@ -1,8 +1,10 @@
-# add system("date") at begin/end/??? to see times
 print("starting script")
 system("date")
 # load file with gene families to read
-system("cat /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
+#system("cat /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
+#pick random 100 files
+#shuf -n 100
+#system("shuf -n 500 /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
 #system("head -n 100 /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
 #system("echo 3 > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
     
@@ -25,13 +27,22 @@ insertionRate ~ dnExponential(alpha)
 lossRate ~ dnExponential(alpha)
 
 mi <- 0
-moves[mi++] = mvScale(alpha)
+moves[mi++] = mvScale(alpha, lambda = 1)
+# moves[mi++] = mvScale(alpha, lambda = 0.1)
+# moves[mi++] = mvScale(alpha, lambda = 0.01)
 
 #this gives equal rates
 Q := fnFreeBinary([insertionRate, lossRate])
 
-moves[mi++] = mvScale(insertionRate)
-moves[mi++] = mvScale(lossRate)
+# a hierarchy of scale moves
+moves[mi++] = mvScale(insertionRate, lambda = 1) #default
+moves[mi++] = mvScale(lossRate, lambda = 1)
+
+# moves[mi++] = mvScale(insertionRate, lambda = 0.1)
+# moves[mi++] = mvScale(lossRate, lambda = 0.1)
+
+# moves[mi++] = mvScale(insertionRate, lambda = 0.01)
+# moves[mi++] = mvScale(lossRate, lambda = 0.01)
 
 print("making models")
 system("date")
@@ -55,13 +66,13 @@ for(i in 1:geneFamilyNames.size()){
 # withStartStates = false does not print both start and end states for each node
 }
 
-monitors[++i] = mnFile(filename = "OUTPATH/parameters1.log", insertionRate, lossRate, likelihood = true, printgen=100)
+monitors[++i] = mnFile(filename = "OUTPATH/parameters1.log", insertionRate, lossRate, alpha, likelihood = true, printgen=100)
 monitors[++i] = mnScreen(insertionRate, lossRate, printgen=1000)
 
 mymcmc = mcmc(mymodel, monitors, moves)
 mymcmc.burnin(generations=10000,tuningInterval=1000)
-mymcmc.run(1000000)
-#mymcmc.run(100000)
+#mymcmc.run(1000000)
+mymcmc.run(100000)
 quit()
 
 

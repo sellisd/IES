@@ -16,6 +16,7 @@ my $bedtools = '/usr/local/bin/bedtools';
 # output directories
 my $coverageD = '/home/dsellis/data/IES/analysis/coverage';
 my $bedD      = '/home/dsellis/data/IES/analysis/bed';
+my $figuresD  = '/home/dsellis/data/IES/analysis/figures/';
 
 make_path($coverageD) unless -d $coverageD;
 my $nr = getNotation($notationF);
@@ -31,13 +32,13 @@ foreach my $sp (sort keys %$nr){
       ' -g '.catfile($pab{'datapath'}, $pab{'MacF'}).
       ' -d > '.$coverageF;
   run($cmdl, 1);
-  # and also genome coverage per scaffold
-
   # calculate average per nucleotide read coverage over genes
   run("./geneCov.pl -cov $coverageF -bed $geneBedF -out $geneCovF", 1);
 }
 
 
+make_path($figuresD) unless -d $figuresD;
+run("Rscript --vanilla ./geneFilterByCoverage.R", 1);
 
 # directories
 # my $bamD = '/home/dsellis/data/IES/bam/';
