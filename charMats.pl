@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use File::Spec::Functions qw(catfile);
 use lib'.';
 use functions;
 
@@ -9,15 +10,19 @@ my $prefixesR = initF();
 
 # prepare character matrices
 
-# read read coverage per gene (Only for P. caudatum) if a gene has on average coverage more than cutoff (15x) we are confident on the absence of IES, otherwise it should be coded as ?
+# read list of genes which have too low read coverage in the Mic genome and thus any IES detected in them or homologous IES present in them is of low confidence
+my $path = '/home/dsellis/data/IES/analysis/tables/';
+my @gF = qw/gpbi.filt gpca.filt gpoc.filt gppe.filt gppr.filt gpse.filt gpso.filt gpte.filt gptr.filt/; # files with filtered genes 
 
-my $covgeneF = '/home/dsellis/data/IES/analysis/tables/pca.gene.cov';
-my %h;
-open CV, $covgeneF or die $!;
-while(my $line = <CV>){
-    chomp $line;
-    (my $gene, my $coverage) = split " ", $line;
-    $h{$gene} = $coverage;
+#my $covgeneF = '/home/dsellis/data/IES/analysis/tables/pca.gene.cov';
+my %h; # list of filtered genes
+foreach my $file (@gF){
+    open CV, catfile($path, $file) or die $!;
+    while(my $gene = <CV>){
+	chomp $gene;
+	die if defined ($h{$gene}); #they should be unique records
+	$h{$gene} = 1;
+    }
 }
 close CV;
 
@@ -30,20 +35,16 @@ my %charMats;
 while(my $line = <IN>){
     chomp $line;
     (my $id, my $geneFamily, my $beginMSArange, my $endMSArange, my $gene, my $beginGene, my $endGene, my $beginMSA, my $endMSA, my $ies) = split " ", $line;
-    if($ies eq 'NA'){
-	if(defined($h{$gene})){ # if no coverage data then this is a species with no low-coverage problem
-	    if($h{$gene} < 15){
-		$ies = '?';
-	    }elsif($h{$gene} >= 15){
-		$ies = 0;
-	    }else{
-		die;
-	    }
-	}else{
-	    $ies = 0;
-	}
+    # if gene in list print ? and keep track of whether it was present or absent
+    # else print 1 if present 0 if absent
+    if(defined($h{$gene})){
+	$ies = '?';
     }else{
-	$ies = 1;
+	if($ies eq 'NA'){
+	    $ies = 0;
+	}else{
+	    $ies = 1;
+	}
     }
     $charMats{$geneFamily}{$id}{$gene} = {'begin' => $beginMSArange,
 					  'end'   => $endMSArange,
