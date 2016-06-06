@@ -6,7 +6,7 @@ use strict;
 
 # read gblocks.dat
 
-my $gblocksF = '/home/dsellis/data/IES/analysis/msas/filtered/gblocks.dat';
+my $gblocksF = '/home/dsellis/data/IES/analysis/tables/gblocks.dat';
 my $homcolF = '/home/dsellis/data/IES/analysis/tables/homColumns.be';
 my $homcolBF = '/home/dsellis/data/IES/analysis/tables/homColinB.be';
 
