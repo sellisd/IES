@@ -5,6 +5,9 @@ singleGenePath <- "/home/dsellis/data/IES/analysis/singleGene/"
 if(!dir.exists(filteredPath)){
   dir.create(filteredPath)
 }
+if(!dir.exists(singleGenePath)){
+  dir.create(singleGenePath)
+}
 files <- dir(path= path,pattern="*.aln.fa$")
 nb <- numeric()
 id <- numeric()
@@ -26,7 +29,6 @@ for(fileName in files){
     counter <- counter + 1
   }  
 }
-
 write.table(data.frame(file=files,sequenceNo=nb,avPairId=id),file="~/data/IES/analysis/msas/protAlignStats.dat", quote=FALSE, row.names = FALSE)
 highId <- files[which(id>0.5)]
 enoughSeq <- files[which(nb>3)]
