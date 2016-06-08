@@ -9,7 +9,7 @@ use Getopt::Long;
 my $help;
 my $usage = <<HERE;
 
-Replace gene names with species names in multiple alignment files and create a nexus partition file at the same time
+Replace gene names with species names in multiple alignment files
 usage nameReplaceAlign.pl [OPTIONS] INPUTFILE(S)
 where OPTIONS can be:
   -help|?: this help screen
@@ -44,9 +44,9 @@ foreach my $inputFile (@ARGV){
     while(my $seqO = $in->next_seq()){
 	my $species = gene2species($seqO->id);
 	$hasTth = 1 if $species eq 'Tetrahymena_thermophila';
+	my $seq = $seqO->seq();
 	my $newSeqO = Bio::Seq->new(-id => $species,
-				    -seq => $seqO->seq());
+				    -seq => $seq);
 	$out->write_seq($newSeqO);
     }
 }
-

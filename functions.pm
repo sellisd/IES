@@ -5,7 +5,7 @@ BEGIN{
     require Exporter;
     our $VERSION = 1.01;
     our @ISA = qw(Exporter);
-    our @EXPORT = qw(run getNotation isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot X2Y initF success);
+    our @EXPORT = qw(run getNotation isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot X2Y initF success removeTermCodon);
     our @EXPORT_OK = qw();
 }
 
@@ -352,6 +352,16 @@ sub gene2species{
     }else{
 	die "unknown name $abr";
     }
+}
+
+sub removeTermCodon{
+    my $alphabet = shift @_;
+    my $codonTable = shift @_;
+    my $seq = shift @_;
+    die "unimplemented $alphabet" unless $alphabet eq 'dna';
+    die "unimplemented $codonTable" unless $codonTable == 6;
+    $seq =~ s/([TACGN-]*)T-*G-*A-*$/$1/ or die;
+    return $seq;
 }
 
 1;

@@ -27,15 +27,15 @@ foreach my $sp (sort keys %$nr){
 
 run("./msaLocal.pl > /home/dsellis/data/IES/analysis/log/msaLocal.log", 1);
 run("Rscript --vanilla ./filterProtAlign.R", 1);
-my $cmdl = './prot2nucl.pl';
+my $cmdl;
 foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}}; #de-reference for less typing
     $cmdl .= ' -cds '.catfile($pab{'datapath'}, $pab{'cdsF'});
 }
 $cmdl .= ' -cds /home/dsellis/data/IES/genomicData/thermophila/gene/T_thermophila_June2014_CDS.fasta'; #add Tth
 
-run($cmdl.' ~/data/IES/analysis/msas/filtered/*.aln.fa', 1);
-run($cmdl.' ~/data/IES/analysis/singleGene/*.aln.fa', 1);
+run('./prot2nucl.pl '.$cmdl.' ~/data/IES/analysis/msas/filtered/*.aln.fa', 1);
+run('./prot2nucl.pl -noterm'.$cmdl.' ~/data/IES/analysis/singleGene/*.aln.fa', 1);
 
 run('./paraGblocks.pl ~/data/IES/analysis/msas/filtered/ > ~/data/IES/analysis/log/gblocks.log', 1);
 
@@ -69,26 +69,26 @@ opendir DH, $singleGeneP or die $!;
 my @nuclAlnF = grep {/.*\.nucl\.fa.renamed$/} readdir(DH);
 close DH;
 my $iqtreeB = '/home/dsellis/tools/iqtree-1.4.2-Linux/bin/iqtree'; #binary
-if(0){
-foreach my $file (@nuclAlnF){
-    my $pid = $pm->start and next;
-#strip stop codons from alignments
-# read alignment file
-# for each sequence 
-    my $cmdl = "$iqtreeB -s ".catfile($singleGeneP, $file).
+if(1){
+    foreach my $file (@nuclAlnF){
+	my $pid = $pm->start and next;
+	my $cmdl = "$iqtreeB -s ".catfile($singleGeneP, $file).
 #	' -m TESTNEWONLY -b 100';
-	' -m TESTNEWONLY -redo';
-    run($cmdl, 1);
-    $pm->finish;
+	    ' -st CODON6'.
+	    ' -m TESTNEW -redo';
+#	    ' -m TESTNEWONLY -redo';
+	run($cmdl, 0);
+	$pm->finish;
+    }
+    $pm->wait_all_children;
 }
-$pm->wait_all_children;
-}
-run('./bestModel.pl -nex ~/data/IES/analysis/singleGene/part.nexus -table ~/data/IES/analysis/tables/bestModels.tab ~/data/IES/analysis/singleGene/cluster.*.nucl.fa.renamed', 1);
+run('./bestModel.pl -nex ~/data/IES/analysis/singleGene/part.nexus -table ~/data/IES/analysis/tables/bestModels.tab ~/data/IES/analysis/singleGene/cluster.*.nucl.fa.renamed', 0);
 
 run("ete3 compare --taboutput -r ~/data/IES/analysis/singleGene/part.nexus.treefile -t ~/data/IES/analysis/singleGene/cluster.*.nucl.fa.renamed.treefile --unrooted > ~/data/IES/analysis/tables/singleGeneCompare.dat",0);
 
 # infer phylogeny of concatenated genes partitioned by gene, and reusing the model test choices
 #run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 -spp  ~/data/IES/analysis/singleGene/part.nexus -bb 5000 > ~/data/IES/analysis/log/concatGenes.log', 1);
+#run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 -spp  ~/data/IES/analysis/singleGene/part.nexus -b 100 > ~/data/IES/analysis/log/concatGenes.log -redo', 0);
 run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 -spp  ~/data/IES/analysis/singleGene/part.nexus -redo > ~/data/IES/analysis/log/concatGenes.log', 1);
 
 

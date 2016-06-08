@@ -14,7 +14,7 @@ my $fastaAll = $home.'data/IES/analysis/protdb/allprot.fa';
 my $usage = <<HERE;
 Splits a fasta file to groups based on clustering from silix
 Usage
-./splitFasta.pl [OPTIONS]
+splitFasta.pl [OPTIONS]
 where OPTIONS can be:
   out    : directory where output fasta files will be created
   silix  : path and filename of silix output file
