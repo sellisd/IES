@@ -52,25 +52,30 @@ my $prefix = abr2prefix($species, initF());
 die unless $prefix;
 make_path($outdir) unless -d $outdir;
 my $gffOut = catfile($outdir, $species.'.gff');
+my $sumOutF = catfile($outdir, $species.'.filtScaf.dat');
+open OUT, '>', $sumOutF or die "$! $sumOutF";
 # find which scaffolds are larger than the cutoff
 print "Read scaffold lengths...";
 my %scL;
 open L, $lengthF or die "$lengthF $!";
 my $header = readline(L);
-my $counter;
-my $totalC;
+my $filterScaf;
+my $totalScaf;
+my $totalLen;
+my $filtLen;
 while(my $line = <L>){
     chomp $line;
     (my $scaffold, my $length) = (split " ", $line)[0,1];
     if ($length > $cutoff){
 	$scL{$scaffold} = $length;
-	$counter++;
+	$filterScaf++;
+	$filtLen += $length;
     }
-    $totalC++;
+    $totalLen += $length;
+    $totalScaf++;
 }
 close L;
 print "done\n";
-print "$counter out of $totalC scaffolds over the cutoff\n";
 
 # find which genes are in filtered scaffolds
 print "Building scaffold/gene hash...";
@@ -93,10 +98,6 @@ while(my $feature = $gffO->next_feature()){
 	$genesInScaf{$name} = $feature->seq_id;
 	$geneCountFilt++;
     }
-   #  print $feature->primary_id, "\n";
-   #  print $feature->primary_tag, "\n";
-   #  print $feature->source_tag, "\n";
-   #  print $feature->seq_id, "\n";
 }
 print "done\n";
 print "$geneCountFilt out of $geneCount genes over the cutoff\n";
@@ -148,3 +149,7 @@ while(my $feature = $iesIn->next_feature()){
 }
 print "$iesCountFilt out of $iesCount IES over the cutoff\n";
 
+print join("\t", qw/species totalScaf filterScaf totalLen filtLen totalGene filtGene totalIES filtIES/), "\n";
+print join("\t", ($species, $totalScaf, $filterScaf, $totalLen, $filtLen, $geneCount, $geneCountFilt, $iesCount, $iesCountFilt)), "\n";
+print OUT join("\t", ($species, $totalScaf, $filterScaf, $totalLen, $filtLen, $geneCount, $geneCountFilt, $iesCount, $iesCountFilt)), "\n";
+close OUT;
