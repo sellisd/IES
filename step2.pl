@@ -69,7 +69,7 @@ opendir DH, $singleGeneP or die $!;
 my @nuclAlnF = grep {/.*\.nucl\.fa.renamed$/} readdir(DH);
 close DH;
 my $iqtreeB = '/home/dsellis/tools/iqtree-1.4.2-Linux/bin/iqtree'; #binary
-if(1){
+if(0){
     foreach my $file (@nuclAlnF){
 	my $pid = $pm->start and next;
 	my $cmdl = "$iqtreeB -s ".catfile($singleGeneP, $file).
@@ -77,14 +77,16 @@ if(1){
 	    ' -st CODON6'.
 	    ' -m TESTNEW -redo';
 #	    ' -m TESTNEWONLY -redo';
-	run($cmdl, 0);
+	run($cmdl, 1);
 	$pm->finish;
     }
     $pm->wait_all_children;
 }
-run('./bestModel.pl -nex ~/data/IES/analysis/singleGene/part.nexus -table ~/data/IES/analysis/tables/bestModels.tab ~/data/IES/analysis/singleGene/cluster.*.nucl.fa.renamed', 0);
 
-run("ete3 compare --taboutput -r ~/data/IES/analysis/singleGene/part.nexus.treefile -t ~/data/IES/analysis/singleGene/cluster.*.nucl.fa.renamed.treefile --unrooted > ~/data/IES/analysis/tables/singleGeneCompare.dat",0);
+my $bmF = '/home/dsellis/data/IES/analysis/tables/bestModels.tab';
+run('./bestModel.pl -nex ~/data/IES/analysis/singleGene/part.nexus -table '.$bmF.' ~/data/IES/analysis/singleGene/cluster.*.nucl.fa.renamed', 1);
+
+run("ete3 compare --taboutput -r ~/data/IES/analysis/singleGene/part.nexus.treefile -t ~/data/IES/analysis/singleGene/cluster.*.nucl.fa.renamed.treefile --unrooted > ~/data/IES/analysis/tables/singleGeneCompare.dat",1);
 
 # infer phylogeny of concatenated genes partitioned by gene, and reusing the model test choices
 #run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 -spp  ~/data/IES/analysis/singleGene/part.nexus -bb 5000 > ~/data/IES/analysis/log/concatGenes.log', 1);
@@ -97,3 +99,58 @@ run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 -spp  ~/data/IES/analys
 # 2. do not overright previous output add prefix(?)
 # 3. create a species tree without T. thermophila for the alignments that are lacking one
 # ~/tools/iqtree-1.4.2-Linux/bin/iqtree -te ~/data/IES/analysis/singleGeneOld/part.nexus.treefile -s ~/data/IES/analysis/singleGeneOld/cluster.9857.nucl.fa.renamed -redo
+
+# find gene families with Tth
+my %bmH;
+open BM, $bmF or die "$! $bmF";
+readline(BM); #header
+while(my $line = <BM>){
+    chomp $line;
+    (my $file, my $geneFamily, my $hasTth, my $bestModel) = split " ", $line;
+    $bmH{$geneFamily} = [$hasTth, $bestModel];
+}
+close BM;
+#use Data::Dumper;print Dumper %bmH;die;
+my @noTth;
+foreach my $geneFamily (sort {$a<=$b} keys %bmH){
+    my $hasTth    = ${$bmH{$geneFamily}}[0];
+    next if $hasTth == 0;
+    my $bestModel = ${$bmH{$geneFamily}}[1];
+    my $inputFile =  '/home/dsellis/data/IES/analysis/singleGene/cluster.'.$geneFamily.'.nucl.fa.renamed';
+    $cmdl = $iqtreeB.
+	' -te ~/data/IES/analysis/singleGene/part.nexus.treefile'.
+	' -redo'.
+	' -s '.$inputFile.
+	' -st CODON6'.
+	' -pre  ~/data/IES/analysis/singleGene/cluster.'.$geneFamily.'.nucl.fa.renamed.lkh'.
+	' -m '.$bestModel.
+	' -fixbr';
+    run($cmdl, 1);
+    push @noTth, $inputFile;
+}
+
+$cmdl = './parseLikelihoods.pl '.join(' ', @noTth).' > ~/data/IES/analysis/tables/likelihoodComp.dat';
+run($cmdl, 1);
+
+
+
+#iq tree relevant options
+ -z trees to compute the log-likelihoods (concat)
+ -zb replicates for tests
+ -s alignment
+ -redo
+ -st CODON6
+ -pre prefix
+ -m GY+F3X4+R2
+ -fixbr
+ -zb 1000 -zw -au
+Analysis results written to: 
+  IQ-TREE report:                /home/dsellis/data/IES/analysis/singleGene/cluster.7487.nucl.fa.renamed.lkh.iqtree
+  Maximum-likelihood tree:       /home/dsellis/data/IES/analysis/singleGene/cluster.7487.nucl.fa.renamed.lkh.treefile
+  Likelihood distances:          /home/dsellis/data/IES/analysis/singleGene/cluster.7487.nucl.fa.renamed.lkh.mldist
+  Evaluated user trees:          /home/dsellis/data/IES/analysis/singleGene/cluster.7487.nucl.fa.renamed.lkh.trees
+  Screen log file:               /home/dsellis/data/IES/analysis/singleGene/cluster.7487.nucl.fa.renamed.lkh.log
+
+create a file with both gene tree and reference (concatenated)
+cat ~/data/IES/analysis/singleGene/part.nexus.treefile  /home/dsellis/data/IES/analysis/singleGene/cluster.7487.nucl.fa.renamed.treefile > ~/data/IES/analysis/singleGene/example.treefile
+/home/dsellis/tools/iqtree-1.4.2-Linux/bin/iqtree -z ~/data/IES/analysis/singleGene/example.treefile -redo -s /home/dsellis/data/IES/analysis/singleGene/cluster.7487.nucl.fa.renamed -st CODON6 -pre  ~/data/IES/analysis/singleGene/cluster.7487.nucl.fa.renamed.lkh -m GY+F3X4+R2 -fixbr -zb 1000 -zw -au

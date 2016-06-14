@@ -217,6 +217,13 @@ colBySpec <- function(tree){
   colV
 }
 
+shortNames <- function(tipNames){
+  # abbreviate species names, for plotting with larger fonts
+  shortNames <- sub("Paramecium", "P", tipNames, fixed = TRUE)
+  shortNames <- sub("Tetrahymena", "T", shortNames, fixed = TRUE)
+  shortNames
+}
+
 
 plotConsPast <- function(pattern){
   # function to plot conservation barplots

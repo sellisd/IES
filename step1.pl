@@ -11,7 +11,7 @@ use strict;
 
 my $homeD = File::HomeDir->my_home;
 my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
-
+my $analysisP = '/home/dsellis/data/IES/analysis';
 my $nr = getNotation($notationF);
 
 my %notation;
@@ -26,7 +26,7 @@ my $tablesP = catfile($homeD, 'data/IES/analysis/tables');
 foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}}; #de-reference for less typing
     my $genome = catfile($pab{'datapath'}, $pab{'MacF'});
-    my $scafF = catfile($pab{'datapath'}, 'analysis/filtscaf', $pab{'abr'}.'.scaf');
+    my $scafF = catfile($analysisP, 'filtscaf', $pab{'abr'}.'.scaf');
     my $cmdl = './scaffoldStats.pl '.$genome.' > '.$scafF;
     run($cmdl, 1);
 }
@@ -41,7 +41,7 @@ foreach my $sp (sort keys %$nr){
     my $gff     = catfile($pab{'datapath'}, $pab{'geneGff'}),
     my $gene    = catfile($pab{'datapath'}, $pab{'geneF'}),
     my $ies     = catfile($pab{'datapath'}, $pab{'iesGff'}),
-    my $outdir  = catfile($pab{'datapath'}, 'analysis/filtscaf/'),
+    my $outdir  = catfile($analysisP, 'filtscaf'),
     my $cutoff  = $scafCutoff;
     my $cmdl = './filterScaffolds.pl'.
 	' -length '.$scafF.
@@ -52,7 +52,7 @@ foreach my $sp (sort keys %$nr){
 	' -cutoff '.$cutoff.
 	' -species '.$pab{'abr'}.
 	' -outdir '.$outdir;
-    run($cmdl, 1);
+    run($cmdl, 0);
 }
 
 
@@ -68,7 +68,7 @@ make_path($protdbP) unless -d $protdbP;
 my @proteinF;
 for my $sp (keys %$nr){
     my %pab = %{$nr->{$sp}};
-    push @proteinF, catfile($pab{'datapath'}, 'analysis','filtscaf',$pab{'abr'}.'.protein.fa');
+    push @proteinF, catfile($analysisP,'filtscaf',$pab{'abr'}.'.protein.fa');
 }
 push @proteinF, $tthGenome; #add T. thermophila
 my $cmdl = 'cat '.join(' ', @proteinF).' > '.$allprotF;

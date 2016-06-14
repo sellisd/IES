@@ -40,6 +40,10 @@ foreach my $sp (sort keys %$nr){
 make_path($figuresD) unless -d $figuresD;
 run("Rscript --vanilla ./geneFilterByCoverage.R", 1);
 
+
+
+
+
 # directories
 # my $bamD = '/home/dsellis/data/IES/bam/';
 # my $bedD = '/home/dsellis/data/IES/analysis/bed';
