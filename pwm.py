@@ -12,18 +12,26 @@ Calculate position weight matrices for IES groups
 base = '/home/dsellis/data/IES/analysis/iesdb/'
 speciesA = ('ppr', 'pbi', 'pte', 'ppe', 'pse', 'poc', 'ptr', 'pso', 'pca')
 baseOut = '/home/dsellis/data/IES/analysis/figures/wlogo'
-
-lengthMin = [18, 34, 41] + [52+n*10 for n in range(0, 44)]
-lengthMax = [27, 38, 45] + [56+n*10 for n in range(0, 44)]
-lb = range(0, (len(lengthMin)-1))
-
+# startX = [18, 34, 41] + [52+n*10 for n in range(0, 20)]
+# lengthMin = startX[0:-1]
+# lengthMax = [i-1 for i in startX[1:]]
+# lengthMin.append(250)
+# lengthMax.append(5000)
+# lb = range(0, (len(lengthMin)-1))
+lengthMin = [18, 75, 122, 220, 250]
+lengthMax = [33, 81, 131, 240, 10000]
+lb = ['1', '5', '10', '~20', '>250']
 if not os.path.exists(baseOut):
     os.makedirs(baseOut)
 
 for sp in speciesA:
     fname = os.path.join(base, sp + '.iesdb')
-    for lbi in lb: # for each length bin
+    for lbi in range(0, len(lb)): # for each length bin
         f = open(fname, "r")
+        peakNo = str("%0.3d" %lbi) 
+        figName = os.path.join(baseOut, sp + '.' + peakNo + '.png')
+        if os.path.exists(figName):
+            continue # do not redo figures
         f.readline() # header
         fbA = []
         for line in f:
@@ -34,13 +42,11 @@ for sp in speciesA:
                 # exclude if have an N
                 if re.search('N', front):
                     continue
-                if re.search('N', back):
-                    continue
-                fbA.append(Seq(front + back))
+                fbA.append(Seq(front[0:5]))
         f.close()
 
         fbm = motifs.create(fbA)
-        peakNo = str("%0.3d" %lbi) 
-        figName = os.path.join(baseOut, sp + '.' + peakNo + '.png')
-        fbm.weblogo(figName, logo_title = sp + ': ' + peakNo)
+        title = sp + ': ' + lb[lbi] + '[' + str(lengthMin[lbi]) + '-' + str(lengthMax[lbi]) + ']'
+        print(title)
+        fbm.weblogo(figName, logo_title = title)
 
