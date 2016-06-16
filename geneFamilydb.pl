@@ -42,7 +42,7 @@ while(my $line = <FS>){
 close FS;
 
 open OUT, '>', $outF or die $!;
-print OUT join("\t", ("id", "seqNo", "avPairId", "genes", "geneNumber")), "\n";
+print OUT join("\t", ("id", "seqNo", "avPairId", "genes", "pprGenes", "pbiGenes", "pteGenes", "ppeGenes", "pseGenes", "pocGenes", "ptrGenes", "psoGenes", "pcaGenes")), "\n";
 foreach my $gf (sort keys %geneFamily){
     print OUT $gf,"\t";
     if(defined($geneFamily{$gf}{'seqNo'})){ # not filtered !
@@ -53,9 +53,38 @@ foreach my $gf (sort keys %geneFamily){
 	print OUT 'NA',"\t";
     }
     print OUT join(',', @{$geneFamily{$gf}{'genes'}}), "\t";
+    my $histR = tabGenes($geneFamily{$gf}{'genes'});
+    print OUT $histR->{'Paramecium_primaurelia'}, "\t";
+    print OUT $histR->{'Paramecium_biaurelia'}, "\t";
+    print OUT $histR->{'Paramecium_tetraurelia'}, "\t";
+    print OUT $histR->{'Paramecium_pentaurelia'}, "\t";
+    print OUT $histR->{'Paramecium_sexaurelia'}, "\t";
+    print OUT $histR->{'Paramecium_octaurelia'}, "\t";
+    print OUT $histR->{'Paramecium_tredecaurelia'}, "\t";
+    print OUT $histR->{'Paramecium_sonneborni'}, "\t";
+    print OUT $histR->{'Paramecium_caudatum'}, "\t";
     print OUT "\n";
 }
 close OUT;
 
 # #output
 # id seqNo avPairId Genes geneNumber
+sub tabGenes{
+# tabulate genes by species
+    my $genesR = shift @_;
+    my %hist = (
+	'Paramecium_primaurelia'   => 0,
+	'Paramecium_biaurelia'     => 0,
+	'Paramecium_tetraurelia'   => 0,
+	'Paramecium_pentaurelia'   => 0,
+	'Paramecium_sexaurelia'    => 0,
+	'Paramecium_octaurelia'    => 0,
+	'Paramecium_tredecaurelia' => 0,
+	'Paramecium_sonneborni'    => 0,
+	'Paramecium_caudatum'      => 0
+	);
+    foreach my $gene (@$genesR){
+	$hist{gene2species($gene)}++;
+    }
+    return \%hist;
+}
