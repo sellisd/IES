@@ -34,32 +34,40 @@ readline(IN); # header
 my %charMats;
 while(my $line = <IN>){
     chomp $line;
-    (my $id, my $geneFamily, my $beginMSArange, my $endMSArange, my $gene, my $beginGene, my $endGene, my $beginMSA, my $endMSA, my $ies) = split " ", $line;
+    (my $id, my $geneFamily, my $beginMSArange, my $endMSArange, my $gene, my $beginGene, my $endGene, my $beginMSA, my $endMSA, my $iesId) = split " ", $line;
     # if gene in list print ? and keep track of whether it was present or absent
     # else print 1 if present 0 if absent
+    my $ies; # presence absence or unknown
     if(defined($h{$gene})){
 	$ies = '?';
     }else{
-	if($ies eq 'NA'){
+	if($iesId eq 'NA'){
 	    $ies = 0;
 	}else{
 	    $ies = 1;
 	}
     }
-    $charMats{$geneFamily}{$id}{$gene} = {'begin' => $beginMSArange,
-					  'end'   => $endMSArange,
-					  'ies'   => $ies};
+    $charMats{$geneFamily}{$id}{$gene} = {'begin'    => $beginMSArange,
+					  'end'      => $endMSArange,
+					  'ies'      => $ies,
+					  'iesId'    => $iesId,
+					  'beginMSA' => $beginMSA,
+					  'endMSA'   => $endMSA};
 }
 close IN;
 
 # character matrix output, translate geneId to protId to keep it comparable with the trees
-printab(('cluster', 'column', 'geneId', 'begin', 'end', 'ies'));
+printab(('cluster', 'column', 'geneId', 'begin', 'end', 'ies', 'iesId', 'beginMSA', 'endMSA'));
 foreach my $geneFamily (sort {$a<=>$b} keys %charMats){
     foreach my $id (sort {$a <=> $b} keys %{$charMats{$geneFamily}}){
 	foreach my $gene (sort keys  %{$charMats{$geneFamily}{$id}}){
 	    printab($geneFamily, $id, X2Y($gene, $prefixesR, 'G', 'P'), $charMats{$geneFamily}{$id}{$gene}{'begin'},
 		    $charMats{$geneFamily}{$id}{$gene}{'end'},
-		    $charMats{$geneFamily}{$id}{$gene}{'ies'});
+		    $charMats{$geneFamily}{$id}{$gene}{'ies'},
+		    $charMats{$geneFamily}{$id}{$gene}{'iesId'},
+		    $charMats{$geneFamily}{$id}{$gene}{'beginMSA'},
+		    $charMats{$geneFamily}{$id}{$gene}{'endMSA'}
+		);
 	}
     }
 }
