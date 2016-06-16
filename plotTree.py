@@ -4,9 +4,7 @@ from ete3 import Tree, NodeStyle, SeqMotifFace
 import pprint
 import os.path
 import sys
-"""
-Draw gene family trees with nodes colored by event-type and motif of IESs
-"""
+"""Draw gene family trees with nodes colored by event-type and motif of IESs."""
 
 pp = pprint.PrettyPrinter(indent=8)
 
@@ -42,10 +40,9 @@ def colorNodes( t, cp ):
     return t
 
 
-# plot a PHYLDOG tree with annotations for speciation, duplication and alignment/ IES presence/absence
-#different colors for each speciation event? or different colors for speciation/duplication
-
 # plot the species tree with annotations for rates of insertion and loss
+st = Tree('((Paramecium_caudatum:0.117527[&&NHX:ND=3],((Paramecium_sexaurelia:0.117527[&&NHX:ND=7],Paramecium_sonneborni:0.117527[&&NHX:ND=8]):0.117527[&&NHX:ND=5],(((Paramecium_pentaurelia:0.117527[&&NHX:ND=13],Paramecium_primaurelia:0.117527[&&NHX:ND=14]):0.117527[&&NHX:ND=11],(Paramecium_biaurelia:0.117527[&&NHX:ND=15],(Paramecium_octaurelia:0.117527[&&NHX:ND=17],Paramecium_tetraurelia:0.117527[&&NHX:ND=18]):0.117527[&&NHX:ND=16]):0.117527[&&NHX:ND=12]):0.117527[&&NHX:ND=9],Paramecium_tredecaurelia:0.117527[&&NHX:ND=10]):0.117527[&&NHX:ND=6]):0.117527[&&NHX:ND=4]):0.117527[&&NHX:ND=1],Tetrahymena_thermophila:0.117527[&&NHX:ND=2]);')
+
 # sptreeF = '/home/dsellis/data/IES/analysis/phyldog/results/OutputSpeciesTree_ConsensusDuplications.tree'
 # st = Tree(sptreeF)
 # st.show()
@@ -75,7 +72,7 @@ for line in f:
     (cluster, column, geneId, begin, end, ies, iesId, beginMSA, endMSA) = line.split("\t")
     charMat[cluster][column][geneId] = [begin, end, ies, iesId, beginMSA, endMSA]
 #    charMat[cluster] = {column: {geneId: [begin, end, ies, iesId, beginMSA, endMSA]}}
-    
+
 # add motif faces
 for l in t:
 #    print(l.name)
