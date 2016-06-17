@@ -12,6 +12,7 @@ my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
 my $iesD = '/home/dsellis/data/IES/analysis/iesdb';
 my $homF = catfile($iesD, 'homIESdb.tab');
 
+# read homologous IES information
 my %h;
 open IN, $homF or die $!;
 while(my $line = <IN>){
@@ -22,6 +23,8 @@ while(my $line = <IN>){
 }
 close IN;
 
+# read iesdb files
+printab('abr', 'iesId', 'length', 'homIESId', 'geneFamily', 'age');
 my $nr = getNotation($notationF);
 foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}};
@@ -34,8 +37,9 @@ foreach my $sp (sort keys %$nr){
 	(my $id, my $length) = (split " ", $line)[0, 7];
 	my $iesId = $pab{'abr'}.'.'.$id;
 	if(defined($h{$iesId})){
+	    printab($pab{'abr'}, $id, $length, @{$h{$iesId}});
 	}else{
-	    die;
+#	    print "$iesId";
 	}
     }
     close IN;

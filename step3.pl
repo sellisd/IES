@@ -49,12 +49,12 @@ run("Rscript --vanilla ./nodeDictionary.R", 1);
 # 1. spEvents.py creates a table with nodes of trees that correspond to speciation events
 run("./spEvents.py > ~/data/IES/analysis/tables/spEvents.dat", 1);
 # 2. then find speciation tree node is the most recent common ancestor
-run("Rscript --vanilla firstIES.R > ~/data/IES/analysis/tables/firstIES.dat", 1);
+run("./firstIES.py > ~/data/IES/analysis/tables/firstIES.dat", 1);
 # 3. then find the most recent common ancestor
-run("./iesAge.py > ~/data/IES/analysis/tables/iesAge.dat", 1);
+run("./iesAge.py > ~/data/IES/analysis/tables/iesAge.dat", 0);
 
 # 4. create homIESdb with age and other information
-run("./addAge.pl > ~/data/IES/analysis/iesdb/homIESdb.tab", 1);
+run("./addAge.pl > ~/data/IES/analysis/iesdb/homIESdb.tab", 0);
 
 # find per branch gain and loss events
 # calculate total length (nt) of conserved blocks in alignments for each gene family
@@ -67,7 +67,7 @@ run("./nodePaths.py > ~/data/IES/analysis/tables/nodePaths.dat", 1);
 # for all paths connecting speciation nodes (Nanc-N1-N2-Noffspring)
 # calculate the difference in probability at each step
 # sum all the positive differences and all the negative differences
-run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 0);
+run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 1);
 
 # for each path calculate probability of gain and loss    
 

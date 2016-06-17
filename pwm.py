@@ -28,7 +28,7 @@ for sp in speciesA:
     fname = os.path.join(base, sp + '.iesdb')
     for lbi in range(0, len(lb)): # for each length bin
         f = open(fname, "r")
-        peakNo = str("%0.3d" %lbi) 
+        peakNo = str("%0.3d" %lbi)
         figName = os.path.join(baseOut, sp + '.' + peakNo + '.png')
         if os.path.exists(figName):
             continue # do not redo figures

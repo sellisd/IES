@@ -2,13 +2,10 @@
 from __future__ import print_function
 from ete3 import Tree
 import re
-"""
-for each IES find most recent common ancestor in species tree
-"""
+""" for each IES find most recent common ancestor in species tree """
 
 # load species tree
 t = Tree('/home/dsellis/data/IES/analysis/phyldog/results/OutputSpeciesTree_ConsensusNumbered.tree', format = 1)
-
 
 # replace species names with speciation events and add 0 to root node label
 for l in t.traverse():

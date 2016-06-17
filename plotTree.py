@@ -1,56 +1,27 @@
 #!/usr/bin/python
 from __future__ import print_function
-from ete3 import Tree, NodeStyle, SeqMotifFace
+from ete3 import Tree, NodeStyle, SeqMotifFace, TextFace
 import pprint
 import os.path
 import sys
+from pyies.functions import *
+
 """Draw gene family trees with nodes colored by event-type and motif of IESs."""
 
 pp = pprint.PrettyPrinter(indent=8)
 
-cp = ["#c24c6e", "#ba4c46", "#bf5a2f", "#d39036", "#9b7532", "#b4ad55", "#b6b638", "#88af46", "#477b2f", "#63c471", "#48c19a", "#628ed6", "#6a70d7", "#533585", "#bb85d6", "#b759b8", "#d56cad", "#892863"]
-# generated from http://tools.medialab.sciences-po.fr/iwanthue/
+# SPECIATION TREE #
+###################
 
-class Vividict(dict):
-    # by http://stackoverflow.com/users/541136/aaron-hall
-    # from http://stackoverflow.com/questions/635483/what-is-the-best-way-to-implement-nested-dictionaries-in-python/19829714#19829714
-    def __missing__(self, key):
-        value = self[key] = type(self)()
-        return value
+st = Tree('((Paramecium_caudatum:0.117527[&&NHX:Ev=S:S=3:ND=3],((Paramecium_sexaurelia:0.117527[&&NHX:Ev=S:S=7:ND=7],Paramecium_sonneborni:0.117527[&&NHX:Ev=S:S=8:ND=8]):0.117527[&&NHX:Ev=S:S=5:ND=5],(((Paramecium_pentaurelia:0.117527[&&NHX:Ev=S:S=13:ND=13],Paramecium_primaurelia:0.117527[&&NHX:Ev=S:S=14:ND=14]):0.117527[&&NHX:Ev=S:S=11:ND=11],(Paramecium_biaurelia:0.117527[&&NHX:Ev=S:S=15:ND=15],(Paramecium_octaurelia:0.117527[&&NHX:Ev=S:S=17:ND=17],Paramecium_tetraurelia:0.117527[&&NHX:Ev=S:S=18:ND=18]):0.117527[&&NHX:Ev=S:S=16:ND=16]):0.117527[&&NHX:Ev=S:S=12:ND=12]):0.117527[&&NHX:Ev=S:S=9:ND=9],Paramecium_tredecaurelia:0.117527[&&NHX:Ev=S:S=10:ND=10]):0.117527[&&NHX:Ev=S:S=6:ND=6]):0.117527[&&NHX:Ev=S:S=4:ND=4]):0.117527[&&NHX:Ev=S:S=1:ND=1],Tetrahymena_thermophila:0.117527[&&NHX:Ev=S:S=2:ND=2])[&&NHX:Ev=S:S=0:ND=0];')
 
-def colorNodes( t, cp ):
-    """ Add styling to nodes of a PHYLDOG tree
-
-    t: tree
-    cp: list of colors (hex) corresponding to speciation events
-    """
-
-    for node in t.traverse():
-        nstyle = NodeStyle()
-        nstyle["size"] = 10
-        if node.Ev == 'S':
-            nstyle["fgcolor"] = cp[int(node.S) - 1]
-            nstyle["shape"] = "circle"
-        elif node.Ev == 'D':
-            nstyle["fgcolor"] = "black" #cblue4
-            nstyle["shape"] = "square"
-        else:
-            quit()
-        node.set_style(nstyle)
-    return t
+colorNodes(st, 1)
+st.render('/home/dsellis/data/IES/analysis/figures/sptree.png')
 
 
-# plot the species tree with annotations for rates of insertion and loss
-st = Tree('((Paramecium_caudatum:0.117527[&&NHX:ND=3],((Paramecium_sexaurelia:0.117527[&&NHX:ND=7],Paramecium_sonneborni:0.117527[&&NHX:ND=8]):0.117527[&&NHX:ND=5],(((Paramecium_pentaurelia:0.117527[&&NHX:ND=13],Paramecium_primaurelia:0.117527[&&NHX:ND=14]):0.117527[&&NHX:ND=11],(Paramecium_biaurelia:0.117527[&&NHX:ND=15],(Paramecium_octaurelia:0.117527[&&NHX:ND=17],Paramecium_tetraurelia:0.117527[&&NHX:ND=18]):0.117527[&&NHX:ND=16]):0.117527[&&NHX:ND=12]):0.117527[&&NHX:ND=9],Paramecium_tredecaurelia:0.117527[&&NHX:ND=10]):0.117527[&&NHX:ND=6]):0.117527[&&NHX:ND=4]):0.117527[&&NHX:ND=1],Tetrahymena_thermophila:0.117527[&&NHX:ND=2]);')
+# Gene family trees #
+#####################
 
-# sptreeF = '/home/dsellis/data/IES/analysis/phyldog/results/OutputSpeciesTree_ConsensusDuplications.tree'
-# st = Tree(sptreeF)
-# st.show()
-# colorNodes(st, cp)
-# st.show()
-# quit()
-
-#geneFamily = '1000'
 geneFamily = sys.argv[1]
 
 #  load gene family tree
@@ -60,7 +31,7 @@ if not os.path.isfile(treeF):
     quit("charMatsF is not a file")
 
 # # set styles
-t = colorNodes(t, cp)
+t = colorNodes(t, 1)
 
 # load character matrices
 charMatsF = '/home/dsellis/data/IES/analysis/iesdb/charMats.tab'
@@ -72,6 +43,11 @@ for line in f:
     (cluster, column, geneId, begin, end, ies, iesId, beginMSA, endMSA) = line.split("\t")
     charMat[cluster][column][geneId] = [begin, end, ies, iesId, beginMSA, endMSA]
 #    charMat[cluster] = {column: {geneId: [begin, end, ies, iesId, beginMSA, endMSA]}}
+
+# load mean ancestral states
+# asrF = '/home/dsellis/data/IES/analysis/tables/avNodeProb.dat';
+# f = open (asrF, 'r')
+# header = f.readline()
 
 # add motif faces
 for l in t:
