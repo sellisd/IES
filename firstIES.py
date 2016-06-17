@@ -1,6 +1,8 @@
 #!/usr/bin/python
 from __future__ import print_function
 from pyies.functions import *
+from ete3 import Tree
+import re
 """ In each homologous IES column of all gene families find the speciation nodes in which an IES was present with probability larger than cutoff"""
 
 # find correspondance of phyldog nodedes to speciation events
@@ -27,6 +29,7 @@ asrF = open('/home/dsellis/data/IES/analysis/tables/avNodeProb.dat', 'r')
 header = asrF.readline()
 
 # find all speciation nodes in which an IES was present with prob > cutoff
+print('geneFamily' + "\t" + 'iesColumn' + "\t" + 'spEvent')
 homies = {}
 for line in asrF:
     line = line.rstrip()
@@ -35,5 +38,29 @@ for line in asrF:
     if float(presence) > cutoff:
         spe = d[geneFamily][nodeRb]
         if spe:
-            print(geneFamily, iesColumn, spe)
+            homies.setdefault((geneFamily,iesColumn), []).append(spe)
 
+# load species tree
+t = Tree('/home/dsellis/data/IES/analysis/phyldog/results/OutputSpeciesTree_ConsensusNumbered.tree', format = 1)
+
+# replace species names with speciation events and add 0 to root node label
+for l in t.traverse():
+    if(l.is_leaf()):
+        l.name = (re.sub(r'.+_.+_(\d+)', r'\1', l.name))
+    elif(l.is_root()):
+        if(l.name):
+            quit(l.name)
+            pass # is root named?
+        else:
+            l.name = '0'
+
+
+for (geneFamily, iesColumn) in homies:
+    L = homies[(geneFamily, iesColumn)]
+    if(len(L) == 1):
+        # if only one node
+        print('\t'.join([geneFamily, iesColumn, L[0]]))
+    else:
+        ancestor = t.get_common_ancestor(L)
+        print('\t'.join([geneFamily, iesColumn, ancestor.name]))
+        

@@ -49,9 +49,7 @@ run("Rscript --vanilla ./nodeDictionary.R", 1);
 # 1. spEvents.py creates a table with nodes of trees that correspond to speciation events
 run("./spEvents.py > ~/data/IES/analysis/tables/spEvents.dat", 1);
 # 2. then find speciation tree node is the most recent common ancestor
-run("./firstIES.py > ~/data/IES/analysis/tables/firstIES.dat", 1);
-# 3. then find the most recent common ancestor
-run("./iesAge.py > ~/data/IES/analysis/tables/iesAge.dat", 0);
+run("./firstIES.py > ~/data/IES/analysis/tables/iesAge.dat", 0);
 
 # 4. create homIESdb with age and other information
 run("./addAge.pl > ~/data/IES/analysis/iesdb/homIESdb.tab", 0);
