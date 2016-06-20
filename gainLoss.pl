@@ -40,7 +40,7 @@ while(my $line = <NP>){
 	chomp $line;
 	(my $cluster, my $from, my $to, my $path) = split " ", $line;
 	unless($geneFamilies{$cluster}){ # if we have no data for a gene family skip it
-	    print "skipping $cluster\n";
+	    #print "skipping $cluster\n";
 	    next;
 	}
 	my @pathP = split ",", $path;

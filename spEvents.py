@@ -16,7 +16,7 @@ for cluster in clusters:
     fileNameString = phyldogPath+str(cluster)+'.ReconciledTree'
     #    print(fileNameString)
     t = Tree(fileNameString)
-    for node in t:
+    for node in t.traverse():
         if(node.Ev == 'S'): # if speciation event
             print(cluster + "\t" + node.ND + "\t" + node.S)
 

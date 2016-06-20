@@ -6,6 +6,9 @@ use lib'.';
 use functions;
 use warnings;
 use strict;
+use Parallel::ForkManager;
+my $pm = Parallel::ForkManager->new(7);
+
 my $homeD = File::HomeDir->my_home;
 my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
 my $rbResultsP = catfile($homeD, 'data/IES/analysis/asr/');
@@ -22,8 +25,55 @@ my $rbRun2Rev = catfile($rbRun2, 'asr2.Rev');
 my $nr = getNotation($notationF);
 my $asrRevF = '/home/dsellis/projects/IES/src/asr.Rev';
 
+# branch length calculations
+my $cmdl = 'Rscript --vanilla geneTreeSpeciesTree.R';
+run($cmdl, 1);
+$cmdl = 'Rscript --vanilla normBrLens.R';
+run($cmdl, 1);
+#...
 
-my $cmdl = 'Rscript --vanilla preRev.R > /home/dsellis/data/IES/analysis/preRev.log';
+$cmdl = ''; #reinitialize
+foreach my $sp (sort keys %$nr){
+    my %pab = %{$nr->{$sp}}; #de-reference for less typing
+    $cmdl .= ' -cds '.catfile($pab{'datapath'}, $pab{'cdsF'});
+}
+$cmdl .= ' -cds /home/dsellis/data/IES/genomicData/thermophila/gene/T_thermophila_June2014_CDS.fasta'; #add Tth
+
+run('./prot2nucl.pl -noterm'.$cmdl.' ~/data/IES/analysis/brlen/*.aln.fa', 1);
+
+# rename genes in gene families
+run('./nameReplaceAlign.pl ~/data/IES/analysis/brlen/cluster.*.nucl.fa', 0);
+
+# infer single gene families phylogeny
+my $brlenP = '/home/dsellis/data/IES/analysis/brlen';
+
+opendir DH, $brlenP or die $!;
+my @nuclAlnF = grep {/.*\.nucl\.fa.renamed$/} readdir(DH);
+close DH;
+my $iqtreeB = '/home/dsellis/tools/iqtree-1.4.2-Linux/bin/iqtree'; #binary
+if(1){
+    foreach my $file (@nuclAlnF){
+	my $pid = $pm->start and next;
+	my $cmdl = "$iqtreeB -s ".catfile($brlenP, $file).
+#	' -m TESTNEWONLY -b 100';
+	    ' -st CODON6'.
+	    ' -m TESTNEW -redo';
+#	    ' -m TESTNEWONLY -redo';
+	run($cmdl, 0);
+	$pm->finish;
+    }
+    $pm->wait_all_children;
+}
+
+my $bmF = '/home/dsellis/data/IES/analysis/tables/bestModels.tab';
+run('./bestModel.pl -nex ~/data/IES/analysis/brlen/part.nexus -table '.$bmF.' ~/data/IES/analysis/brlen/cluster.*.nucl.fa.renamed', 0);
+
+run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 -spp  ~/data/IES/analysis/brlen/part.nexus -redo > ~/data/IES/analysis/log/concatGenes.log', 0);
+
+
+die;
+# run revBayes
+$cmdl = 'Rscript --vanilla preRev.R > /home/dsellis/data/IES/analysis/preRev.log';
 run($cmdl, 1);
 
 make_path($rbNodeIndexesP) unless -e $rbNodeIndexesP;
@@ -48,11 +98,12 @@ run("Rscript --vanilla ./nodeDictionary.R", 1);
 # find age of individual IES (MRCA of group of homologous IES)
 # 1. spEvents.py creates a table with nodes of trees that correspond to speciation events
 run("./spEvents.py > ~/data/IES/analysis/tables/spEvents.dat", 1);
+
 # 2. then find speciation tree node is the most recent common ancestor
-run("./firstIES.py > ~/data/IES/analysis/tables/iesAge.dat", 0);
+run("./firstIES.py > ~/data/IES/analysis/tables/iesAge.dat", 1);
 
 # 4. create homIESdb with age and other information
-run("./addAge.pl > ~/data/IES/analysis/iesdb/homIESdb.tab", 0);
+run("./addAge.pl > ~/data/IES/analysis/iesdb/homIESdb.tab", 1);
 
 # find per branch gain and loss events
 # calculate total length (nt) of conserved blocks in alignments for each gene family
@@ -65,7 +116,7 @@ run("./nodePaths.py > ~/data/IES/analysis/tables/nodePaths.dat", 1);
 # for all paths connecting speciation nodes (Nanc-N1-N2-Noffspring)
 # calculate the difference in probability at each step
 # sum all the positive differences and all the negative differences
-run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 1);
+run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 0);
 
 # for each path calculate probability of gain and loss    
 

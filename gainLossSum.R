@@ -1,6 +1,6 @@
 # adjust gain and loss rate by size of alignment and summarize resutls
 
-gl <- read.table("~/data/IES/analysis/tables/gainLoss.dat", header = TRUE)
+gainloss <- read.table("~/data/IES/analysis/tables/gainLoss.dat", header = TRUE)
 
 # calculate total length of conserved blocks of alignments
 gb <- read.table("~/data/IES/analysis/tables/gblocks.dat")
@@ -12,17 +12,17 @@ for(geneFamily in geneFamilies){
   bL$nucleotides[which(bL$geneFamily == geneFamily)] <- sum(blockLenghts[gfI])
 }
 
-key <- paste(gl$from, gl$to, sep = '-')
-Ploss <- gl$Panc * gl$loss
-nt <- bL$nucleotides[match(gl$cluster, bL$geneFamily)]
+key <- paste(gainloss$from, gainloss$to, sep = '-')
+Ploss <- gainloss$Panc * gainloss$loss
+nt <- bL$nucleotides[match(gainloss$cluster, bL$geneFamily)]
 
 l <- length(unique(key))
 DF <- data.frame(branch = character(l), gainRate = numeric(l), lossRate = numeric(l), stringsAsFactors = FALSE)
 counter <- 1
 for(k in unique(key)){
   index <- which(key == k)
-  pgain <- sum(gl$gain[index]/nt[index])/length(index)
-  #pgain <- sum(gl$gain[index])/length(index)
+  pgain <- sum(gainloss$gain[index]/nt[index])/length(index)
+  #pgain <- sum(gainloss$gain[index])/length(index)
   ploss <- sum(Ploss[index])/length(index)
   DF[counter, 1] <- k
   DF[counter, 2:3] <- c(pgain, ploss)
