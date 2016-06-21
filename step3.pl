@@ -42,7 +42,7 @@ $cmdl .= ' -cds /home/dsellis/data/IES/genomicData/thermophila/gene/T_thermophil
 run('./prot2nucl.pl -noterm'.$cmdl.' ~/data/IES/analysis/brlen/*.aln.fa', 1);
 
 # rename genes in gene families
-run('./nameReplaceAlign.pl ~/data/IES/analysis/brlen/cluster.*.nucl.fa', 0);
+run('./nameReplaceAlign.pl ~/data/IES/analysis/brlen/cluster.*.nucl.fa', 1);
 
 # infer single gene families phylogeny
 my $brlenP = '/home/dsellis/data/IES/analysis/brlen';
@@ -51,7 +51,7 @@ opendir DH, $brlenP or die $!;
 my @nuclAlnF = grep {/.*\.nucl\.fa.renamed$/} readdir(DH);
 close DH;
 my $iqtreeB = '/home/dsellis/tools/iqtree-1.4.2-Linux/bin/iqtree'; #binary
-if(1){
+if(0){
     foreach my $file (@nuclAlnF){
 	my $pid = $pm->start and next;
 	my $cmdl = "$iqtreeB -s ".catfile($brlenP, $file).
@@ -59,16 +59,16 @@ if(1){
 	    ' -st CODON6'.
 	    ' -m TESTNEW -redo';
 #	    ' -m TESTNEWONLY -redo';
-	run($cmdl, 0);
+	run($cmdl, 1);
 	$pm->finish;
     }
     $pm->wait_all_children;
 }
 
 my $bmF = '/home/dsellis/data/IES/analysis/tables/bestModels.tab';
-run('./bestModel.pl -nex ~/data/IES/analysis/brlen/part.nexus -table '.$bmF.' ~/data/IES/analysis/brlen/cluster.*.nucl.fa.renamed', 0);
+run('./bestModel.pl -nex ~/data/IES/analysis/brlen/part.nexus -table '.$bmF.' ~/data/IES/analysis/brlen/cluster.*.nucl.fa.renamed', 1);
 
-run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 -spp  ~/data/IES/analysis/brlen/part.nexus -redo > ~/data/IES/analysis/log/concatGenes.log', 0);
+run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 -st CODON6 -spp  ~/data/IES/analysis/brlen/part.nexus -redo > ~/data/IES/analysis/log/concatGenes.log', 1);
 
 
 die;

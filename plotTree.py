@@ -15,7 +15,19 @@ pp = pprint.PrettyPrinter(indent=8)
 
 st = Tree('((Paramecium_caudatum:0.117527[&&NHX:Ev=S:S=3:ND=3],((Paramecium_sexaurelia:0.117527[&&NHX:Ev=S:S=7:ND=7],Paramecium_sonneborni:0.117527[&&NHX:Ev=S:S=8:ND=8]):0.117527[&&NHX:Ev=S:S=5:ND=5],(((Paramecium_pentaurelia:0.117527[&&NHX:Ev=S:S=13:ND=13],Paramecium_primaurelia:0.117527[&&NHX:Ev=S:S=14:ND=14]):0.117527[&&NHX:Ev=S:S=11:ND=11],(Paramecium_biaurelia:0.117527[&&NHX:Ev=S:S=15:ND=15],(Paramecium_octaurelia:0.117527[&&NHX:Ev=S:S=17:ND=17],Paramecium_tetraurelia:0.117527[&&NHX:Ev=S:S=18:ND=18]):0.117527[&&NHX:Ev=S:S=16:ND=16]):0.117527[&&NHX:Ev=S:S=12:ND=12]):0.117527[&&NHX:Ev=S:S=9:ND=9],Paramecium_tredecaurelia:0.117527[&&NHX:Ev=S:S=10:ND=10]):0.117527[&&NHX:Ev=S:S=6:ND=6]):0.117527[&&NHX:Ev=S:S=4:ND=4]):0.117527[&&NHX:Ev=S:S=1:ND=1],Tetrahymena_thermophila:0.117527[&&NHX:Ev=S:S=2:ND=2])[&&NHX:Ev=S:S=0:ND=0];')
 
+
+# read table with branch attributes
+atrF = '/home/dsellis/projects/IES/src/test.dat'
+bratr = {};
+for line in open(atrF, 'r'):
+    line = line.rstrip()
+    (fromP, toP, over, under) = line.split("\t")
+    bratr[toP] = {'over': over, 'under': under, 'fromP': fromP}
+
 colorNodes(st, 1)
+addattr(st, bratr)
+st.show()
+quit()
 st.render('/home/dsellis/data/IES/analysis/figures/sptree.png')
 
 

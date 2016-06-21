@@ -28,9 +28,9 @@ die $usage unless (GetOptions('help|?'  => \$help,
 die $usage if $#ARGV < 0;
 die $usage if $help;
 
-#open NEX, '>', $nex or die $!;
-#print NEX "#nexus\n";
-#print NEX "begin sets;\n";
+open NEX, '>', $nex or die $!;
+print NEX "#nexus\n";
+print NEX "begin sets;\n";
 
 my $counter = 1;
 my @partitionModels;
@@ -46,7 +46,7 @@ foreach my $inputFile (@ARGV){
 	$hasTth = 1 if $species eq 'Tetrahymena_thermophila';
     }
     my $partitionString = 'part'.$counter;
-#    print NEX "\tcharset ", $partitionString, " = ", $inputFile, ":*;\n";
+    print NEX "\tcharset ", $partitionString, " = ", $inputFile, ":*;\n";
     my $bestModel;
     open IQ, $inputFile.'.iqtree' or die $!;
     while (my $line = <IQ>){
@@ -61,7 +61,7 @@ foreach my $inputFile (@ARGV){
     close IQ;
     $counter++;
 }
-#print NEX "charpartition byGene = ",join(", ", @partitionModels),";";
-#print NEX "end;\n";
-#close NEX;
+print NEX "charpartition byGene = ",join(", ", @partitionModels),";";
+print NEX "end;\n";
+close NEX;
 close TB;
