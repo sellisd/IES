@@ -30,7 +30,10 @@ my $cmdl = 'Rscript --vanilla geneTreeSpeciesTree.R';
 run($cmdl, 1);
 $cmdl = 'Rscript --vanilla normBrLens.R';
 run($cmdl, 1);
-#...
+
+$cmdl = 'Rscript --vanilla filterGeneFamilies.R';
+run($cmdl, 0);
+die();
 
 $cmdl = ''; #reinitialize
 foreach my $sp (sort keys %$nr){

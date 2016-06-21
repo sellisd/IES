@@ -47,12 +47,12 @@ def addattr( t, bratr ):
     """
 
     for node in t.traverse():
-        if node.S in bratr:
-            if node.up.S != bratr[node.S]['fromP']:
-                quit("error with ancestor")
-            if 'over' in bratr[node.S]:
-                node.add_face(TextFace(bratr[node.S]['over']), column = 0, position = "branch-top")
-            if 'under' in bratr[node.S]:
-                node.add_face(TextFace(bratr[node.S]['under']), column = 0, position = "branch-bottom")
+        if not node.is_root():
+            branch = (node.up.S, node.S)
+            if branch in bratr:
+                if 'over' in bratr[branch]:
+                    node.add_face(TextFace(bratr[branch]['over']), column = 0, position = "branch-top")
+                if 'under' in bratr[branch]:
+                    node.add_face(TextFace(bratr[branch]['under']), column = 0, position = "branch-bottom")
 
     return t
