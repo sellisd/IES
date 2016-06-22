@@ -25,6 +25,7 @@ foreach my $sp (sort keys %$nr){
   my %pab = %{$nr->{$sp}}; #de-reference for less typing
   # calculate genome coverage
   my $coverageF = catfile($coverageD, $pab{'abr'}.'.cov');
+  my $avcovF = catfile($coverageD, $pab{'abr'}.'.avcov');
   my $geneBedF  = catfile($bedD, $pab{'abr'}.'.gene.be');
   my $geneCovF = catfile($coverageD, $pab{'abr'}.'.gene.cov');
   my $cmdl = $bedtools.' genomecov '.
@@ -33,8 +34,9 @@ foreach my $sp (sort keys %$nr){
       ' -d > '.$coverageF;
   run($cmdl, 1);
   # calculate average per nucleotide read coverage over genes
-  run("./geneCov.pl -cov $coverageF -bed $geneBedF -out $geneCovF", 1);
+  run("./geneCov.pl -cov $coverageF -bed $geneBedF -out $geneCovF -avcov $avcovF", 0);
 }
+
 
 
 make_path($figuresD) unless -d $figuresD;

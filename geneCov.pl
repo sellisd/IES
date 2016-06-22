@@ -6,6 +6,7 @@ my $help;
 my $coverageF;
 my $genesF;
 my $out;
+my $avcov;
 my $usage = <<HERE;
 
 Calculate the average per nucleotide gene coverage over genomic regions. It reads the whole genome in memory, watch out for large genomes!
@@ -15,6 +16,7 @@ where OPTIONS can be:
   -cov:    coverage file
   -bed:    bed file with genomic regions (e.g genes)
   -out:    output file
+  -avcov:  output file with average coverage per scaffold
   -help|?: this help screen
 
 HERE
@@ -22,18 +24,28 @@ HERE
 die $usage unless (GetOptions('help|?' => \$help,
 			      'cov=s'  => \$coverageF,
 			      'bed=s'  => \$genesF,
-			      'out=s'  => \$out
+			      'out=s'  => \$out,
+			      'avcov=s' => \$avcov
 		   ));
 die $usage if $help;
 
 my %h;
-
+my %avcov; # summarize coverage over scaffolds
+my %scl;   # total length
 # read genomic coverage and make scaffold-sized arrays
+
 open CV, $coverageF or die $!;
 while(my $line = <CV>){
     chomp $line;
     (my $scaffold, my $location, my $coverage) = split " ", $line;
     ${$h{$scaffold}}[$location] = $coverage;
+    $avcov{$scaffold} += $coverage;
+    if(defined($scl{$scaffold})){
+	$scl{$scaffold}++;
+    }else{
+	$scl{$scaffold} = 1;
+    }
+	
 }
 close CV;
 
@@ -53,3 +65,10 @@ while(my $line = <GN>){
 }
 close GN;
 close OUT;
+
+open AC, '>', $avcov or die $!;
+print AC "scafffold\tcoverage\tlength\n";
+foreach my $scaf (sort keys %avcov){
+    print AC $scaf, "\t", $avcov{$scaf}/$scl{$scaf}, "\t", $scl{$scaf}, "\n";
+}
+close AC;
