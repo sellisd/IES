@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
-from ete3 import Tree, NodeStyle, SeqMotifFace, TextFace
+from ete3 import Tree, NodeStyle, SeqMotifFace, TextFace, ImgFace, TreeStyle
 import pprint
 import os.path
 import sys
@@ -12,8 +12,15 @@ pp = pprint.PrettyPrinter(indent=8)
 
 # SPECIATION TREE #
 ###################
+wgd1 = Tree('((P_caudatum:1[&&NHX:Ev=S:S=3:ND=3],(((P_sexaurelia:1[&&NHX:Ev=S:S=7:ND=7],P_sonneborni:1[&&NHX:Ev=S:S=8:ND=8]):1[&&NHX:Ev=S:S=5:ND=5],(((P_pentaurelia:1[&&NHX:Ev=S:S=13:ND=13],P_primaurelia:1[&&NHX:Ev=S:S=14:ND=14]):1[&&NHX:Ev=S:S=11:ND=11],(P_biaurelia:1[&&NHX:Ev=S:S=15:ND=15],(P_octaurelia:1[&&NHX:Ev=S:S=17:ND=17],P_tetraurelia:1[&&NHX:Ev=S:S=18:ND=18]):1[&&NHX:Ev=S:S=16:ND=16]):1[&&NHX:Ev=S:S=12:ND=12]):1[&&NHX:Ev=S:S=9:ND=9],P_tredecaurelia:1[&&NHX:Ev=S:S=10:ND=10]):1[&&NHX:Ev=S:S=6:ND=6]):1[&&NHX:Ev=S:S=4:ND=4],((P_sexaurelia:1[&&NHX:Ev=S:S=7:ND=7],P_sonneborni:1[&&NHX:Ev=S:S=8:ND=8]):1[&&NHX:Ev=S:S=5:ND=5],(((P_pentaurelia:1[&&NHX:Ev=S:S=13:ND=13],P_primaurelia:1[&&NHX:Ev=S:S=14:ND=14]):1[&&NHX:Ev=S:S=11:ND=11],(P_biaurelia:1[&&NHX:Ev=S:S=15:ND=15],(P_octaurelia:1[&&NHX:Ev=S:S=17:ND=17],P_tetraurelia:1[&&NHX:Ev=S:S=18:ND=18]):1[&&NHX:Ev=S:S=16:ND=16]):1[&&NHX:Ev=S:S=12:ND=12]):1[&&NHX:Ev=S:S=9:ND=9],P_tredecaurelia:1[&&NHX:Ev=S:S=10:ND=10]):1[&&NHX:Ev=S:S=6:ND=6]):1[&&NHX:Ev=S:S=4:ND=4]):1[&&NHX:Ev=D:S=4:ND=4]):1[&&NHX:Ev=S:S=1:ND=1],T_thermophila:1[&&NHX:Ev=S:S=2:ND=2])[&&NHX:Ev=S:S=0:ND=0];')
 
-basest = Tree('((Paramecium_caudatum:0.117527[&&NHX:Ev=S:S=3:ND=3],((Paramecium_sexaurelia:0.117527[&&NHX:Ev=S:S=7:ND=7],Paramecium_sonneborni:0.117527[&&NHX:Ev=S:S=8:ND=8]):0.117527[&&NHX:Ev=S:S=5:ND=5],(((Paramecium_pentaurelia:0.117527[&&NHX:Ev=S:S=13:ND=13],Paramecium_primaurelia:0.117527[&&NHX:Ev=S:S=14:ND=14]):0.117527[&&NHX:Ev=S:S=11:ND=11],(Paramecium_biaurelia:0.117527[&&NHX:Ev=S:S=15:ND=15],(Paramecium_octaurelia:0.117527[&&NHX:Ev=S:S=17:ND=17],Paramecium_tetraurelia:0.117527[&&NHX:Ev=S:S=18:ND=18]):0.117527[&&NHX:Ev=S:S=16:ND=16]):0.117527[&&NHX:Ev=S:S=12:ND=12]):0.117527[&&NHX:Ev=S:S=9:ND=9],Paramecium_tredecaurelia:0.117527[&&NHX:Ev=S:S=10:ND=10]):0.117527[&&NHX:Ev=S:S=6:ND=6]):0.117527[&&NHX:Ev=S:S=4:ND=4]):0.117527[&&NHX:Ev=S:S=1:ND=1],Tetrahymena_thermophila:0.117527[&&NHX:Ev=S:S=2:ND=2])[&&NHX:Ev=S:S=0:ND=0];')
+basest = Tree('((P_caudatum:1[&&NHX:Ev=S:S=3:ND=3],((P_sexaurelia:1[&&NHX:Ev=S:S=7:ND=7],P_sonneborni:1[&&NHX:Ev=S:S=8:ND=8]):1[&&NHX:Ev=S:S=5:ND=5],(((P_pentaurelia:1[&&NHX:Ev=S:S=13:ND=13],P_primaurelia:1[&&NHX:Ev=S:S=14:ND=14]):1[&&NHX:Ev=S:S=11:ND=11],(P_biaurelia:1[&&NHX:Ev=S:S=15:ND=15],(P_octaurelia:1[&&NHX:Ev=S:S=17:ND=17],P_tetraurelia:1[&&NHX:Ev=S:S=18:ND=18]):1[&&NHX:Ev=S:S=16:ND=16]):1[&&NHX:Ev=S:S=12:ND=12]):1[&&NHX:Ev=S:S=9:ND=9],P_tredecaurelia:1[&&NHX:Ev=S:S=10:ND=10]):1[&&NHX:Ev=S:S=6:ND=6]):1[&&NHX:Ev=S:S=4:ND=4]):1[&&NHX:Ev=S:S=1:ND=1],T_thermophila:1[&&NHX:Ev=S:S=2:ND=2])[&&NHX:Ev=S:S=0:ND=0];')
+
+colorNodes(wgd1, 0)
+ts = TreeStyle()
+#ts.show_leaf_name = False
+ts.show_scale = False
+wgd1.show(tree_style = ts)
 
 st = basest.copy()
 # read table with branch attributes
@@ -28,12 +35,23 @@ for line in f:
 
 colorNodes(st, 1)
 # plot species tree
-st.render('/home/dsellis/data/IES/analysis/figures/sptree.png')
+st.render('/home/dsellis/data/IES/analysis/figures/sptree.png', tree_style = ts)
 
-colorNodes(basest, 0)
-addattr(basest, bratr)
-basest.render('/home/dsellis/data/IES/analysis/figures/sptreeGL.png')
-quit()
+glst = basest.copy()
+colorNodes(glst, 0)
+addattr(glst, bratr)
+glst.show(tree_style = ts)
+glst.render('/home/dsellis/data/IES/analysis/figures/sptreeGL.png', tree_style = ts)
+#quit()
+agest = basest.copy()
+for node in agest.traverse():
+    figF = "/home/dsellis/data/IES/analysis/figures/length." + node.S + ".png"
+    if os.path.isfile(figF):
+        node.add_face(ImgFace(figF), column = 0)
+
+# species tree with length plots
+agest.show(tree_style = ts)
+#quit()
 # Gene family trees #
 #####################
 
