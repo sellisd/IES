@@ -9,6 +9,21 @@ suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(RColorBrewer))
 
+abr = c( 'ppr' = 'P. primaurelia',
+         'pbi' = 'P. biaurelia',
+         'pte' = 'P. tetraurelia',  
+         'ppe' = 'P. pentaurelia',
+         'pse' = 'P. sexaurelia',
+         'poc' = 'P. octaurelia',
+         'ptr' = 'P. tredecaurelia',
+         'pso' = 'P. sonneborni',
+         'pca' = 'P. caudatum',
+         'tth' = 'T. thermophila')
+
+# from http://stackoverflow.com/questions/29943251/displaying-values-from-a-character-vector-as-italic-labels-in-boxplot-in-r
+# by http://stackoverflow.com/users/516548/g-grothendieck
+make.italic <- function(x) as.expression(lapply(x, function(y) bquote(italic(.(y)))))
+
 printIESalign <- function(geneFamily, iesColumn, pad, filtered, introns){
   # plot a multiple sequence alignment around an IES
   # print the nucleotide alignment around iesColumn with TAs annotated
@@ -276,3 +291,4 @@ plotConsPast <- function(pattern){
                "totalPbi" = totalPbi, "totalPte" =  totalPte, "totalPse" = totalPse, "totalPca" = totalPca,
                "rybi" = rybi, "ryte" = ryte, "ryse" = ryse, "ryca" = ryca)
 }
+
