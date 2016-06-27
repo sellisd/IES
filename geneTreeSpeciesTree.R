@@ -1,14 +1,25 @@
 # select gene trees with the same topology as the species tree
 library(ape)
-selectedGroups <- numeric(0)
+selectedGroupsA <- numeric(0)
+selectedGroupsB <- numeric(0)
+selectedGroupsC <- numeric(0)
+
 treePath <- "~/data/IES/analysis/phyldog/results/"
 #charmatPath <- "~/data/IES_data/msas/alignments/charMat/"
 files <- dir(treePath,pattern="[^.]*.ReconciledTree$")
 
-spTreeString <- "(PCA:1,((PSE:1,PSO:1):1,(((PPE:1,PPR:1):1,(PBI:1,(POC:1,PTE:1):1):1):1,PTR:1):1):1):1;"
+spTreeStringA <- "((PSE:1,PSO:1):1,(((PPE:1,PPR:1):1,(PBI:1,(POC:1,PTE:1):1):1):1,PTR:1):1):1;"
+spTreeStringB <- "(PCA:1,((PSE:1,PSO:1):1,(((PPE:1,PPR:1):1,(PBI:1,(POC:1,PTE:1):1):1):1,PTR:1):1):1);"
+spTreeStringC <- "((PCA:1,((PSE:1,PSO:1):1,(((PPE:1,PPR:1):1,(PBI:1,(POC:1,PTE:1):1):1):1,PTR:1):1):1):1,TTH:1);"
 
-spTree <- read.tree(text=spTreeString)
-spGT <- data.frame(stringsAsFactors = FALSE) # data frame with details of gene trees ~ species trees
+
+spTreeA <- read.tree(text=spTreeStringA)
+spTreeB <- read.tree(text=spTreeStringB)
+spTreeC <- read.tree(text=spTreeStringC)
+
+ta <- read.tree("~/data/IES/analysis/brlen/brlenA/part.nexus.treefile")
+tb <- read.tree("~/data/IES/analysis/brlen/brlenB/part.nexus.treefile")
+tc <- read.tree("~/data/IES/analysis/brlen/brlenC/part.nexus.treefile")
 counter <- 1
 for(fileName in files){
   #fileName <- files[1]
@@ -20,17 +31,34 @@ for(fileName in files){
   geneTree <- read.tree(text = geneTreeString)
   geneNames <- geneTree$tip.label
   geneTree$tip.label <- substr(geneNames, 0, 3)
-  if(length(geneTree$tip.label) == length(spTree$tip.label)){
-    if(identical(sort(geneTree$tip.label), sort(spTree$tip.label))){ # ignore trees of wrong size
-      if(dist.topo(spTree, geneTree) == 0){
-        selectedGroups <- append(selectedGroups,groupNo)
+  counter <- 1
+  for(spTree in c(spTreeA, spTreeB, spTreeC)){
+    if(length(geneTree$tip.label) == length(spTree$tip.label)){
+      if(identical(sort(geneTree$tip.label), sort(spTree$tip.label))){ # ignore trees of wrong size
+        if(dist.topo(spTree, geneTree) == 0){
+          if(counter == 1) {
+            selectedGroupsA <- append(selectedGroupsA, groupNo)
+          }
+          if(counter == 2){
+            selectedGroupsB <- append(selectedGroupsB, groupNo)
+          }
+          if(counter == 3){
+            selectedGroupsC <- append(selectedGroupsC, groupNo)
+          }
+        }
       }
     }
+    counter <- counter + 1
   }
-  counter <- counter + 1
 }
 
-write.table(selectedGroups, file = "~/data/IES/analysis/tables/geneTreeSpeciesTree.tab", quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+length(selectedGroupsA)
+length(selectedGroupsB)
+length(selectedGroupsC)
+
+write.table(selectedGroupsA, file = "~/data/IES/analysis/tables/geneTreeSpeciesTreeA.tab", quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(selectedGroupsB, file = "~/data/IES/analysis/tables/geneTreeSpeciesTreeB.tab", quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+write.table(selectedGroupsC, file = "~/data/IES/analysis/tables/geneTreeSpeciesTreeC.tab", quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
 
 
 
