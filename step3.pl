@@ -28,12 +28,14 @@ my $asrRevF = '/home/dsellis/projects/IES/src/asr.Rev';
 # branch length calculations
 my $cmdl = 'Rscript --vanilla geneTreeSpeciesTree.R';
 run($cmdl, 1);
-$cmdl = 'Rscript --vanilla normBrLens.R';
-run($cmdl, 1);
 
-$cmdl = 'Rscript --vanilla filterGeneFamilies.R';
-run($cmdl, 0);
-die();
+run('Rscript --vanilla normBrLens.R /home/dsellis/data/IES/analysis/tables/geneTreeSpeciesTreeA.tab /home/dsellis/data/IES/analysis/tables/normBrLensA.tab', 1);
+run('Rscript --vanilla normBrLens.R /home/dsellis/data/IES/analysis/tables/geneTreeSpeciesTreeB.tab /home/dsellis/data/IES/analysis/tables/normBrLensB.tab', 1);
+run('Rscript --vanilla normBrLens.R /home/dsellis/data/IES/analysis/tables/geneTreeSpeciesTreeC.tab /home/dsellis/data/IES/analysis/tables/normBrLensC.tab', 1);
+
+run('Rscript --vanilla filterGeneFamilies.R /home/dsellis/data/IES/analysis/tables/normBrLensA.tab /home/dsellis/data/IES/analysis/figures/brLenDistrA.pdf /home/dsellis/data/IES/analysis/brlen/brlenA/', 1);
+run('Rscript --vanilla filterGeneFamilies.R /home/dsellis/data/IES/analysis/tables/normBrLensB.tab /home/dsellis/data/IES/analysis/figures/brLenDistrB.pdf /home/dsellis/data/IES/analysis/brlen/brlenB/', 1);
+run('Rscript --vanilla filterGeneFamilies.R /home/dsellis/data/IES/analysis/tables/normBrLensC.tab /home/dsellis/data/IES/analysis/figures/brLenDistrC.pdf /home/dsellis/data/IES/analysis/brlen/brlenC/', 1);
 
 $cmdl = ''; #reinitialize
 foreach my $sp (sort keys %$nr){
@@ -42,36 +44,43 @@ foreach my $sp (sort keys %$nr){
 }
 $cmdl .= ' -cds /home/dsellis/data/IES/genomicData/thermophila/gene/T_thermophila_June2014_CDS.fasta'; #add Tth
 
-run('./prot2nucl.pl -noterm'.$cmdl.' ~/data/IES/analysis/brlen/*.aln.fa', 1);
+run('./prot2nucl.pl -noterm'.$cmdl.' ~/data/IES/analysis/brlen/brlenA/*.aln.fa', 1);
+run('./prot2nucl.pl -noterm'.$cmdl.' ~/data/IES/analysis/brlen/brlenB/*.aln.fa', 1);
+run('./prot2nucl.pl -noterm'.$cmdl.' ~/data/IES/analysis/brlen/brlenC/*.aln.fa', 1);
 
 # rename genes in gene families
-run('./nameReplaceAlign.pl ~/data/IES/analysis/brlen/cluster.*.nucl.fa', 1);
+run('./nameReplaceAlign.pl ~/data/IES/analysis/brlen/brlenA/cluster.*.nucl.fa', 1);
+run('./nameReplaceAlign.pl ~/data/IES/analysis/brlen/brlenB/cluster.*.nucl.fa', 1);
+run('./nameReplaceAlign.pl ~/data/IES/analysis/brlen/brlenC/cluster.*.nucl.fa', 1);
 
 # infer single gene families phylogeny
-my $brlenP = '/home/dsellis/data/IES/analysis/brlen';
+foreach my $X (qw/A B C/){
+    my $brlenP = '/home/dsellis/data/IES/analysis/brlen/brlen'.$X;
 
-opendir DH, $brlenP or die $!;
-my @nuclAlnF = grep {/.*\.nucl\.fa.renamed$/} readdir(DH);
-close DH;
-my $iqtreeB = '/home/dsellis/tools/iqtree-1.4.2-Linux/bin/iqtree'; #binary
-if(0){
-    foreach my $file (@nuclAlnF){
-	my $pid = $pm->start and next;
-	my $cmdl = "$iqtreeB -s ".catfile($brlenP, $file).
+    opendir DH, $brlenP or die $!;
+    my @nuclAlnF = grep {/.*\.nucl\.fa.renamed$/} readdir(DH);
+    close DH;
+    my $iqtreeB = '/home/dsellis/tools/iqtree-1.4.2-Linux/bin/iqtree'; #binary
+    if(1){
+	foreach my $file (@nuclAlnF){
+	    my $pid = $pm->start and next;
+	    my $cmdl = "$iqtreeB -s ".catfile($brlenP, $file).
 #	' -m TESTNEWONLY -b 100';
-	    ' -st CODON6'.
-	    ' -m TESTNEW -redo';
+		' -st CODON6'.
+		' -m TESTNEW -redo';
 #	    ' -m TESTNEWONLY -redo';
-	run($cmdl, 1);
-	$pm->finish;
+	    run($cmdl, 1);
+	    $pm->finish;
+	}
+	$pm->wait_all_children;
     }
-    $pm->wait_all_children;
 }
 
-my $bmF = '/home/dsellis/data/IES/analysis/tables/bestModels.tab';
-run('./bestModel.pl -nex ~/data/IES/analysis/brlen/part.nexus -table '.$bmF.' ~/data/IES/analysis/brlen/cluster.*.nucl.fa.renamed', 1);
-
-run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 -st CODON6 -spp  ~/data/IES/analysis/brlen/part.nexus -redo > ~/data/IES/analysis/log/concatGenes.log', 1);
+for my $X (qw/A B C/){
+    my $bmF = '/home/dsellis/data/IES/analysis/tables/bestModels'.$X.'.tab';
+    run('./bestModel.pl -nex ~/data/IES/analysis/brlen/brlen'.$X.'/part.nexus -table '.$bmF.' ~/data/IES/analysis/brlen/brlen'.$X.'/cluster.*.nucl.fa.renamed', 1);
+    run('~/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -bb 10000 -nt 7 -st CODON6 -spp  ~/data/IES/analysis/brlen/brlen'.$X.'/part.nexus -redo > ~/data/IES/analysis/log/concatGenes'.$X.'.log', 1);
+}
 
 
 die;
@@ -119,7 +128,7 @@ run("./nodePaths.py > ~/data/IES/analysis/tables/nodePaths.dat", 1);
 # for all paths connecting speciation nodes (Nanc-N1-N2-Noffspring)
 # calculate the difference in probability at each step
 # sum all the positive differences and all the negative differences
-run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 0);
+run("./gainLoss.pl > ~/data/IES/analysis/tables/gainLoss.dat", 1);
 
 # for each path calculate probability of gain and loss    
 

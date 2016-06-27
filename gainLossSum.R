@@ -31,11 +31,13 @@ for(k in unique(key)){
   counter <- counter + 1
 }
 
-# adjust by branch length manually for now!
-brlt <- read.tree("~/data/IES/analysis/brlen/part.nexus.treefile") # all models where CODON models, branch lengths are number of substitutions per codon site!
-nodelabels()
-tiplabels()
-brlensDF <- data.frame(brlt$edge, brlt$edge.length / 3, stringsAsFactors = FALSE) # rescaled to number of substitutions per nt site
+# adjust by branch length manually for now
+#  read branch lengths
+bc <- read.table("~/data/IES/analysis/tables/normBrLensC.tab", header = TRUE, stringsAsFactors = FALSE)
+bcf <- brfilt(bc) # filter out extreme branch lengths
+cmc <- colMeans(bc[bcf, ]) # average
+key <- paste("b", DF$fromS, "_", DF$toS, sep = "")
+DF <- data.frame(fromS = DF$fromS, toS = DF$toS, gainRate = DF$gainRate/cmc[key], lossRate = DF$lossRate/cmc[key], stringsAsFactors = FALSE)
 
 rDF <- DF # round and scale for plotting
 rDF$gainRate <- paste("+", round(DF$gainRate * 10^5, 2))
@@ -43,4 +45,4 @@ rDF$lossRate <- paste("-", round(DF$lossRate * 10^2, 2))
 
 write.table(rDF, file = "~/data/IES/analysis/tables/ratesPerBranch.dat", row.names = FALSE, quote = FALSE, sep = "\t")
 
-knitr::kable(DF[order(DF$branch), ], row.names = FALSE, digits = 2)
+knitr::kable(rDF[order(key), ], row.names = FALSE, digits = 2)
