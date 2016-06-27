@@ -1,9 +1,23 @@
+#!/usr/bin/env Rscript
+args = commandArgs(trailingOnly=TRUE)
+
 # filter gene families and create plots of branch length distributions
 
-d <- read.table("~/data/IES/analysis/tables/normBrLens.tab", header = TRUE)
-pdf("~/data/IES/analysis/figures/brLenDistr.pdf")
+if (length(args) != 3) {
+  stop("Missing argument(s), input output")
+}
+
+inputF <- args[1] # input "~/data/IES/analysis/tables/normBrLensC.tab"
+pdfOUT <- args[2] # pdf output "~/data/IES/analysis/figures/brLenDistr.pdf"
+brlenPath <- args[3] # filtered path output "/home/dsellis/data/IES/analysis/brlen/"
+
+d <- read.table(inputF, header = TRUE)
+d <- d[,!is.na(d[1,])] # drop columns with NA in the first entry (should be full of NAs)
+
+pdf(pdfOUT)
 par(mfcol=c(4,4), las = 1, bty = "l")
-# for each branch length find which gene families are not within the 5th quantiles
+
+# for each branch filter-out gene families with extremely long branches (above the 90th quantile of the log branch length)
 # plot distribution of log lengths for each branch and manually determine outliers (keep the smallest peak that is not almost zero)
 outliers <- character()
 boeN <- ncol(d)
@@ -25,7 +39,6 @@ for(i in c(1:boeN)){
 }
 brlgf <- paste0("cluster.", setdiff(row.names(d), outliers), ".aln.fa")
 
-brlenPath <- "/home/dsellis/data/IES/analysis/brlen/"
 if(!dir.exists(brlenPath)){
   dir.create(brlenPath)
 }

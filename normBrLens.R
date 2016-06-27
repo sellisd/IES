@@ -1,13 +1,25 @@
+#!/usr/bin/env Rscript
+args = commandArgs(trailingOnly=TRUE)
+
 # calculate the normalize branch lengths for single gene family trees
+
+if (length(args) != 2) {
+  stop("Missing argument(s), input output")
+}
+geneTreeSpeciesTreeF <- args[1] #~/data/IES/analysis/tables/geneTreeSpeciesTree.tab"
+normBrLensF <- args[2] #"~/data/IES/analysis/tables/normBrLens.tab"
+
 library(ape)
 source("~/projects/IES/src/sharedFunctions.R")
 
 nodeDictionary <- read.table("~/data/IES/analysis/tables/nodeDictionary.dat", stringsAsFactors = FALSE, header = TRUE)
 spEvent <- read.table("~/data/IES/analysis/tables/spEvents.dat", header = TRUE, stringsAsFactors = FALSE)
-singleGeneFamilies <- unname(unlist(read.table("~/data/IES/analysis/tables/geneTreeSpeciesTree.tab", header = FALSE, stringsAsFactors = FALSE)))
+singleGeneFamilies <- unname(unlist(read.table(geneTreeSpeciesTreeF, header = FALSE, stringsAsFactors = FALSE)))
 
 # branches of interest
-boe <- c("b1_4",
+boe <- c("b0_1",
+         "b0_2",
+         "b1_4",
          "b4_5",
          "b5_7",
          "b5_8",
@@ -56,4 +68,4 @@ m <- m[rowSums(is.na(m)) != ncol(m),]
 d <- data.frame(m, row.names = sgfs, stringsAsFactors = FALSE)
 # keep gene families that are within the 95th percentile of all branghes
 names(d) <- boe
-write.table(d, file = "~/data/IES/analysis/tables/normBrLens.tab", sep = "\t")
+write.table(d, file = normBrLensF, sep = "\t")
