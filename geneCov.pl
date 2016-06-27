@@ -67,7 +67,7 @@ close GN;
 close OUT;
 
 open AC, '>', $avcov or die $!;
-print AC "scafffold\tcoverage\tlength\n";
+print AC "scaffold\tcoverage\tlength\n";
 foreach my $scaf (sort keys %avcov){
     print AC $scaf, "\t", $avcov{$scaf}/$scl{$scaf}, "\t", $scl{$scaf}, "\n";
 }
