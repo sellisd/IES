@@ -7,7 +7,7 @@ use Bio::AlignIO;
 use lib'.';
 use functions;
 
-my $outFile = '/home/dsellis/data/IES/analysis/singleGene/concat.aln.fa';
+my $outFile = '/home/dsellis/data/IES/analysis/sgf/concat.fa';
 
 my @species = qw/
 Paramecium_primaurelia
