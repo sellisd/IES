@@ -1157,4 +1157,19 @@ save2nexus <- function(geneFamily){
   homIESids <- names(DFcasted[2:ncol(DFcasted)])
   list(list4nexus, homIESids)
 }
+
+brfilt <- function(brl){
+  # for each branch filter-out gene families with extremely long branches (above the 90th quantile of the log branch length)
+  outliers <- character()
+  for(i in c(1:ncol(brl))){
+    # skip all NA
+    if(all(is.na(brl[, i]))){
+      next
+    }
+    r <- quantile(log10(brl[,i]), probs = 0.9, names = FALSE)
+    outliers <- append(outliers, row.names(brl)[log10(brl[, i]) > r[1]])
+  }
+  unique(outliers)
+}
+
 source("~/projects/IES/src/testSharedFunctions.R")
