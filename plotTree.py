@@ -20,7 +20,7 @@ colorNodes(wgd1, 0)
 ts = TreeStyle()
 #ts.show_leaf_name = False
 ts.show_scale = False
-wgd1.show(tree_style = ts)
+#wgd1.show(tree_style = ts)
 
 st = basest.copy()
 # read table with branch attributes
@@ -40,7 +40,7 @@ st.render('/home/dsellis/data/IES/analysis/figures/sptree.png', tree_style = ts)
 glst = basest.copy()
 colorNodes(glst, 0)
 addattr(glst, bratr)
-glst.show(tree_style = ts)
+#glst.show(tree_style = ts)
 glst.render('/home/dsellis/data/IES/analysis/figures/sptreeGL.png', tree_style = ts)
 #quit()
 agest = basest.copy()
@@ -50,7 +50,7 @@ for node in agest.traverse():
         node.add_face(ImgFace(figF), column = 0)
 
 # species tree with length plots
-agest.show(tree_style = ts)
+#agest.show(tree_style = ts)
 #quit()
 # Gene family trees #
 #####################
