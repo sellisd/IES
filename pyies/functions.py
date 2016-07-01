@@ -2,6 +2,16 @@ from __future__ import print_function
 from ete3 import Tree, NodeStyle, SeqMotifFace, TextFace
 from collections import defaultdict
 
+def up2sp(node):
+    """
+    Go upwards in a tree until a speciation node is found or return root
+    """
+    while node.up:
+        node = node.up
+        if node.Ev == 'S':
+            break
+    return node
+
 def isDescendant(nodeA, nodeB):
     """find if nodeB is descendant of nodeA"""
     if nodeB in nodeA.get_descendants():
@@ -20,6 +30,12 @@ def choseAnc(nodeA, nodeB):
     else:
         quit(str(a) + '.' + str(b))
 
+def isSpeciationNode(node):
+    if node.Ev == 'S':
+        return True
+    else:
+        return False
+    
 class Vividict(dict):
     # by http://stackoverflow.com/users/541136/aaron-hall
     # from http://stackoverflow.com/questions/635483/what-is-the-best-way-to-implement-nested-dictionaries-in-python/19829714#19829714
@@ -32,24 +48,29 @@ def placeDupl(t, spt):
     dup = defaultdict(int)
     for node in t.traverse():
         if node.Ev == 'D':
-            if len(node.children) == 2:
-                if node.children[0].Ev == 'S' and node.children[1].Ev == 'S' and node.children[0].S == node.children[1].S:
-                    # both speciation nodes of the same speciation event
-                    if node.is_root():
-                        print("root")
-                    else:
-                        if node.up.Ev == 'S':
-                            dup[(node.up.S, node.children[0].S)] += 1
-                        else:
-                            print(node.S + 'parent node not speciation')
-                            return
-                else:
-                    # which is the most ancestral speciation node in the species tree?
-                    anc = choseAnc(spt.iter_search_nodes(S = node.children[0].S).next(), spt.iter_search_nodes(S = node.children[1].S).next())
-                    dup[(node.up.S, anc.S)] +=1
+            #get upstream speciation
+            nodeUp = up2sp(node)
+            if nodeUp.is_root():
+                nodeUp = -1
             else:
-                print(node.S + 'more than two children')
-                return
+                nodeUp = nodeUp.S
+            nodesDown = []
+            #get downstream speciation
+            for spnode in node.traverse(is_leaf_fn = isSpeciationNode):
+                if spnode.Ev == 'S':
+                    nodesDown.append(spnode)
+            # check if all downstream speciation nodes are the same
+            allEqual = True
+            for i in nodesDown:
+                if nodesDown[0].S != i.S:
+                    allEqual = False
+                    break
+            if allEqual:             # if all equal
+                nodeDown = nodesDown[0]
+            else: # modify to deal with more than 2
+                nodeDown = choseAnc(spt.iter_search_nodes(S = nodesDown[0].S).next(),
+                                    spt.iter_search_nodes(S = nodesDown[1].S).next())
+            dup[(nodeUp,  nodeDown.S)] += 1
     return dup
 
 def readPalette():
