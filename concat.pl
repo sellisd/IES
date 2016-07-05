@@ -50,7 +50,7 @@ foreach my $inputFile (@ARGV){
 }
 
 
-# from end points recover start end coordinats bed format
+# from end points recover start end coordinates bed format
 my @start = @end;
 pop @start; # remove last element
 map($_++,@start);
