@@ -1,6 +1,7 @@
 from __future__ import print_function
 from ete3 import Tree, NodeStyle, SeqMotifFace, TextFace
-from collections import defaultdict
+from collections import defaultdict, Counter
+import numpy as np
 
 def up2sp(node):
     """
@@ -18,6 +19,23 @@ def isDescendant(nodeA, nodeB):
         return 1
     else:
         return 0
+
+def choseAncList(nodeL):
+    """return ancestor node from list"""
+    l = len(nodeL)
+    rL = np.array([ ['-1']*l ]*l)
+    for i in range(l):
+        for j in range(l):
+            rL[i][j] = isDescendant(nodeL[i], nodeL[j])
+    for i in range(l):
+        notSelf = [ns for ns in range(l) if ns != i]
+        row = rL[i,notSelf]
+        col = rL[notSelf,i]
+        if all(v == '1' for v in row) and all(v == '0' for v in col):
+            return nodeL[i]
+    print(rL)
+    print([n.S for n in nodeL])
+    quit()
 
 def choseAnc(nodeA, nodeB):
     """return ancestor node"""
@@ -45,13 +63,13 @@ class Vividict(dict):
 
 def placeDupl(t, spt):
     """Find per species tree branch number of duplications"""
-    dup = defaultdict(int)
+    dup = Counter()
     for node in t.traverse():
         if node.Ev == 'D':
             #get upstream speciation
             nodeUp = up2sp(node)
-            if nodeUp.is_root():
-                nodeUp = -1
+            if nodeUp.Ev == 'D':
+                nodeUp = -1 #the upmost node is a duplication node
             else:
                 nodeUp = nodeUp.S
             nodesDown = []
@@ -66,11 +84,15 @@ def placeDupl(t, spt):
                     allEqual = False
                     break
             if allEqual:             # if all equal
-                nodeDown = nodesDown[0]
+                nodeDown = nodesDown[0].S
             else: # modify to deal with more than 2
-                nodeDown = choseAnc(spt.iter_search_nodes(S = nodesDown[0].S).next(),
-                                    spt.iter_search_nodes(S = nodesDown[1].S).next())
-            dup[(nodeUp,  nodeDown.S)] += 1
+                nodesL = []
+                for i in nodesDown:
+                   nodesL.append(spt.iter_search_nodes(S = i.S).next())
+                nodesL = list(set(nodesL)) #remove duplicates, if any
+                nodeDown = choseAncList(nodesL)
+                nodeDown = nodeDown.S
+            dup[(nodeUp,  nodeDown)] += 1
     return dup
 
 def readPalette():
