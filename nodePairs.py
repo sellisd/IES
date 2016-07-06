@@ -10,7 +10,6 @@ Calculate all speciation node pairs on a PHYLDOG tree
 def path2anc(nodeO):
     """
     Find path from root to node
-    
     PARAMETERS: reference to a node object
     RETURN    : a list of node ids on the path from the root to the input node
     """
@@ -25,13 +24,13 @@ def path2anc(nodeO):
         pathNames.append(int(i.name))
     return pathNames
 
-def nodePairs(list):
+def nodePairs(l):
     """
     From a path of nodes generate all pairs
     """
     pairs = {}
-    for i, itemI in enumerate(list):
-        for j, itemJ in enumerate(list[(i+1):]):
+    for i, itemI in enumerate(l):
+        for j, itemJ in enumerate(l[(i+1):]):
             pairs[(itemI,itemJ)] = 1
     return pairs
 

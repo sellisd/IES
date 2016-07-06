@@ -36,7 +36,7 @@ for sp in speciesA:
         fbA = []
         for line in f:
             line.strip()
-            (id, scaffold, altSeqNo, startLocs, endLocs, upstreamFlank, downstreamFlank,length, isFloating, merged, inCDS, inInter, inIntron, front, back, seq) = line.split("\t")
+            (idv, scaffold, altSeqNo, startLocs, endLocs, upstreamFlank, downstreamFlank,length, isFloating, merged, inCDS, inInter, inIntron, front, back, seq) = line.split("\t")
             l = int(length)
             if isFloating == '0' and merged == '0' and l >= lengthMin[lbi] and l < lengthMax[lbi]:
                 # exclude if have an N

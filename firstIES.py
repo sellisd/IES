@@ -3,7 +3,9 @@ from __future__ import print_function
 from pyies.functions import *
 from ete3 import Tree
 import re
-""" In each homologous IES column of all gene families find the speciation nodes in which an IES was present with probability larger than cutoff"""
+"""When an IES was inserted.
+   In each homologous IES column of all gene families find the speciation nodes in which an IES was present with probability larger than cutoff
+   """
 
 # find correspondance of phyldog nodedes to speciation events
 speF = open('/home/dsellis/data/IES/analysis/tables/spEvents.dat', 'r')
@@ -63,4 +65,3 @@ for (geneFamily, iesColumn) in homies:
     else:
         ancestor = t.get_common_ancestor(L)
         print('\t'.join([geneFamily, iesColumn, ancestor.name]))
-        

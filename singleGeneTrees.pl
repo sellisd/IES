@@ -27,6 +27,7 @@ my @partitionModels;
 open IN, $gfF or die $!;
 readline(IN); #header
 # find which gene families have only one memeber of each species
+
 while (my $line = <IN>){
     chomp $line;
     (my $id, my $seqNo, my $avPairId, my $genes, my $pprGenes, my $pbiGenes, my $pteGenes, my $ppeGenes, my $pseGenes, my $pocGenes, my $ptrGenes, my $psoGenes, my $pcaGenes) = split " ", $line;
@@ -46,16 +47,17 @@ foreach my $sgf (@selectedGroups){
 
 # "back-translate" to nucleotide sequence without termination codon
 my $nr = getNotation($notationF);
+my $cdsF;
 foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}}; #de-reference for less typing
-    $cmdl .= ' -cds '.catfile($pab{'datapath'}, $pab{'cdsF'});
+    $cdsF .= ' -cds '.catfile($pab{'datapath'}, $pab{'cdsF'});
 }
-$cmdl .= ' -cds /home/dsellis/data/IES/genomicData/thermophila/gene/T_thermophila_June2014_CDS.fasta'; #add Tth
+$cdsF .= ' -cds /home/dsellis/data/IES/genomicData/thermophila/gene/T_thermophila_June2014_CDS.fasta'; #add Tth
 
-run('./prot2nucl.pl -noterm'.$cmdl.' ~/data/IES/analysis/sgf/*.aln.fa', 1);
+run('./prot2nucl.pl -noterm'.$cdsF.' ~/data/IES/analysis/sgf/*.aln.fa', 0);
 
 # rename sequences
-run('./nameReplaceAlign.pl ~/data/IES/analysis/sgf/cluster.*.nucl.fa', 1);
+run('./nameReplaceAlign.pl ~/data/IES/analysis/sgf/cluster.*.nucl.fa', 0);
 
 # find best model for each gene family and infer gene tree
 opendir DH, $pathOUT or die $!;
@@ -66,20 +68,20 @@ foreach my $file (@nuclAlnF){
     my $cmdl = "$iqtreeB -s ".catfile($pathOUT, $file).
 	' -st CODON6 -bb 1000'.
 	' -m TESTNEW';
-    run($cmdl, 1);
+    run($cmdl, 0);
     $pm->finish;
 }
 $pm->wait_all_children;
 
 # build table with best models for each partition
-run('./bestModel.pl -nex ~/data/IES/analysis/sgf/concat.nexus -table '.$bmF.' ~/data/IES/analysis/sgf/cluster.*.nucl.fa.renamed', 1);
+run('./bestModel.pl -nex ~/data/IES/ana1lysis/sgf/concat.nexus -table '.$bmF.' ~/data/IES/analysis/sgf/cluster.*.nucl.fa.renamed', 0);
 
 # infer concatenated (species) tree with partitions and -testmerge
-run($iqtreeBP.' -bb 1000 -st CODON6 -TESTMERGE -spp  ~/data/IES/analysis/sgf/concat.nexus > ~/data/IES/analysis/log/concat.log', 1);
+run($iqtreeBP.' -bb 1000 -st CODON6 -m TESTNEWMERGE -spp  ~/data/IES/analysis/sgf/concat.nexus > ~/data/IES/analysis/log/concat.log', 0);
 
 # infer concatenated (species) tree with simple model
-run('./bestModel.pl -model GTR+G{1.0} -nex ~/data/IES/analysis/sgf/concatSimple.nexus -table '.$bmF.' ~/data/IES/analysis/sgf/cluster.*.nucl.fa.renamed', 1);
-run($iqtreeBP.' -bb 1000 -spp  ~/data/IES/analysis/sgf/concatSimple.nexus > ~/data/IES/analysis/log/concatSimple.log', 1);
+run('./bestModel.pl -model GTR+G{1.0} -nex ~/data/IES/analysis/sgf/concatSimple.nexus -table '.$bmF.' ~/data/IES/analysis/sgf/cluster.*.nucl.fa.renamed', 0);
+run($iqtreeBP.' -bb 1000 -spp  ~/data/IES/analysis/sgf/concatSimple.nexus > ~/data/IES/analysis/log/concatSimple.log', 0);
 
 # compare gene trees with simple model and partitioned species tree topology
 

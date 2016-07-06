@@ -108,5 +108,3 @@ for l in t:
 # #alnF = '/home/dsellis/data/analysis/msas/filtered/cluster.10000.nucl.fa'
 
 t.show()
-
- 

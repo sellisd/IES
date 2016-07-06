@@ -1,6 +1,6 @@
 from __future__ import print_function
 from ete3 import Tree, NodeStyle, SeqMotifFace, TextFace
-from collections import defaultdict, Counter
+from collections import Counter
 import numpy as np
 
 def up2sp(node):
@@ -49,11 +49,8 @@ def choseAnc(nodeA, nodeB):
         quit(str(a) + '.' + str(b))
 
 def isSpeciationNode(node):
-    if node.Ev == 'S':
-        return True
-    else:
-        return False
-    
+    bool(node.Ev == 'S')
+
 class Vividict(dict):
     # by http://stackoverflow.com/users/541136/aaron-hall
     # from http://stackoverflow.com/questions/635483/what-is-the-best-way-to-implement-nested-dictionaries-in-python/19829714#19829714

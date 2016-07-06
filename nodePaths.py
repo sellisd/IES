@@ -8,8 +8,7 @@ read a gene tree (nhx format) and for each pair of speciation nodes print a path
 
 # Functions
 def path2anc(nodeO):
-    """Find path to root
-    
+    """Find path to root    
     PARAMETERS: reference to a node object
     RETURN    : a list of node objects on the path from the root to the input node
     """
