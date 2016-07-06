@@ -2,7 +2,10 @@
 from __future__ import print_function
 import itertools
 
-"""Calculates the absolute difference of IES length (nt) in all pairs of IESs within a group of homologous IES"""
+"""Length difference in homologous IESs.
+
+    Calculates the absolute difference of IES length (nt) in all pairs of IESs
+    within a group of homologous IES."""
 
 alF = '/home/dsellis/data/IES/analysis/tables/ageLength.dat'
 elF = '/home/dsellis/data/IES/analysis/tables/lengthEvol.dat'

@@ -4,8 +4,8 @@ from os import listdir
 import os.path
 from sys import argv
 from ete3 import Tree
-import re
-"""Parse node attributes from PHYLDOG reconciled tree files"""
+
+"""Parse node attributes from PHYLDOG reconciled tree files."""
 
 baseP = argv[1]
 treeF = [i for i in listdir(baseP) if i[-15:] == '.ReconciledTree']

@@ -30,7 +30,7 @@ def nodePairs(l):
     """
     pairs = {}
     for i, itemI in enumerate(l):
-        for j, itemJ in enumerate(l[(i+1):]):
+        for itemJ in l[(i+1):]:
             pairs[(itemI,itemJ)] = 1
     return pairs
 
@@ -44,8 +44,7 @@ for l in t.traverse():
         l.name = (re.sub(r'.+_.+_(\d+)', r'\1', l.name))
     elif(l.is_root()):
         if(l.name):
-            quit(l.name)
-            pass # is root named?
+            quit(l.name) # is root named?
         else:
             l.name = '0'
 

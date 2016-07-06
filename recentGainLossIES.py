@@ -1,11 +1,10 @@
 #!/usr/bin/python
 from __future__ import print_function
 from ete3 import Tree
-import sys
 
-"""
-find IES that are lost in a terminal branch
-"""
+
+"""Ffind IES that are lost in a terminal branch."""
+
 def prevSpec(nodeO):
     """
     find the closest direct ancestor that corresponds to a speciation node
@@ -39,7 +38,7 @@ for line in f:
         nodeP = rb2phyldog[(cluster, node)]
     else:
 #        print("skipping :" + cluster + ', ' + node, file = sys.stderr)
-        next
+        continue
     if (cluster, nodeP) in d:
         d[(cluster, nodeP)][iesColumn] = presence
     else:

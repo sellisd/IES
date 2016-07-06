@@ -1,12 +1,12 @@
 #!/usr/bin/python
 from __future__ import print_function
-from ete3 import Tree, NodeStyle, SeqMotifFace, TextFace, ImgFace, TreeStyle
+from ete3 import Tree, NodeStyle, SeqMotifFace, ImgFace, TreeStyle
 import pprint
 import os.path
 import sys
 from pyies.functions import *
 
-"""Draw gene family trees with nodes colored by event-type and motif of IESs."""
+"""Draw trees."""
 
 pp = pprint.PrettyPrinter(indent=8)
 

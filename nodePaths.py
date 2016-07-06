@@ -2,9 +2,12 @@
 from __future__ import print_function
 from ete3 import Tree
 
-"""
-read a gene tree (nhx format) and for each pair of speciation nodes print a path of ancestor to descendant.
-"""
+"""Find paths connecting speciation nodes.
+
+
+    Read a gene tree in nhx format and for each pair of speciation nodes print
+    a path of ancestor to descendant.
+    """
 
 # Functions
 def path2anc(nodeO):

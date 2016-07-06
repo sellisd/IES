@@ -13,8 +13,7 @@ for l in t.traverse():
         l.name = (re.sub(r'.+_.+_(\d+)', r'\1', l.name))
     elif(l.is_root()):
         if(l.name):
-            quit(l.name)
-            pass # is root named?
+            quit(l.name) # is root named?
         else:
             l.name = '0'
 

@@ -2,9 +2,7 @@
 from __future__ import print_function
 from ete3 import Tree
 
-"""
-find which phyldog nodes correspond to which speciation event
-"""
+"""Find which phyldog nodes correspond to which speciation event."""
 
 phyldogPath = '/home/dsellis/data/IES/analysis/phyldog/results/'
 inputF = open('/home/dsellis/data/IES/analysis/asr/geneFamilies.dat', 'r')

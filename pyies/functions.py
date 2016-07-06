@@ -1,5 +1,5 @@
 from __future__ import print_function
-from ete3 import Tree, NodeStyle, SeqMotifFace, TextFace
+from ete3 import Tree, NodeStyle, TextFace
 from collections import Counter
 import numpy as np
 
