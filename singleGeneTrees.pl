@@ -30,8 +30,8 @@ readline(IN); #header
 
 while (my $line = <IN>){
     chomp $line;
-    (my $id, my $seqNo, my $avPairId, my $genes, my $pprGenes, my $pbiGenes, my $pteGenes, my $ppeGenes, my $pseGenes, my $pocGenes, my $ptrGenes, my $psoGenes, my $pcaGenes) = split " ", $line;
-    if($pprGenes == 1 and $pbiGenes == 1 and  $pteGenes == 1 and $ppeGenes == 1 and $pseGenes == 1 and $pocGenes == 1 and $ptrGenes == 1 and $psoGenes == 1 and $pcaGenes == 1){
+    (my $id, my $seqNo, my $avPairId, my $genes, my $pprGenes, my $pbiGenes, my $pteGenes, my $ppeGenes, my $pseGenes, my $pocGenes, my $ptrGenes, my $psoGenes, my $pcaGenes, my $tthGenes) = split " ", $line;
+    if($pprGenes == 1 and $pbiGenes == 1 and  $pteGenes == 1 and $ppeGenes == 1 and $pseGenes == 1 and $pocGenes == 1 and $ptrGenes == 1 and $psoGenes == 1 and $pcaGenes == 1 and $tthGenes <=1){
 	my $fileName = 'cluster.'.$id.'.aln.fa';
 	push @selectedGroups, $id;
 	push @gtF, catfile($pathIN, $fileName);
@@ -54,27 +54,27 @@ foreach my $sp (sort keys %$nr){
 }
 $cdsF .= ' -cds /home/dsellis/data/IES/genomicData/thermophila/gene/T_thermophila_June2014_CDS.fasta'; #add Tth
 
-run('./prot2nucl.pl -noterm'.$cdsF.' ~/data/IES/analysis/sgf/*.aln.fa', 0);
+run('./prot2nucl.pl -noterm'.$cdsF.' ~/data/IES/analysis/sgf/*.aln.fa', 1);
 
 # rename sequences
-run('./nameReplaceAlign.pl ~/data/IES/analysis/sgf/cluster.*.nucl.fa', 0);
+run('./nameReplaceAlign.pl ~/data/IES/analysis/sgf/cluster.*.nucl.fa', 1);
 
 # find best model for each gene family and infer gene tree
 opendir DH, $pathOUT or die $!;
-my @nuclAlnF = grep {/.*\.nucl\.fa.renamed$/} readdir(DH);
+my @nuclAlnF = grep {/.*\.nucl\.fa\.renamed$/} readdir(DH);
 close DH;
 foreach my $file (@nuclAlnF){
     my $pid = $pm->start and next;
     my $cmdl = "$iqtreeB -s ".catfile($pathOUT, $file).
 	' -st CODON6 -bb 1000'.
 	' -m TESTNEW';
-    run($cmdl, 0);
+    run($cmdl, 1);
     $pm->finish;
 }
 $pm->wait_all_children;
 
 # build table with best models for each partition
-run('./bestModel.pl -nex ~/data/IES/ana1lysis/sgf/concat.nexus -table '.$bmF.' ~/data/IES/analysis/sgf/cluster.*.nucl.fa.renamed', 0);
+run('./bestModel.pl -nex ~/data/IES/analysis/sgf/concat.nexus -table '.$bmF.' ~/data/IES/analysis/sgf/cluster.*.nucl.fa.renamed', 1);
 
 # infer concatenated (species) tree with partitions and -testmerge
 run($iqtreeBP.' -bb 1000 -st CODON6 -m TESTNEWMERGE -spp  ~/data/IES/analysis/sgf/concat.nexus > ~/data/IES/analysis/log/concat.log', 0);

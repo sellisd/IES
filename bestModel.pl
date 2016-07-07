@@ -51,7 +51,7 @@ foreach my $inputFile (@ARGV){
     my $partitionString = 'part'.$counter;
     print NEX "\tcharset ", $partitionString, " = ", $inputFile, ":*;\n";
     my $bestModel;
-    open IQ, $inputFile.'.iqtree' or die $!;
+    open IQ, $inputFile.'.iqtree' or die "$!  $inputFile.iqtree";
     while (my $line = <IQ>){
 	if ($line =~ /^Best-fit model according to BIC:\s*(.*)\s*$/){
 	    $bestModel = $1;

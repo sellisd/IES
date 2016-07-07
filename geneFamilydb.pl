@@ -42,7 +42,7 @@ while(my $line = <FS>){
 close FS;
 
 open OUT, '>', $outF or die $!;
-print OUT join("\t", ("id", "seqNo", "avPairId", "genes", "pprGenes", "pbiGenes", "pteGenes", "ppeGenes", "pseGenes", "pocGenes", "ptrGenes", "psoGenes", "pcaGenes")), "\n";
+print OUT join("\t", ("id", "seqNo", "avPairId", "genes", "pprGenes", "pbiGenes", "pteGenes", "ppeGenes", "pseGenes", "pocGenes", "ptrGenes", "psoGenes", "pcaGenes", "tthGenes")), "\n";
 foreach my $gf (sort keys %geneFamily){
     print OUT $gf,"\t";
     if(defined($geneFamily{$gf}{'seqNo'})){ # not filtered !
@@ -63,6 +63,7 @@ foreach my $gf (sort keys %geneFamily){
     print OUT $histR->{'Paramecium_tredecaurelia'}, "\t";
     print OUT $histR->{'Paramecium_sonneborni'}, "\t";
     print OUT $histR->{'Paramecium_caudatum'}, "\t";
+    print OUT $histR->{'Tetrahymena_thermophila'}, "\t";
     print OUT "\n";
 }
 close OUT;
@@ -81,7 +82,8 @@ sub tabGenes{
 	'Paramecium_octaurelia'    => 0,
 	'Paramecium_tredecaurelia' => 0,
 	'Paramecium_sonneborni'    => 0,
-	'Paramecium_caudatum'      => 0
+	'Paramecium_caudatum'      => 0,
+	'Tetrahymena_thermophila'  => 0,
 	);
     foreach my $gene (@$genesR){
 	$hist{gene2species($gene)}++;
