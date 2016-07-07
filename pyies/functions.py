@@ -123,8 +123,8 @@ def colorNodes( t, numbered ):
     return t
 
 def addattr( t, bratr ):
-    """ Add branch attributes to tree faces from bratr
-    
+    """Add branch attributes to tree faces from bratr.
+
     t: tree
     bratr: dictionary with attributes assigned to nodes
     """
