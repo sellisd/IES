@@ -99,7 +99,7 @@ for l in t:
                 endMSA   = charMat[geneFamily][column][geneId][5]
                 iesmotif.append( [int(begin), int(end), "line", None, 10, "black", "blue", None]) # add range of homologous IES as line
                 if iesId != 'NA': # if present add IES as rectangles
-                    iesmotif.append( [int(beginMSA), int(endMSA), "[]", None, 10, "black", "red", None] )
+                    iesmotif.append( [int(beginMSA), int(endMSA), "[]", None, 10, "black", "red", "arial|8|black|" + iesId] )
     if iesmotif:
         seqFace = SeqMotifFace(seq = None, motifs = iesmotif, gap_format = "line")
         l.add_face(seqFace, 0, "aligned")

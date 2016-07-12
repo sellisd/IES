@@ -383,19 +383,19 @@ boundaryCompl <- function(pabD, pabLengthBins){
   }
   DE <- cbind(pabD, lengthBin = unname(pabLengthBins[row.names(pabD)]))
   # exclude floating
-  DE <- DE[DE$floating == FALSE, ]
+  DE <- DE[DE$isFloating == 0, ]
   # permute back sequences(and downstream) reserving lengthBin
-  DERI <- permuteBy(DE, c("back", "downstream"), "lengthBin", ret = "index")
+  DERI <- permuteBy(DE, c("back", "downstreamFlank"), "lengthBin", ret = "index")
   # calculate complementarity of all
-  flankLength <- nchar(DE$upstream[1])
+  flankLength <- nchar(DE$upstreamFlank[1])
   windowSize <- nchar(pabD$front)
   matBool <- matrix(ncol = windowSize + flankLength , nrow = nrow(DE))
   matBoolR <- matrix(ncol = windowSize + flankLength , nrow = nrow(DE))
   for(i in c(1:nrow(DE))){
-    matBool[i, ] <- complementarity(s2c(paste0(DE$upstream[i], DE$front[i])),
-                                    s2c(paste0(DE$back[i], DE$downstream[i])))
-    matBoolR[i, ] <- complementarity(s2c(paste0(DE$upstream[i], DE$front[i])),
-                                     s2c(paste0(DE$back[DERI[i]], DE$downstream[DERI[i]])))
+    matBool[i, ] <- complementarity(s2c(paste0(DE$upstreamFlank[i], DE$front[i])),
+                                    s2c(paste0(DE$back[i], DE$downstreamFlank[i])))
+    matBoolR[i, ] <- complementarity(s2c(paste0(DE$upstreamFlank[i], DE$front[i])),
+                                     s2c(paste0(DE$back[DERI[i]], DE$downstreamFlank[DERI[i]])))
   }
   list(matBool, matBoolR, flankLength)
 }
