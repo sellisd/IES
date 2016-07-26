@@ -78,11 +78,11 @@ run('./bestModel.pl -model GTR+G{1.0} -nex ~/data/IES/analysis/sgf/concatSimple.
 run($iqtreeBP.' -bb 1000 -spp  ~/data/IES/analysis/sgf/concatSimple.nexus > ~/data/IES/analysis/log/concatSimple.log', 1);
 
 #move to cluster
-# build table with best models for each partition
-run('./bestModel.pl -nex ~/data/IES/analysis/sgf/concat.nexus -table '.$bmF.' ~/data/IES/analysis/sgf/cluster.*.nucl.fa.renamed', 1);
+# # build table with best models for each partition
+# run("./bestModel.pl -nex /pandata/sellis/sgf/concat.nexus -table ".catfile($clusterBasePath,'bestModels.tab').' '.catfile($clusterBasePath,'cluster.*.nucl.fa.renamed", 1);
 
-# infer concatenated (species) tree with partitions and -testmerge
-run($iqtreeBP.' -bb 1000 -st CODON6 -m TESTNEWMERGE -spp  ~/data/IES/analysis/sgf/concat.nexus > ~/data/IES/analysis/log/concat.log', 1);
+# # infer concatenated (species) tree with partitions and -testmerge
+# run($iqtreeBP.' -bb 1000 -st CODON6 -m TESTNEWMERGE -spp  ~/data/IES/analysis/sgf/concat.nexus > ~/data/IES/analysis/log/concat.log', 1);
 
-# compare gene trees with simple model and partitioned species tree topology
+# # compare gene trees with simple model and partitioned species tree topology
 
