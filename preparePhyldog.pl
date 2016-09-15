@@ -10,6 +10,12 @@ use Getopt::Long;
 
 my $inputFiltered = '/home/dsellis/data/IES/analysis/msas/filtered/';
 my $outputPath = '/home/dsellis/data/IES/analysis/phyldog/';
+##### dbg
+use List::Util qw(shuffle);
+$outputPath = '/home/dsellis/data/IES/analysis/phyldogPilot/';
+make_path($outputPath) unless -d $outputPath;
+
+#### dbg
 my $fastaPath = 'aln/';
 my $linkPath = 'link/';
 
@@ -42,8 +48,11 @@ make_path($outputPath.'run') unless -d $outputPath.'run';
 
 #use filtered clusters
 opendir(DH,$inputFiltered) or die $!;
-my @charMats = grep {/cluster\.\d+\.nucl\.fa/} readdir(DH);
 
+my @charMats = grep {/cluster\.\d+\.nucl\.fa/} readdir(DH);
+### dbg
+@charMats = (shuffle(@charMats))[0..250-1];
+###
 foreach my $file (@charMats){
     $file =~ /cluster\.(\d+)\.nucl\.fa/;
     my $cluster = $1;
