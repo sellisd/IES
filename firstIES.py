@@ -6,8 +6,7 @@ import re
 """Find when an IES was inserted.
 
     In each homologous IES column of all gene families find the speciation nodes
-    in which an IES was present with probability larger than cutoff.
-    """
+    in which an IES was present with probability larger than cutoff."""
 
 
 

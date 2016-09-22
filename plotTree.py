@@ -1,12 +1,12 @@
 #!/usr/bin/python
 from __future__ import print_function
-from ete3 import Tree, NodeStyle, SeqMotifFace, ImgFace, TreeStyle
+from ete3 import Tree, SeqMotifFace, ImgFace, TreeStyle
 import pprint
 import os.path
 import sys
 from pyies.functions import *
 
-"""Draw trees."""
+    """Draw trees."""
 
 pp = pprint.PrettyPrinter(indent=8)
 

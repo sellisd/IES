@@ -2,7 +2,7 @@
 from __future__ import print_function
 import itertools
 
-"""Length difference in homologous IESs.
+    """Length difference in homologous IESs.
 
     Calculates the absolute difference of IES length (nt) in all pairs of IESs
     within a group of homologous IES."""
