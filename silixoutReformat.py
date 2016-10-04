@@ -1,12 +1,37 @@
 #!/usr/bin/python
 from __future__ import print_function
 from collections import Counter
+import sys, getopt
 """ Prepare histogram of IES cluster sizes by species."""
+
+inputfile = ''
+outputfile = ''
+usage = "./silixoutReformat.py -i <inputfile> -o <outputfile> -c cutoff"
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hi:o:c:",["ifile=","ofile=","cutoff="])
+except getopt.GetoptError:
+    print(usage)
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print(usage)
+        sys.exit()
+    elif opt in ("-i", "--ifile"):
+        inputfile = arg
+    elif opt in ("-o", "--ofile"):
+        outputfile = arg
+    elif opt in ("-c", "--cutoff"):
+        cutoff = int(arg)
+
 hist = Counter()
 clusterSet = set()
+
 #read silix output line by line
-f = open('/home/dsellis/data/IES/analysis/mies/silixout/ies.silixout','r')
-for line in f:
+# input /home/dsellis/data/IES/analysis/mies/silixout/ies.silixout
+
+fin = open(inputfile,'r')
+fout = open(outputfile, 'w')
+for line in fin:
     line = line.rstrip()
     (clusterId, iesId) = line.split()
     sp = iesId[0:3]
@@ -19,12 +44,12 @@ for line in f:
 #     print(i[0], i[1], hist[i], sep = "\t")
 
 spL = ['ppr', 'pbi', 'pte', 'ppe', 'pse', 'poc', 'ptr', 'pso', 'pca']
-print("\t".join(["cluster"] + spL + ["total"]), sep = "\t", end = "\n")
+fout.write("\t".join(["cluster"] + spL + ["total"]) + "\n")
 for cl in clusterSet:
     L = []
     for sp in spL:
         L.append(hist[(cl, sp)])
-    if(sum(L) > 20):
+    if(sum(L) > cutoff):
         L = [cl] + L + [sum(L)]
-        print("\t".join(str(x) for x in L), end="\n", sep = "\t")
+        fout.write("\t".join(str(x) for x in L) + "\n")
 
