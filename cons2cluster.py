@@ -33,9 +33,10 @@ for line in fb:
     line = line.rstrip()
     (qseqid, sseqid, pident, length, mismatch, gapopen, qstart, qend, sstart, send, evalue, bitscore) = line.split()
     if iess[sseqid] != consIds[qseqid]:
-        net[(iess[sseqid], consIds[qseqid])] += 1
+        net[(consIds[qseqid], iess[sseqid])] += 1
 
-print('from', 'to', 'hits', sep = "\t", end = "\n")
+print('from', 'to', 'weights', sep = "\t", end = "\n")
 for i in net:
-    print(i[0], i[1], net[i], sep = "\t", end = "\n")
+    if(net[i] > 2):
+        print(i[0], i[1], net[i], sep = "\t", end = "\n")
 

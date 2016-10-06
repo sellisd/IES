@@ -1172,4 +1172,22 @@ brfilt <- function(brl){
   unique(outliers)
 }
 
+getCoreCluster <- function(clusterId, iess, iesdb){
+  # select the core of a cluster by filtering out floating, merged and not in peak elements
+  cl <- iess$V2[iess$V1 == clusterId]
+  notFloatingI <- which(iesdb$isFloating !=1)
+  notMergedI <- which(iesdb$merged !=1)
+  inCl <- which(iesdb$id%in%cl)
+  ind <- which(d$cluster == clusterId)
+  if (d$peak[ind]){
+    minL <- d$lengthL[ind]
+    maxL <- d$lengthU[ind]
+    peakI <- which(iesdb$length >= minL & iesdb$length < maxL)
+    includeIES <- intersect(intersect(notFloatingI, notMergedI), intersect(inCl, peakI))
+  }else{
+    includeIES <- intersect(intersect(notFloatingI, notMergedI), inCl)
+  }
+  iesdb[includeIES,]
+}
+
 source("~/projects/IES/src/testSharedFunctions.R")
