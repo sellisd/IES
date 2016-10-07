@@ -57,16 +57,3 @@ for(clusterId in clusters){
     cat(" & \n")
   }
 }
-
-# iqtree-omp -nt 7 -s /home/dsellis/data/IES/analysis/mies/aln/cl35886.aln -bb 1000 -m TESTNEW 
-# plotIESPhylogeny.py
-# 
-# for(clusterId in clusters){
-#   phyl <- paste0("iqtree-omp -nt 7 /home/dsellis/data/IES/analysis/mies/aln/", clusterId, ".aln -bb 1000 -m TESTNEW")
-#   cat(conscmdl)
-#   if (clusterId == clusters[length(clusters)]){
-#     cat("\n")
-#   }else{
-#     cat(" & \n")
-#   }
-# }
