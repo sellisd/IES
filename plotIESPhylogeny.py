@@ -3,8 +3,12 @@ from __future__ import print_function
 import re
 from ete3 import Tree, NodeStyle, TreeStyle
 from pyies.functions import readPalette
+import sys
 
-t = Tree('/home/dsellis/data/IES/analysis/mies/tempfiles/cl35886.aln.contree')
+inputfile = sys.argv[1]
+outputfile = sys.argv[2]
+t = Tree(inputfile)
+#'/home/dsellis/data/IES/analysis/mies/tempfiles/cl35886.aln.contree')
 cp = readPalette()
 
 #cp  = ('1','2','3','4','5','6','7','8','9','10')
@@ -42,4 +46,5 @@ for node in t:
 ts = TreeStyle()
 #ts.show_leaf_name = False
 ts.mode = 'c'
-t.show(tree_style = ts)
+#t.show(tree_style = ts)
+t.render(outputfile, tree_style = ts)

@@ -57,3 +57,19 @@ for(clusterId in clusters){
     cat(" & \n")
   }
 }
+
+for (consId in d$consensusId){
+  path2cons <- "/home/dsellis/data/IES/analysis/mies/aln/"
+  alnFN <- paste0(path2cons, sub("cons", "", consId, fixed = TRUE), ".aln")
+  cat(paste0("iqtree-omp -nt 7 -s ", alnFN," -bb 1000 -m TESTNEW "), "\n")
+  cat(paste0("./plotIESPhylogeny.py ", alnFN, ".contree ", alnFN, ".png"), "\n")
+}
+
+for (consId in d$consensusId){
+  path2cons <- "/home/dsellis/data/IES/analysis/mies/aln/"
+  alnFN <- paste0(path2cons, sub("cons", "", consId, fixed = TRUE), ".aln")
+  aln <- read.alignment(file = alnFN, format = "fasta")
+  #distribution of pairwise distances
+  h <- hist(1-dist.alignment(aln, matrix=c("identity"))^2, plot = FALSE)
+  save(h, file = paste0("~/data/IES/analysis/mies/tempfiles/",consId,".h"))
+}
