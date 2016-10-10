@@ -1,12 +1,31 @@
 #!/usr/bin/python
 from __future__ import print_function
 import re
-from ete3 import Tree, NodeStyle, TreeStyle
+from ete3 import Tree, NodeStyle, TreeStyle, TextFace
 from pyies.functions import readPalette
-import sys
+import sys, getopt
 
-inputfile = sys.argv[1]
-outputfile = sys.argv[2]
+
+inputfile = ''
+outputfile = ''
+usage = "./plotIESPhylogeny.py -i <inputfile> -o <outputfile> -t title"
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:",["ifile=","ofile=","cutoff="])
+except getopt.GetoptError:
+    print(usage)
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print(usage)
+        sys.exit(1)
+    elif opt in ("-i", "--ifile"):
+        inputfile = arg
+    elif opt in ("-o", "--ofile"):
+        outputfile = arg
+    elif opt in ("-t", "--title"):
+        title = arg
+
+
 t = Tree(inputfile)
 #'/home/dsellis/data/IES/analysis/mies/tempfiles/cl35886.aln.contree')
 cp = readPalette()
@@ -46,5 +65,6 @@ for node in t:
 ts = TreeStyle()
 #ts.show_leaf_name = False
 ts.mode = 'c'
+ts.title.add_face(TextFace(title, fsize=20), column=0)
 #t.show(tree_style = ts)
 t.render(outputfile, tree_style = ts)
