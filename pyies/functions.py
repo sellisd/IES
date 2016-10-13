@@ -4,16 +4,14 @@ from collections import Counter
 import numpy as np
 import re
 
-def parseClientOut(files):
-    """Parse PHYLDOG output files and extract gene tree likelihoods
-    """
-    loglk = {}
+def parseClientOut(files, loglk, run):
+    """Parse PHYLDOG output files and extract gene tree likelihoods."""
     for f in files:
         for line in f:
             line = line.rstrip()
             m = re.search("^Gene Family:.*?(\d+)\.opt total logLk:\s+(.*)\s+;.*$", line)
             if m:
-                loglk[m.group(1)] = m.group(2)
+                loglk[(m.group(1), run)] = m.group(2)
     return(loglk)
     
 def up2sp(node):

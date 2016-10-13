@@ -49,7 +49,7 @@ for(clusterId in clusters){
 }
 
 for(clusterId in clusters){
-  conscmdl <- paste0("alignbuddy -con /home/dsellis/data/IES/analysis/mies/aln/", clusterId, ".aln |seqbuddy -dm -cs |seqbuddy -ri '.*' cons", clusterId, " > /home/dsellis/data/IES/analysis/mies/fasta/cons", clusterId, ".fa")
+  conscmdl <- paste0("alignbuddy -con /home/dsellis/data/IES/analysis/mies/aln/", clusterId, ".aln |seqbuddy -dm |seqbuddy -cs |seqbuddy -ri '.*' cons", clusterId, " > /home/dsellis/data/IES/analysis/mies/fasta/cons", clusterId, ".fa")
   cat(conscmdl)
   if (clusterId == clusters[length(clusters)]){
     cat("\n")
@@ -62,7 +62,7 @@ for (consId in d$consensusId){
   path2cons <- "/home/dsellis/data/IES/analysis/mies/aln/"
   alnFN <- paste0(path2cons, sub("cons", "", consId, fixed = TRUE), ".aln")
   cat(paste0("iqtree-omp -nt 7 -s ", alnFN," -bb 1000 -m TESTNEW "), "\n")
-  cat(paste0("./plotIESPhylogeny.py ", alnFN, ".contree ", alnFN, ".png"), "\n")
+  cat(paste0("./plotIESPhylogeny.py -i ", alnFN, ".contree -o ", alnFN, ".png -t ", consId), "\n")
 }
 
 for (consId in d$consensusId){
