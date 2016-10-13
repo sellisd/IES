@@ -2,7 +2,20 @@ from __future__ import print_function
 from ete3 import Tree, NodeStyle, TextFace
 from collections import Counter
 import numpy as np
+import re
 
+def parseClientOut(files):
+    """Parse PHYLDOG output files and extract gene tree likelihoods
+    """
+    loglk = {}
+    for f in files:
+        for line in f:
+            line = line.rstrip()
+            m = re.search("^Gene Family:.*?(\d+)\.opt total logLk:\s+(.*)\s+;.*$", line)
+            if m:
+                loglk[m.group(1)] = m.group(2)
+    return(loglk)
+    
 def up2sp(node):
     """
     Go upwards in a tree until a speciation node is found or return root
