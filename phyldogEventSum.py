@@ -3,7 +3,9 @@ from __future__ import print_function
 from collections import Counter
 import sys
 import re
-"""Calculate number of events per species tree branch."""
+
+# Calculate number of events per species tree branch.
+
 dupl = Counter() #./phyldogEventSum.py pathToPhyldog/results/*_Events.txt
 loss = Counter()
 nodes = set()

@@ -2,7 +2,7 @@
 from __future__ import print_function
 import re
 from ete3 import Tree, NodeStyle, TreeStyle, TextFace
-from pyies.functions import readPalette
+from pyies.functions import readPalette9
 import sys, getopt
 
 
@@ -28,7 +28,7 @@ for opt, arg in opts:
 
 t = Tree(inputfile)
 #'/home/dsellis/data/IES/analysis/mies/tempfiles/cl35886.aln.contree')
-cp = readPalette()
+cp = readPalette9()
 
 #cp  = ('1','2','3','4','5','6','7','8','9','10')
 for node in t:

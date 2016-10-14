@@ -3,7 +3,7 @@ from __future__ import print_function
 from ete3 import Tree
 import re
 
-    """Calculate all speciation node pairs on a PHYLDOG tree."""
+#Calculate all speciation node pairs on a PHYLDOG tree.
 
 # Functions
 def path2anc(nodeO):

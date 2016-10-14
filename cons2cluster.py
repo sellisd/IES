@@ -2,7 +2,7 @@
 from __future__ import print_function
 from collections import Counter
 
-"""Match BLAST results of consensus against clusters."""
+# Match BLAST results of consensus against clusters.
 
 silixout = '/home/dsellis/data/IES/analysis/mies/silixout/ies.silixout'
 datafile = '/home/dsellis/data/IES/analysis/mies/miescons.dat'

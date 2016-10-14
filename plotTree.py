@@ -6,7 +6,7 @@ import os.path
 import sys
 from pyies.functions import *
 
-    """Draw trees."""
+# Draw trees.
 
 pp = pprint.PrettyPrinter(indent=8)
 

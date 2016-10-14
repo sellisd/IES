@@ -2,7 +2,8 @@
 from __future__ import print_function
 from collections import Counter
 import sys, getopt
-""" Prepare histogram of IES cluster sizes by species."""
+
+# Prepare histogram of IES cluster sizes by species.
 
 inputfile = ''
 outputfile = ''

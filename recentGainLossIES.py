@@ -3,7 +3,7 @@ from __future__ import print_function
 from ete3 import Tree
 
 
-"""Ffind IES that are lost in a terminal branch."""
+# Find IES that are lost in a terminal branch.
 
 def prevSpec(nodeO):
     """

@@ -4,7 +4,7 @@ import sys
 from collections import Counter
 from string import maketrans
 
-    """Find identical IES within one species."""
+#Find identical IES within one species.
 
 def revcomp(a):
 	r = a[::-1] # reverse

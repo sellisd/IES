@@ -1,5 +1,5 @@
 from __future__ import print_function
-from ete3 import Tree, NodeStyle, TextFace
+from ete3 import NodeStyle, TextFace
 from collections import Counter
 import numpy as np
 import re
@@ -13,11 +13,9 @@ def parseClientOut(files, loglk, run):
             if m:
                 loglk[(m.group(1), run)] = m.group(2)
     return(loglk)
-    
+
 def up2sp(node):
-    """
-    Go upwards in a tree until a speciation node is found or return root
-    """
+    """Go upwards in a tree until a speciation node is found or return root."""
     while node.up:
         node = node.up
         if node.Ev == 'S':
@@ -105,6 +103,12 @@ def placeDupl(t, spt):
 
 def readPalette():
     f = open('/home/dsellis/projects/IES/src/colors.hex', 'r')
+    f.readline()
+    cp = [i.rstrip() for i in f]
+    return cp
+
+def readPalette9():
+    f = open('/home/dsellis/projects/IES/src/colors9.hex', 'r')
     f.readline()
     cp = [i.rstrip() for i in f]
     return cp

@@ -5,7 +5,7 @@ from Bio.Seq import Seq
 import re
 import os
 
-    """Calculate position weight matrices for IES groups."""
+# Calculate position weight matrices for IES groups.
 
 base = '/home/dsellis/data/IES/analysis/iesdb/'
 speciesA = ('ppr', 'pbi', 'pte', 'ppe', 'pse', 'poc', 'ptr', 'pso', 'pca')

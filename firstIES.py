@@ -3,10 +3,11 @@ from __future__ import print_function
 from pyies.functions import *
 from ete3 import Tree
 import re
-"""Find when an IES was inserted.
 
-    In each homologous IES column of all gene families find the speciation nodes
-    in which an IES was present with probability larger than cutoff."""
+# Find when an IES was inserted.
+
+    # In each homologous IES column of all gene families find the speciation nodes
+    # in which an IES was present with probability larger than cutoff.
 
 
 
