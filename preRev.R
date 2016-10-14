@@ -14,7 +14,7 @@ for(run in c(1,2,3)){
   Tcolumn <- numeric(0)
   
   for(i in c(1:length(clusters))){
-    cat(i, "/", length(clusters), "\r")
+    cat("run ", run, ":", i, "/", length(clusters), "\r")
     l <- save2nexus(clusters[i])
     nex <- l[[1]]
     spNames <- gene2species(names(nex))
@@ -44,7 +44,7 @@ for(run in c(1,2,3)){
     }
   }
   
-  write.table(geneFamiliesProcessed, file = "~/data/IES/analysis/asr", run, "/geneFamilies.dat", sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(geneFamiliesProcessed, file = paste0("~/data/IES/analysis/asr", run, "/geneFamilies.dat"), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   print("skipped families")
   print(skippedFamilies)
   write.table(data.frame(geneFamily = TgeneFamily, homIES = Tid, column = Tcolumn, stringsAsFactors = FALSE), 

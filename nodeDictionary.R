@@ -25,7 +25,5 @@ for(asrRun in c(1,2,3)){
   }
   nodeDictionary <- data.frame(m, stringsAsFactors = FALSE)
   names(nodeDictionary) <- c("cluster", "r", "phyldog", "rb")
-  #save(nodeDictionary, file = "~/data/IES_data/rdb/nodeDictionary")
-  #also save it as text
   write.table(nodeDictionary, file = paste0("~/data/IES/analysis/tables/nodeDictionary", asrRun, ".dat"), quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 }

@@ -17,8 +17,8 @@ my $nr = getNotation($notationF);
 my $asrRevF = '/home/dsellis/projects/IES/src/asr.Rev';
 
 # prepare revBayes runs
-$cmdl = 'Rscript --vanilla preRev.R > /home/dsellis/data/IES/analysis/preRev.log';
-run($cmdl, 1);
+my $cmdl = 'Rscript --vanilla preRev.R > /home/dsellis/data/IES/analysis/preRev.log';
+run($cmdl, 0);
 
 for(my $asrRun = 1; $asrRun<=3; $asrRun++){
     my $rbResultsP = catfile($homeD, 'data/IES/analysis/asr'.$asrRun.'/');
@@ -34,8 +34,8 @@ for(my $asrRun = 1; $asrRun<=3; $asrRun++){
     make_path($rbRun1) unless -e $rbRun1;
     make_path($rbRun2) unless -e $rbRun2;
 
-    setOutAsr($asrRevF, $rbRun1, $rbRun1Rev, 1); # first time through print node index
-    setOutAsr($asrRevF, $rbRun2, $rbRun2Rev, 0);
+    setOutAsr($asrRevF, $rbRun1, $rbRun1Rev, 1, $rbNodeIndexesP); # first time through print node index
+    setOutAsr($asrRevF, $rbRun2, $rbRun2Rev, 0, $rbNodeIndexesP);
     run("$rbP $rbRun1Rev", 1);
     run("$rbP $rbRun2Rev", 1);
 
@@ -91,6 +91,7 @@ sub setOutAsr{
     my $outpath = shift @_;
     my $outfile = shift @_;
     my $optline = shift @_; # should uncomment optional lines?
+    my $rbNodeIndexesP = shift @_;
     open IN, $file or die $!;
     open OUT, '>', $outfile or die $!;
     while(my $line = <IN>){
