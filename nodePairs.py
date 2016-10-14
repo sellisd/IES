@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from __future__ import print_function
 from ete3 import Tree
-import re
+import re, sys
 
 #Calculate all speciation node pairs on a PHYLDOG tree.
 
@@ -34,7 +34,7 @@ def nodePairs(l):
     return pairs
 
 # load species tree
-t = Tree('/home/dsellis/data/IES/analysis/phyldog/results/OutputSpeciesTree_ConsensusNumbered.tree', format = 1)
+t = Tree(sys.argv[1], format = 1)
 
 
 # replace species names with speciation events and add 0 to root node label
@@ -61,5 +61,3 @@ lp = sorted(allPairs.keys(), key=lambda tup: (tup[0], tup[1]))
 # and print
 for i in lp:
     print(i[0], i[1])
-
-

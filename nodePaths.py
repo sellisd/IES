@@ -47,27 +47,22 @@ def subpaths(pairS, L):
 
 #pairs of speciation nodes
 
-spNodePairsF = '/home/dsellis/data/IES/analysis/tables/spNodePairs.dat'
+spNodePairsF = '/home/dsellis/data/IES/analysis/tables/spNodePairs' + asrRun + '.dat'
 pairS = [i.rstrip().split(" ") for i in open(spNodePairsF, 'r')]
 #pairS = ((0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(2,3),(2,4),(2,5),(2,6),(4,5),(4,6))
-phyldogPath = '/home/dsellis/data/IES/analysis/phyldog/results/'
+phyldogPath = '/home/dsellis/data/IES/analysis/phyldogT' + asrRun + '/results/'
 
-inputF = open('/home/dsellis/data/IES/analysis/asr/geneFamilies.dat', 'r')
+inputF = open('/home/dsellis/data/IES/analysis/asr' + asrRun + '/geneFamilies.dat', 'r')
 clusters = inputF.readlines()
 clusters = [i.rstrip() for i in clusters]
 print('cluster\tfrom\tto\tpath')
 
 for cluster in clusters:
     fileNameString = phyldogPath+str(cluster)+'.ReconciledTree'
-    # print(fileNameString)
     t = Tree(fileNameString)
-    # print(t.get_ascii(attributes=['ND','name']))
     for leaf in t:
         L = path2anc(leaf)
         L.reverse();
-        # print(list([n.ND for n in L]))
-        # print(list([n.Ev for n in L]))
-        # print(list([n.S for n in L]))
         Sbs = subpaths(pairS,L)
         for i in Sbs:
             toP = list([j.ND for j in i])

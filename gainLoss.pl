@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Data::Dumper;
+
+my $asrRun = $ARGV[0];
 
 # make a hash to translate phyldog to rb node notation
-open DICT,'/home/dsellis/data/IES/analysis/tables/nodeDictionary.dat' or die $!;
+open DICT,'/home/dsellis/data/IES/analysis/tables/nodeDictionary'.$asrRun.'.dat' or die $!;
 my %phyldog2rb;
 my %geneFamilies; # gene families in dictionary
 
@@ -19,7 +20,7 @@ close DICT;
 
 # make a hash to translate from rbnode id to presence probability per ies column
 my %asr;
-open ASR, '/home/dsellis/data/IES/analysis/tables/avNodeProb.dat' or die $!;
+open ASR, '/home/dsellis/data/IES/analysis/tables/avNodeProb'.$asrRun.'.dat' or die $!;
 while(my $line = <ASR>){
     chomp $line;
     (my $cluster, my $rb, my $iesColumn, my $presence) = split " ", $line;
@@ -30,7 +31,7 @@ while(my $line = <ASR>){
     }
 }
 
-open NP, '/home/dsellis/data/IES/analysis/tables/nodePaths.dat' or die $!;
+open NP, '/home/dsellis/data/IES/analysis/tables/nodePaths'.$asrRun.'.dat' or die $!;
 
 my $lineCounter = 0;
 print join("\t",(qw/cluster iesColumn from to Panc gain loss/)), "\n";

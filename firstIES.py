@@ -2,17 +2,17 @@
 from __future__ import print_function
 from pyies.functions import *
 from ete3 import Tree
-import re
+import re, sys
 
 # Find when an IES was inserted.
 
-    # In each homologous IES column of all gene families find the speciation nodes
-    # in which an IES was present with probability larger than cutoff.
+# In each homologous IES column of all gene families find the speciation nodes
+# in which an IES was present with probability larger than cutoff.
 
+asrRun = sys.argv[1]
 
-
-# find correspondance of phyldog nodedes to speciation events
-speF = open('/home/dsellis/data/IES/analysis/tables/spEvents.dat', 'r')
+# find correspondance of phyldog nodes to speciation events
+speF = open('/home/dsellis/data/IES/analysis/tables/spEvents'+ asrRun +'.dat', 'r')
 v = Vividict() # node-sp.event correspondence
 speF.readline()
 for line in speF:
@@ -20,7 +20,7 @@ for line in speF:
     v[geneFamily][nodeP] = spEvent
 
 # read node dictionary and each phyldog tree and create list of nodeRb and speciation events
-ndF = open('/home/dsellis/data/IES/analysis/tables/nodeDictionary.dat', 'r')
+ndF = open('/home/dsellis/data/IES/analysis/tables/nodeDictionary' + asrRun + '.dat', 'r')
 d = Vividict(); # all node dictionary
 ndF.readline() # strip header
 for line in ndF:
@@ -31,7 +31,7 @@ for line in ndF:
 
 # read average node probabilities file
 cutoff = 0.99
-asrF = open('/home/dsellis/data/IES/analysis/tables/avNodeProb.dat', 'r')
+asrF = open('/home/dsellis/data/IES/analysis/tables/avNodeProb' + asrRun + '.dat', 'r')
 header = asrF.readline()
 
 # find all speciation nodes in which an IES was present with prob > cutoff
@@ -47,7 +47,7 @@ for line in asrF:
             homies.setdefault((geneFamily,iesColumn), []).append(spe)
 
 # load species tree
-t = Tree('/home/dsellis/data/IES/analysis/phyldog/results/OutputSpeciesTree_ConsensusNumbered.tree', format = 1)
+t = Tree('/home/dsellis/data/IES/analysis/phyldogT' + asrRun + '/results/OutputSpeciesTree_ConsensusNumbered.tree', format = 1)
 
 # replace species names with speciation events and add 0 to root node label
 for l in t.traverse():
