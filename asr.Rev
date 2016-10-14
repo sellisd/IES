@@ -71,8 +71,8 @@ monitors[++i] = mnScreen(insertionRate, lossRate, printgen=1000)
 
 mymcmc = mcmc(mymodel, monitors, moves)
 mymcmc.burnin(generations=10000,tuningInterval=1000)
-#mymcmc.run(1000000)
-mymcmc.run(10000)
+mymcmc.run(1000000)
+#mymcmc.run(10000)
 quit()
 
 
