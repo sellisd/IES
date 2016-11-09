@@ -1,6 +1,6 @@
 # check MCMC run for convergence and create report of plots
 library(coda)
-runsPath <- "~/data/IES/analysis/asr/"
+runsPath <- "~/data/IES/analysis/asr1/"
 runDirs <- c("run1/", "run2/")
 runs <- paste0(runsPath, runDirs)
 mcmcL <- list()

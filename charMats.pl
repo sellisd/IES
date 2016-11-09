@@ -10,7 +10,7 @@ my $prefixesR = initF();
 
 # prepare character matrices
 
-# read list of genes which have too low read coverage in the Mic genome and thus any IES detected in them or homologous IES present in them is of low confidence
+# read list of genes which have sufficient read coverage in the Mic genome and thus any IES detected in them or homologous IES present in them is of confidence
 my $path = '/home/dsellis/data/IES/analysis/tables/';
 my @gF = qw/gpbi.filt gpca.filt gpoc.filt gppe.filt gppr.filt gpse.filt gpso.filt gpte.filt gptr.filt/; # files with filtered genes 
 
@@ -35,17 +35,17 @@ my %charMats;
 while(my $line = <IN>){
     chomp $line;
     (my $id, my $geneFamily, my $beginMSArange, my $endMSArange, my $gene, my $beginGene, my $endGene, my $beginMSA, my $endMSA, my $iesId) = split " ", $line;
-    # if gene in list print ? and keep track of whether it was present or absent
+    # if gene is not in list print ?
     # else print 1 if present 0 if absent
     my $ies; # presence absence or unknown
     if(defined($h{$gene})){
-	$ies = '?';
-    }else{
 	if($iesId eq 'NA'){
 	    $ies = 0;
 	}else{
 	    $ies = 1;
 	}
+    }else{
+	$ies = '?';
     }
     $charMats{$geneFamily}{$id}{$gene} = {'begin'    => $beginMSArange,
 					  'end'      => $endMSArange,

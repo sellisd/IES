@@ -25,7 +25,7 @@ ts.show_scale = False
 st = basest.copy()
 # read table with branch attributes
 atrF = '/home/dsellis/data/IES/analysis/tables/ratesPerBranch.dat'
-bratr = {};
+bratr = {}
 f = open(atrF, 'r')
 f.readline() # header
 for line in f:
@@ -54,11 +54,11 @@ for node in agest.traverse():
 #quit()
 # Gene family trees #
 #####################
-
+0
 geneFamily = sys.argv[1]
 
 #  load gene family tree
-treeF = '/home/dsellis/data/IES/analysis/phyldog/results/' + geneFamily + '.ReconciledTree'
+treeF = '/home/dsellis/data/IES/analysis/phyldogT1/results/' + geneFamily + '.ReconciledTree'
 t = Tree(treeF)
 if not os.path.isfile(treeF):
     quit("charMatsF is not a file")
