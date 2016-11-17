@@ -4,6 +4,10 @@ library(ape)
 source("~/projects/IES/src/sharedFunctions.R")
 
 for(run in c(1,2,3)){
+  outdir <- paste0("~/data/IES/analysis/asr", run)
+  if(!dir.exists(outdir)){
+    dir.create(outdir)
+  }
   charMats <- read.table("~/data/IES/analysis/iesdb/charMats.tab", stringsAsFactors = FALSE, header = TRUE)
   clusters <- unique(charMats$cluster)
   geneFamiliesProcessed <- character()
@@ -12,7 +16,6 @@ for(run in c(1,2,3)){
   TgeneFamily <- numeric(0)
   Tid <- numeric(0)
   Tcolumn <- numeric(0)
-  
   for(i in c(1:length(clusters))){
     cat("run ", run, ":", i, "/", length(clusters), "\r")
     l <- save2nexus(clusters[i])
