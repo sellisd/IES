@@ -1,25 +1,22 @@
-print("starting script")
-system("date")
-# load file with gene families to read
-system("cat /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
-#pick random 100 files
-#shuf -n 100
-#system("shuf -n 500 /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
-#system("head -n 100 /home/dsellis/data/IES/analysis/asr/geneFamilies.dat > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
-#system("echo 3 > /home/dsellis/data/IES/analysis/asr/geneFamilies1.dat")
-    
-geneFamilies = readCharacterDataDelimited(file = "/home/dsellis/data/IES/analysis/asr/geneFamilies1.dat", type = "Standard", delimiter = "\t")
+# Master Rev Bayes script for asr with parameters:
+indir = "INDIR"
+outdir = "OUTDIR"
+geneFamilyFile = "GENEFAMILYFILE"
+saveIndex  = SAVEINDEX # if true save an node index files
+
+geneFamilies = readCharacterDataDelimited(file = geneFamilyFile , type = "Standard", delimiter = "\t")
 geneFamilyNames = geneFamilies.names()
 for(i in 1:geneFamilyNames.size()){
   clusterS = geneFamilies.names()[i].getSpeciesName()
   if(clusterS == "2825" || clusterS == "10007" || clusterS == "5033" || clusterS == "11561" || clusterS == "14273" || clusterS == "15227"){    # skip families with low starting probabilities
   }else{
-    data[i] = readDiscreteCharacterData("/home/dsellis/data/IES/analysis/asr/charMat"+ clusterS + ".nexus")
-    psi[i] = readTrees("/home/dsellis/data/IES/analysis/asr/tree" + clusterS + ".nexus")[1]  
-#OPTLINE   write(psi[i], filename = "rbNodeIndexesP/nodeIndex." + clusterS + ".tre") # save file with trees and node indexes
+    data[i] = readDiscreteCharacterData(indir + "charMat" + clusterS + ".nexus")
+    psi[i] = readTrees(indir + "tree" + clusterS + ".nexus")[1]
+    if(saveIndex == 1){
+	write(psi[i], filename = outdir + "rbNodeIndexes/nodeIndex." + clusterS + ".tre") # save file with trees and node indexes
+    }
   }
 }
-#setOption("scalingDensity", 1) #scale at every node!
 
 # rates of change
 alpha ~ dnExponential(1)
@@ -38,18 +35,11 @@ Q := fnFreeBinary([insertionRate, lossRate])
 moves[mi++] = mvScale(insertionRate, lambda = 1) #default
 moves[mi++] = mvScale(lossRate, lambda = 1)
 
-# moves[mi++] = mvScale(insertionRate, lambda = 0.1)
-# moves[mi++] = mvScale(lossRate, lambda = 0.1)
-
-# moves[mi++] = mvScale(insertionRate, lambda = 0.01)
-# moves[mi++] = mvScale(lossRate, lambda = 0.01)
-
 print("making models")
 system("date")
 for(i in 1:geneFamilyNames.size()){
   system("printf 'making model "+ i + " out of " + geneFamilyNames.size() + "\r'")
   ctmc[i] ~ dnPhyloCTMC(Q = Q, tree = psi[i], type = "Restriction", coding = "noabsencesites")
-#  ctmc[i] ~ dnPhyloCTMC(Q = Q, tree = psi[i], type = "Standard")
   ctmc[i].clamp(data[i])
 }
 
@@ -65,8 +55,8 @@ for(i in 1:geneFamilyNames.size()){
   monitors[i] = mnJointConditionalAncestralState(tree = psi[i], ctmc = ctmc[i], filename = "OUTPATH/ancStates" + clusterS + ".log", type = "Restriction", printgen = 100, withStartStates = false)
 # withStartStates = false does not print both start and end states for each node
 }
-
-monitors[++i] = mnFile(filename = "OUTPATH/parameters1.log", insertionRate, lossRate, alpha, likelihood = true, printgen=100)
+monitorFile = outdir + "parameters1.log"
+monitors[++i] = mnFile(filename = monitorFile, insertionRate, lossRate, alpha, likelihood = true, printgen=100)
 monitors[++i] = mnScreen(insertionRate, lossRate, printgen=1000)
 
 mymcmc = mcmc(mymodel, monitors, moves)
@@ -74,5 +64,3 @@ mymcmc.burnin(generations=10000,tuningInterval=1000)
 mymcmc.run(1000000)
 #mymcmc.run(10000)
 quit()
-
-
