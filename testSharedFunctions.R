@@ -79,3 +79,31 @@ testResults <- c(isTRUE(all.equal(inTranscript(cds, 1, c(1, 3), "cds1"), c(0, 1)
 if(!isTRUE(all(testResults))){
   stop(paste("failed tests for function inTrancsript, test No.", which(testResults == FALSE), "\n"))
 }
+
+# test function goodHSP
+
+m <- matrix(c(0, 0, 0, 1, 1,
+              0, 0, 0, 1, 1,
+              0, 0, 0, 0, 0,
+              1, 1, 0, 0, 0,
+              1, 1, 0, 0, 0), nrow = 5, ncol = 5, byrow = TRUE)
+
+testResults <- logical()
+for(i in c(1:nrow(m))){
+  for(j in c(1:ncol(m))){
+    testResults <- append(testResults, m[i,j] == goodHSP(2, i, j, 5))
+  }
+}
+
+if(!isTRUE(all(testResults))){
+  stop("failed tests for function goodHSP")
+}
+
+# test function HSPtype
+df <- read.table("~/projects/IES/src/testSharedFunctions.dat", stringsAsFactors = FALSE, header = TRUE)
+
+if(!isTRUE(all(all(df[,3:6] == HSPtype(rep(2, nrow(df)), df$row, df$column, rep(5, nrow(df))))))){
+  stop("failed tests for function HSPtype")
+}
+
+

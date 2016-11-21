@@ -54,7 +54,7 @@ for node in agest.traverse():
 #quit()
 # Gene family trees #
 #####################
-0
+
 geneFamily = sys.argv[1]
 
 #  load gene family tree

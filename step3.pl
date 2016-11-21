@@ -18,10 +18,10 @@ my $asrRevF = '/home/dsellis/projects/IES/src/asr.Rev';
 
 # prepare revBayes runs
 my $cmdl = 'Rscript --vanilla preRev.R > /home/dsellis/data/IES/analysis/preRev.log';
-run($cmdl, 0);
+run($cmdl, 1);
 
 for(my $asrRun = 1; $asrRun<=3; $asrRun++){
-    my $rbResultsP = catfile($homeD, 'data/IES/analysis/asr'.$asrRun.'/');
+    my $rbResultsP = catfile('/home/dsellis/data/IES/analysis/asr'.$asrRun.'/');
     # directories with rb output
     my $rbRun1 = catfile($rbResultsP, 'run1');
     my $rbRun2 = catfile($rbResultsP, 'run2');
@@ -34,13 +34,21 @@ for(my $asrRun = 1; $asrRun<=3; $asrRun++){
     make_path($rbRun1) unless -e $rbRun1;
     make_path($rbRun2) unless -e $rbRun2;
 
-    setOutAsr($asrRevF, $rbRun1, $rbRun1Rev, 1, $rbNodeIndexesP); # first time through print node index
-    setOutAsr($asrRevF, $rbRun2, $rbRun2Rev, 0, $rbNodeIndexesP);
-    run("$rbP $rbRun1Rev", 0);
-    run("$rbP $rbRun2Rev", 0);
+    setOutAsr($asrRevF, $rbRun1Rev, '/pandata/sellis/asr'.$asrRun.'/', '/pandata/sellis/asr'.$asrRun.'/run1/', '/pandata/sellis/asr'.$asrRun.'/geneFamilies.dat', 1); # first time through print node index
+    setOutAsr($asrRevF, $rbRun2Rev, '/pandata/sellis/asr'.$asrRun.'/', '/pandata/sellis/asr'.$asrRun.'/run2/', '/pandata/sellis/asr'.$asrRun.'/geneFamilies.dat', 0);
+}
 
+#move to the cluster
+
+#    run("$rbP $rbRun1Rev", 1);
+#    run("$rbP $rbRun2Rev", 1);
+
+exit(1);
+#=======================
+for(my $asrRun = 1; $asrRun<=3; $asrRun++){
+    my $rbResultsP = catfile('/home/dsellis/data/IES/analysis/asr'.$asrRun.'/');
+    my $rbNodeIndexesP = catfile($rbResultsP, 'rbNodeIndexes');
     run('./parseRevBayesAsr.pl -gf /home/dsellis/data/IES/analysis/asr'.$asrRun.'/geneFamilies.dat -burnin 1000 -asr /home/dsellis/data/IES/analysis/asr'.$asrRun.'/ -output ~/data/IES/analysis/tables/avNodeProb'.$asrRun.'.dat', 0);
-
     # make a dictionary of node Ids across software
     run('./nhxNodes.pl ~/data/IES/analysis/phyldogT'.$asrRun.'/results/*.ReconciledTree', 0);
     run("./nhxNodes.pl -rb ".$rbNodeIndexesP."/nodeIndex.*.tre", 0);
@@ -88,18 +96,19 @@ run("./gainLoss.pl 3 > ~/data/IES/analysis/tables/gainLoss3.dat", 0);
 sub setOutAsr{
     # modify the basic Rev script for multiple runs, and optionally keep specific lines
     my $file = shift @_;
-    my $outpath = shift @_;
     my $outfile = shift @_;
-    my $optline = shift @_; # should uncomment optional lines?
-    my $rbNodeIndexesP = shift @_;
+
+    my $indir = shift @_;
+    my $outdir = shift @_;
+    my $geneFamilyFile = shift @_;
+    my $saveIndex = shift @_;
     open IN, $file or die $!;
     open OUT, '>', $outfile or die $!;
     while(my $line = <IN>){
-	$line =~ s/OUTPATH/$outpath/g;
-	if($optline){
-	    $line =~ s/^#OPTLINE(.*)$/$1/;
-	    $line =~ s/rbNodeIndexesP/$rbNodeIndexesP/;
-	}
+	$line =~ s/INDIR/$indir/g;
+	$line =~ s/OUTDIR/$outdir/g;
+	$line =~ s/GENEFAMILYFILE/$geneFamilyFile/g;
+	$line =~ s/SAVEINDEX/$saveIndex/g;
 	print OUT $line;
     }
     close OUT;

@@ -1190,4 +1190,34 @@ getCoreCluster <- function(clusterId, iess, iesdb){
   iesdb[includeIES,]
 }
 
+goodHSP<- function(w, b, e, l){
+  # a good HSP has begining and end of query matching with begin and end of subject (or vice versa) for a window of size w
+  (b <= w & e >= l - w + 1) | (b >= l - w + 1 & e <= w)
+}
+
+HSPtype <- function(w, b, e, l){
+  # classify HSPs as
+  retV <- matrix(nrow = length(b), ncol = (4))
+  aB <- b <= w
+  retV[aB, 1] <- TRUE
+  retV[!aB, 1] <- FALSE
+  bB <- e >= l - w + 1 
+  retV[bB, 2] <- TRUE
+  retV[!bB, 2] <- FALSE
+  cB <- b >= l - w + 1
+  retV[cB, 3] <- TRUE
+  retV[!cB, 3] <- FALSE
+  dB <- e <= w 
+  retV[dB, 4] <- TRUE
+  retV[!dB, 4] <- FALSE
+  return(retV)
+  # 1. HSP with beginning matching beginning
+  # 2. HSP with end matching end
+  # 3. both of the above
+  # 4. HSP with beginning matching end
+  # 5. HSP with end matching beginning
+  # 6, both of the above
+  #IES with 1 & 2 | 3 & 4
+}
+
 source("~/projects/IES/src/testSharedFunctions.R")
