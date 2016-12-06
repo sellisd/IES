@@ -85,9 +85,9 @@ for line in bl:
         hsps[(qseqid, sseqid)][0] = True
     if qe >= lq - window + 1 and se >= ls - window + 1:
         hsps[(qseqid, sseqid)][1] = True
-    if qb <= window and se >= ls - window + 1:
+    if qb <= window and sb >= ls - window + 1:
         hsps[(qseqid, sseqid)][2] = True
-    if qe >= lq - window + 1 and sb <= window:
+    if qe >= lq - window + 1 and se <= window:
         hsps[(qseqid, sseqid)][3] = True
 
 bl.seek(0) #rewind
@@ -100,11 +100,11 @@ for line in bl:
     (qseqid, sseqid, pident, length, mismatch, gapopen, qstart, qend, sstart, send, evalue, bitscore) = line.split()
     if ((qseqid, sseqid) in hsps):
         print(qseqid+','+sseqid +':' +str(hsps[(qseqid, sseqid)]))
-    if hsps[(qseqid, sseqid)][0:2] == [True, True] or hsps[(qseqid, sseqid)][2:] == [True, True]:
-        if (qseqid,sseqid) in hom:
-            homOut.write(line+"\n")
-        else:
-            nhomOut.write(line+"\n")
+        if hsps[(qseqid, sseqid)][0:2] == [True, True] or hsps[(qseqid, sseqid)][2:] == [True, True]:
+            if (qseqid,sseqid) in hom:
+                homOut.write(line+"\n")
+            else:
+                nhomOut.write(line+"\n")
 
 homOut.close()
 nhomOut.close()
