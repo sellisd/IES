@@ -5,8 +5,8 @@ use Getopt::Long;
 my $help;
 my $asrPath;
 my $outputF;
-my $burnin;
 my $gf;
+my $burnIn = 1000;
 my $usage = <<HERE;
 
 Parse ancestral state reconstructions from revBayes output and prepare it in a tidy format
@@ -22,7 +22,7 @@ HERE
 
 die $usage unless (GetOptions('help|?'   => \$help,
 			      'output=s' => \$outputF,
-			      'burnin=s' => \$burnin,
+			      'burnin=s' => \$burnIn,
 			      'asr=s'    => \$asrPath,
 			      'gf=s'     => \$gf
 		   ));
@@ -36,7 +36,6 @@ my @clusters = <GF>;
 close GF;
 map(chomp, @clusters);
 
-my $burnIn = 1000;
 open OUT, '>', $outputF or die $!;
 print OUT "cluster\tnode\tiesColumn\tpresence\n";
 foreach my $cluster (@clusters){
