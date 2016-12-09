@@ -13,7 +13,7 @@ for(i in 1:geneFamilyNames.size()){
     data[i] = readDiscreteCharacterData(indir + "charMat" + clusterS + ".nexus")
     psi[i] = readTrees(indir + "tree" + clusterS + ".nexus")[1]
     if(saveIndex == 1){
-	write(psi[i], filename = outdir + "rbNodeIndexes/nodeIndex." + clusterS + ".tre") # save file with trees and node indexes
+	write(psi[i], filename = indir + "rbNodeIndexes/nodeIndex." + clusterS + ".tre") # save file with trees and node indexes
     }
   }
 }
@@ -52,7 +52,7 @@ system("date")
 for(i in 1:geneFamilyNames.size()){
   system("printf 'adding model "+ i + " out of " + geneFamilyNames.size() + "\r'")
   clusterS = geneFamilies.names()[i].getSpeciesName()
-  monitors[i] = mnJointConditionalAncestralState(tree = psi[i], ctmc = ctmc[i], filename = "OUTPATH/ancStates" + clusterS + ".log", type = "Restriction", printgen = 100, withStartStates = false)
+  monitors[i] = mnJointConditionalAncestralState(tree = psi[i], ctmc = ctmc[i], filename = outdir + "ancStates" + clusterS + ".log", type = "Restriction", printgen = 100, withStartStates = false)
 # withStartStates = false does not print both start and end states for each node
 }
 monitorFile = outdir + "parameters1.log"
