@@ -59,30 +59,8 @@ run('./prot2nucl.pl -noterm'.$cdsF.' ~/data/IES/analysis/sgf/*.aln.fa', 1);
 # rename sequences
 run('./nameReplaceAlign.pl ~/data/IES/analysis/sgf/cluster.*.nucl.fa', 1);
 
-# find best model for each gene family and infer gene tree
-opendir DH, $pathOUT or die $!;
-my @nuclAlnF = grep {/.*\.nucl\.fa\.renamed$/} readdir(DH);
-close DH;
-foreach my $file (@nuclAlnF){
-    my $pid = $pm->start and next;
-    my $cmdl = "$iqtreeB -s ".catfile($pathOUT, $file).
-	' -st CODON6 -bb 1000'.
-	' -m TESTNEW';
-    run($cmdl, 1);
-    $pm->finish;
-}
-$pm->wait_all_children;
-
 # infer concatenated (species) tree with simple model, do not ovewrite $bmF
 run('./bestModel.pl -model GTR+G{1.0} -nex ~/data/IES/analysis/sgf/concatSimple.nexus -table /dev/null ~/data/IES/analysis/sgf/cluster.*.nucl.fa.renamed', 1);
 run($iqtreeBP.' -bb 1000 -spp  ~/data/IES/analysis/sgf/concatSimple.nexus > ~/data/IES/analysis/log/concatSimple.log', 1);
 
 #move to cluster
-# # build table with best models for each partition
-# run("./bestModel.pl -nex /pandata/sellis/sgf/concat.nexus -table ".catfile($clusterBasePath,'bestModels.tab').' '.catfile($clusterBasePath,'cluster.*.nucl.fa.renamed", 1);
-
-# # infer concatenated (species) tree with partitions and -testmerge
-# run($iqtreeBP.' -bb 1000 -st CODON6 -m TESTNEWMERGE -spp  ~/data/IES/analysis/sgf/concat.nexus > ~/data/IES/analysis/log/concat.log', 1);
-
-# # compare gene trees with simple model and partitioned species tree topology
-
