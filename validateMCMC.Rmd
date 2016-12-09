@@ -1,0 +1,159 @@
+---
+title: "MCMC validation"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: TRUE
+    number_sections: TRUE
+---
+
+# Validate MCMC convergence
+
+Two MCMC runs were performed for each species tree topology for 1000000, with the exception of 1 replicate run for species tree 1 which reached 970600 generations. Thus the estimation of convergence for the runs of species tree 3 where restricted to 970600 generations.
+
+```{r, loadLibraries, echo = FALSE}
+library(coda)
+loadmcmc <- function(spT, short = FALSE){
+  runsPath <- paste0("~/data/IES/analysis/asr", spT,"/")
+  runDirs <- c("run1/", "run2/")
+  runs <- paste0(runsPath, runDirs)
+  mcmcL <- list()
+  counter <- 1
+  for(i in runs){
+    traceI <- read.table(paste0(i,"parameters1.log"), header = TRUE)
+    if(short){
+      traceI <- traceI[1:short,]
+    }
+    thin <- traceI$Iteration[2] - traceI$Iteration[1]
+    mcmcL[[counter]] <- mcmc(data = subset(traceI, select = -Iteration), thin = thin)
+    counter <- counter + 1
+  }
+  return(mcmcL)
+}
+```
+
+![species trees](/home/dsellis/projects/IES/reports/53.FranceGenomiqueFigures/3trees.png)
+
+## MCMC for ancestral state reconstruction with species tree 1
+
+
+```{r, asr1, echo = FALSE}
+mcmcL <- loadmcmc(1, short = 9707)
+```
+
+
+### Sampling of the parameter space
+
+#### Replicate 1
+
+```{r, echo = FALSE, fig.height=10}
+par(las = 1, bty = "l")
+plot(mcmcL[[1]])
+```
+
+#### Replicate 2
+```{r, echo = FALSE, fig.height = 10}
+par(las = 1, bty  = "l")
+plot(mcmcL[[2]])
+```
+
+### Minimal autocorrelation of time series
+
+#### Replicate 1
+```{r, echo = FALSE}
+par(las = 1, bty  = "l")
+autocorr.plot(mcmcL[[1]])
+```
+
+#### Replicate 2
+```{r, echo = FALSE}
+par(las = 1, bty  = "l")
+autocorr.plot(mcmcL[[2]])
+```
+
+### Convergence of MCMC runs
+```{r, echo = FALSE}
+par(las = 1, bty  = "l")
+gelman.plot(mcmcL)
+```
+
+## MCMC for ancestral state reconstruction with species tree 2
+
+```{r, asr2, echo = FALSE}
+mcmcL <- loadmcmc(2)
+```
+
+### Sampling of the parameter space
+
+#### Replicate 1
+```{r, echo = FALSE, fig.height = 10}
+par(las = 1, bty  = "l")
+plot(mcmcL[[1]])
+```
+
+#### Replicate 2
+```{r, echo = FALSE, fig.height = 10}
+par(las = 1, bty  = "l")
+plot(mcmcL[[2]])
+```
+
+### Minimal autocorrelation of time series
+
+#### Replicate 1
+```{r, echo = FALSE}
+par(las = 1, bty  = "l")
+autocorr.plot(mcmcL[[1]])
+```
+
+#### Replicate 2
+```{r, echo = FALSE}
+par(las = 1, bty  = "l")
+autocorr.plot(mcmcL[[2]])
+```
+
+### Convergence of MCMC runs
+```{r, echo = FALSE}
+par(las = 1, bty  = "l")
+gelman.plot(mcmcL)
+```
+
+## MCMC for ancestral state reconstruction with species tree 3
+
+```{r, asr3, echo = FALSE}
+mcmcL <- loadmcmc(3)
+```
+
+### Sampling of the parameter space
+
+#### Replicate 1
+```{r, echo = FALSE, fig.height = 10}
+par(las = 1, bty  = "l")
+plot(mcmcL[[1]])
+```
+
+#### Replicate 2
+```{r, echo = FALSE, fig.height = 10}
+par(las = 1, bty  = "l")
+plot(mcmcL[[2]])
+```
+
+### Minimal autocorrelation of time series
+
+#### Replicate 1
+```{r, echo = FALSE}
+par(las = 1, bty  = "l")
+autocorr.plot(mcmcL[[1]])
+```
+
+#### Replicate 2
+```{r, echo = FALSE}
+par(las = 1, bty  = "l")
+autocorr.plot(mcmcL[[2]])
+```
+
+### Convergence of MCMC runs
+```{r, echo = FALSE}
+par(las = 1, bty  = "l")
+gelman.plot(mcmcL)
+```
