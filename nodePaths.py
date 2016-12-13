@@ -1,6 +1,15 @@
 #!/usr/bin/python
 from __future__ import print_function
 from ete3 import Tree
+import sys
+
+asrRun = ''
+usage = "./flankFasta.py <asrRun>"
+if (len(sys.argv) != 2):
+    print(usage)
+    sys.exit(2)
+else:
+    asrRun = sys.argv[1]
 
 # Find paths connecting speciation nodes.
 
