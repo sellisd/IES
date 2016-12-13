@@ -1,6 +1,23 @@
 #!/usr/bin/python
 from __future__ import print_function
 from __future__ import division
+import sys, getopt
+
+# default parameters
+blastf = "/home/dsellis/data/IES/analysis/mies/blastout/miesMac"
+usage = "./blasthitsOnChrom.py -i <blastFile>"
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hi:")
+except getopt.GetoptError:
+    print(usage)
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print(usage)
+        sys.exit(1)
+    elif opt == "-i":
+        blastf = arg
 
 # read scaffold lenghts
 pprs = open('/home/dsellis/data/IES/analysis/filtscaf/ppr.scaf', 'r')
@@ -43,7 +60,6 @@ psos.close()
 pcas.close()
 
 # read blast output
-blastf = '/home/dsellis/data/IES/analysis/mies/blastout/miesMac'
 
 f = open(blastf, 'r')
 nrow = 1
