@@ -3,7 +3,7 @@ use warnings;
 use strict;
 
 # add homologous IES age to the iesdb by matching columns of the character matrix to the homologous IES id
-my $asrRun = 1
+my $asrRun = $ARGV[0];
 my $linkF = '/home/dsellis/data/IES/analysis/tables/homIES'.$asrRun.'.columns.link';
 my $ageF = '/home/dsellis/data/IES/analysis/tables/iesAge'.$asrRun.'.dat';
 my $homiesF = '/home/dsellis/data/IES/analysis/tables/homIES.tab';
