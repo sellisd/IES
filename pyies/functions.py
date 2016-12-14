@@ -1,8 +1,42 @@
+from __future__ import division
 from __future__ import print_function
-from ete3 import NodeStyle, TextFace
+from ete3 import NodeStyle, TextFace, Tree
 from collections import Counter
 import numpy as np
 import re
+
+def numbered2name(string):
+    """Extract species name from PHYLDOG numbered leaf."""
+    return(re.sub(r'(.+_.+)_\d+', r'\1', string))
+
+def phyldogSpeciesTree(phyldogTreeFile, brlenTreeFile, outgroupName):
+    """Add branch lengths to PHYLDOG tree from a topologically equivalent tree."""
+    b = Tree(brlenTreeFile)
+    b.set_outgroup(b&outgroupName)
+
+    brlenD = {}
+    for node in b.traverse():
+        leaveNames = [x.name for x in node.get_leaves()]
+        leaveNames.sort()
+        brlenD[tuple(leaveNames)] = node.dist
+
+    t = Tree(phyldogTreeFile)
+
+    nodeKey = {}
+    for node in t.traverse():
+        PHYLDOGid = ''
+        if node.is_leaf():
+            PHYLDOGid = (re.sub(r'.+_.+_(\d+)', r'\1', node.name))
+        elif node.is_root():
+            PHYLDOGid = '0'
+        else:
+            PHYLDOGid = str(int(node.support))
+        node.add_feature("PHYLDOGid", PHYLDOGid)
+        leaveNames = [numbered2name(x.name) for x in node.get_leaves()]
+        leaveNames.sort()
+        node.dist = brlenD[tuple(leaveNames)]
+    
+    return(t)
 
 def parseClientOut(files, loglk, run):
     """Parse PHYLDOG output files and extract gene tree likelihoods."""
