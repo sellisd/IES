@@ -9,8 +9,8 @@ nhomOutF = '/home/dsellis/data/IES/analysis/mies/blastout/ies.nonhoml.blastout'
 
 # criteria for homology of flanking sequences
 evalueMin = 10^8 # less than evalue
-lengthMin = 150  # more or equal to 
-pidentMin = 75   # more or equal to 
+lengthMin = 150  # more or equal to
+pidentMin = 75   # more or equal to
 # window size for HPS to be considered close to the boundary of an IES
 window = 20
 

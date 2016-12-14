@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from __future__ import print_function
-from collections import Counter
 from __future__ import division
+from collections import Counter
 
 
 # normalize loss rate by  total length of conserved blocks of alignments and both insertion and loss rate by branch lengths
