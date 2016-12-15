@@ -1,5 +1,6 @@
 # filter genes with low coverage
 # and make a report with the distributions of coverage over genes
+source("~/projects/IES/src/sharedFunctions.R")
 
 plotCovHist <- function(abr, ...){
   # load average per nucleotide read coverage over genes
@@ -8,7 +9,7 @@ plotCovHist <- function(abr, ...){
   M <- max(b$V2)
   qs <- quantile(b$V2, probs = c(0.1, 0.9), names = FALSE)
   hb <- hist(log10(b$V2), breaks = 1000, xlab = "log coverage", ylab = "counts", ...)
-  abline(v=log10(c(15, qs)), col = c("red", "blue", "blue"))
+  abline(v=log10(c(15, qs)), col = c(dred, dblue, dblue))
   filtGenesI <- which(b$V2>=15 | (b$V2 <qs[2] & b$V2 > qs[1]))
   b$V1[filtGenesI]
 }
@@ -27,8 +28,8 @@ gpoc <- plotCovHist("poc", main = expression(italic("P. octaurelia")),    xlim =
 gptr <- plotCovHist("ptr", main = expression(italic("P. tredecaurelia")), xlim = c(0, 3))
 gpso <- plotCovHist("pso", main = expression(italic("P. sonneborni")),    xlim = c(0, 3))
 gpca <- plotCovHist("pca", main = expression(italic("P. caudatum")),      xlim = c(0, 3))
-
-
+plot.new()
+legend("center", c("< 15 reads", "10th and 90th percentile"), col = c(dred, dblue), lty = 1, bty = "n")
 write.table(gppr, file = "~/data/IES/analysis/tables/gppr.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
 write.table(gpbi, file = "~/data/IES/analysis/tables/gpbi.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
 write.table(gpte, file = "~/data/IES/analysis/tables/gpte.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
