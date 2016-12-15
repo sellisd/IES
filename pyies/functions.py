@@ -27,12 +27,13 @@ def phyldogSpeciesTree(phyldogTreeFile, brlenTreeFile, outgroupName):
         PHYLDOGid = ''
         if node.is_leaf():
             PHYLDOGid = (re.sub(r'.+_.+_(\d+)', r'\1', node.name))
+            node.name = numbered2name(node.name)
         elif node.is_root():
             PHYLDOGid = '0'
         else:
             PHYLDOGid = str(int(node.support))
         node.add_feature("PHYLDOGid", PHYLDOGid)
-        leaveNames = [numbered2name(x.name) for x in node.get_leaves()]
+        leaveNames = [numbered2name(x.name) for x in node.get_leaves()]        
         leaveNames.sort()
         node.dist = brlenD[tuple(leaveNames)]
     
