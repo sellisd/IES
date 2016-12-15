@@ -35,17 +35,22 @@ my %charMats;
 while(my $line = <IN>){
     chomp $line;
     (my $id, my $geneFamily, my $beginMSArange, my $endMSArange, my $gene, my $beginGene, my $endGene, my $beginMSA, my $endMSA, my $iesId) = split " ", $line;
+    # if T. thermophila print 0 (absent)
     # if gene is not in list print ?
     # else print 1 if present 0 if absent
     my $ies; # presence absence or unknown
-    if(defined($h{$gene})){
-	if($iesId eq 'NA'){
-	    $ies = 0;
-	}else{
-	    $ies = 1;
-	}
+    if(gene2species($gene) eq 'Tetrahymena_thermophila'){
+	$ies = 0;
     }else{
-	$ies = '?';
+	if(defined($h{$gene})){
+	    if($iesId eq 'NA'){
+		$ies = 0;
+	    }else{
+		$ies = 1;
+	    }
+	}else{
+	    $ies = '?';
+	}
     }
     $charMats{$geneFamily}{$id}{$gene} = {'begin'    => $beginMSArange,
 					  'end'      => $endMSArange,
