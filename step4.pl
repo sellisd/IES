@@ -57,7 +57,16 @@ run("./gainLoss.pl 1 > ~/data/IES/analysis/tables/gainLoss1.dat", 0);
 run("./gainLoss.pl 2 > ~/data/IES/analysis/tables/gainLoss2.dat", 0);
 run("./gainLoss.pl 3 > ~/data/IES/analysis/tables/gainLoss3.dat", 0);
 
+
 exit(1);
+"
+./gainLossSum.py -g ~/data/IES/analysis/tables/gainLoss1.dat -b ~/data/IES/analysis/tables/gblocks.dat -l ~/data/IES/analysis/sgf/topoConstrSimple.treefile -p ~/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree -o ~/data/IES/analysis/figures/spTree1.png -n Tetrahymena_thermophila -w ~/data/IES/analysis/figures/spTree1.tre
+
+./gainLossSum.py -g ~/data/IES/analysis/tables/gainLoss2.dat -b ~/data/IES/analysis/tables/gblocks.dat -l ~/data/IES/analysis/sgf/concatSimple.nexus.treefile -p ~/data/IES/analysis/phyldogT2/results/OutputSpeciesTree_ConsensusNumbered.tree -o ~/data/IES/analysis/figures/spTree2.png -n Tetrahymena_thermophila -w ~/data/IES/analysis/figures/spTree2.tre
+
+./gainLossSum.py -g ~/data/IES/analysis/tables/gainLoss3.dat -b ~/data/IES/analysis/tables/gblocks.dat -l ~/data/IES/analysis/sgf/concat.nexus.treefile -p ~/data/IES/analysis/phyldogT3/results/OutputSpeciesTree_ConsensusNumbered.tree -o ~/data/IES/analysis/figures/spTree3.png -n Tetrahymena_thermophila -w ~/data/IES/analysis/figures/spTree3.tre
+
+"
 # summarize and prepare plots at the end of the analysis
 
 system("./pwm.py ~/data/IES/analysis/tables/consensus.dat"); # calculate position weight matrices and draw sequence logo diagrams
