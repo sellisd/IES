@@ -11,14 +11,19 @@ my $pm = Parallel::ForkManager->new(7);
 
 my $homeD = File::HomeDir->my_home;
 my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
-my $rbP = '/home/dsellis/tools/revbayes/projects/cmake/rb'; # revBayes path
+my $rbP = '/home/dsellis/tools/revbayes-master/projects/cmake/rb'; # revBayes path
 
 my $nr = getNotation($notationF);
 my $asrRevF = '/home/dsellis/projects/IES/src/asr.Rev';
 
+# base directory for output
+#my $basedir = '/pandata/sellis/'; # on the cluster
+my $basedir = '/home/dsellis/data/IES/analysis/'; # on the cluster
+
+
 # prepare revBayes runs
 my $cmdl = 'Rscript --vanilla preRev.R > /home/dsellis/data/IES/analysis/preRev.log';
-run($cmdl, 1);
+run($cmdl, 0);
 
 for(my $asrRun = 1; $asrRun<=3; $asrRun++){
     my $rbResultsP = catfile('/home/dsellis/data/IES/analysis/asr'.$asrRun.'/');
@@ -34,8 +39,12 @@ for(my $asrRun = 1; $asrRun<=3; $asrRun++){
     make_path($rbRun1) unless -e $rbRun1;
     make_path($rbRun2) unless -e $rbRun2;
 
-    setOutAsr($asrRevF, $rbRun1Rev, '/pandata/sellis/asr'.$asrRun.'/', '/pandata/sellis/asr'.$asrRun.'/run1/', '/pandata/sellis/asr'.$asrRun.'/geneFamilies.dat', 1); # first time through print node index
-    setOutAsr($asrRevF, $rbRun2Rev, '/pandata/sellis/asr'.$asrRun.'/', '/pandata/sellis/asr'.$asrRun.'/run2/', '/pandata/sellis/asr'.$asrRun.'/geneFamilies.dat', 0);
+    setOutAsr($asrRevF, $rbRun1Rev, $basedir.'asr'.$asrRun.'/', $basedir.'asr'.$asrRun.'/run1/', $basedir.'asr'.$asrRun.'/geneFamilies.dat', 1); # first time through print node index
+    setOutAsr($asrRevF, $rbRun2Rev, $basedir.'asr'.$asrRun.'/', $basedir.'asr'.$asrRun.'/run2/', $basedir.'asr'.$asrRun.'/geneFamilies.dat', 0);
+
+    run("$rbP $rbRun1Rev".' &', 0); #run both at the same time
+    run("$rbP $rbRun2Rev", 0);
+
 }
 
 #move to the cluster
@@ -43,8 +52,7 @@ for(my $asrRun = 1; $asrRun<=3; $asrRun++){
 #    run("$rbP $rbRun1Rev", 1);
 #    run("$rbP $rbRun2Rev", 1);
 
-exit(1);
-#=======================
+
 
 
 sub setOutAsr{

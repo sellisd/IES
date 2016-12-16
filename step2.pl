@@ -50,12 +50,12 @@ run($cmdl, 1);
 $cmdl= './withinGblocks.pl';
 run($cmdl, 1);
 
+run('./homIESdb.pl > /home/dsellis/data/IES/analysis/tables/homIES.tab', 1);
+
 $cmdl = './charMats.pl > /home/dsellis/data/IES/analysis/iesdb/charMats.tab';
 run($cmdl, 1);
 
 $cmdl = './geneFamilydb.pl';
 run($cmdl, 1);
-
-run('./homIESdb.pl > /home/dsellis/data/IES/analysis/table/homIES.dat', 1);
 
 run("./preparePhyldog.pl", 1);
