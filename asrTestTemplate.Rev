@@ -1,0 +1,79 @@
+# template for test asv rev files
+indir = "/home/dsellis/data/IES/analysis/asr1/"
+geneFamilyFile = "/home/dsellis/data/IES/analysis/asr1/geneFamilies.dat"
+clusterS = 1000
+data = readDiscreteCharacterData(indir + "charMat" + clusterS + ".nexus")
+psi = readTrees(indir + "tree" + clusterS + ".nexus")[1]
+
+# rates of change
+alpha ~ dnExponential(1)
+insertionRate ~ dnExponential(alpha)
+lossRate ~ dnExponential(alpha)
+
+mi <- 0
+moves[mi++] = mvScale(alpha, lambda = 1)
+
+#this gives equal rates
+Q := fnFreeBinary([insertionRate, lossRate])
+
+# a hierarchy of scale moves
+moves[mi++] = mvScale(insertionRate, lambda = 1) #default
+moves[mi++] = mvScale(lossRate, lambda = 1)
+
+ctmc ~ dnPhyloCTMC(Q = Q, tree = psi, type = "Restriction", coding = "noabsencesites")
+ctmc.clamp(data)
+
+mymodel = model(ctmc)
+monitors[1] = mnScreen(insertionRate, lossRate, printgen=1000)
+
+mymcmc = mcmc(mymodel, monitors, moves)
+#mymcmc.burnin(generations=10000,tuningInterval=1000)
+#mymcmc.run(1000000)
+#mymcmc.run(10000)
+quit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+clusterS = "3285"
+data = readDiscreteCharacterData(indir + "charMat" + clusterS + ".nexus")
+psi = readTrees(indir + "tree" + clusterS + ".nexus")[1]
+
+# rates of change
+alpha ~ dnExponential(1)
+insertionRate ~ dnExponential(alpha)
+lossRate ~ dnExponential(alpha)
+
+mi <- 0
+moves[mi++] = mvScale(alpha, lambda = 1)
+# moves[mi++] = mvScale(alpha, lambda = 0.1)
+# moves[mi++] = mvScale(alpha, lambda = 0.01)
+
+#this gives equal rates
+Q := fnFreeBinary([insertionRate, lossRate])
+
+# a hierarchy of scale moves
+moves[mi++] = mvScale(insertionRate, lambda = 1) #default
+moves[mi++] = mvScale(lossRate, lambda = 1)
+
+ctmc ~ dnPhyloCTMC(Q = Q, tree = psi, type = "Restriction", coding = "noabsencesites")
+ctmc.clamp(data)
+
+mymodel = model(ctmc)
+
+monitors[1] = mnScreen(insertionRate, lossRate, printgen=1000)
+
+mymcmc = mcmc(mymodel, monitors, moves)
+#mymcmc.burnin(generations=10000,tuningInterval=1000)
+#mymcmc.run(1000000)
+#mymcmc.run(10000)
+quit()

@@ -11,8 +11,8 @@ my $pm = Parallel::ForkManager->new(7);
 
 my $homeD = File::HomeDir->my_home;
 my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
-my $rbP = '/home/dsellis/tools/revbayes-master/projects/cmake/rb'; # revBayes path
-
+my $rbP = '/home/dsellis/tools/revbayes-1.0.0/projects/cmake/rb'; # revBayes path
+my $logP = '/home/dsellis/data/analysis/log/';
 my $nr = getNotation($notationF);
 my $asrRevF = '/home/dsellis/projects/IES/src/asr.Rev';
 
@@ -22,8 +22,8 @@ my $basedir = '/home/dsellis/data/IES/analysis/'; # on the cluster
 
 
 # prepare revBayes runs
-my $cmdl = 'Rscript --vanilla preRev.R > /home/dsellis/data/IES/analysis/preRev.log';
-run($cmdl, 0);
+my $cmdl = 'Rscript --vanilla preRev.R > '.$logP.'preRev.log';
+run($cmdl, 1);
 
 for(my $asrRun = 1; $asrRun<=3; $asrRun++){
     my $rbResultsP = catfile('/home/dsellis/data/IES/analysis/asr'.$asrRun.'/');
@@ -42,9 +42,25 @@ for(my $asrRun = 1; $asrRun<=3; $asrRun++){
     setOutAsr($asrRevF, $rbRun1Rev, $basedir.'asr'.$asrRun.'/', $basedir.'asr'.$asrRun.'/run1/', $basedir.'asr'.$asrRun.'/geneFamilies.dat', 1); # first time through print node index
     setOutAsr($asrRevF, $rbRun2Rev, $basedir.'asr'.$asrRun.'/', $basedir.'asr'.$asrRun.'/run2/', $basedir.'asr'.$asrRun.'/geneFamilies.dat', 0);
 
-    run("$rbP $rbRun1Rev".' &', 0); #run both at the same time
-    run("$rbP $rbRun2Rev", 0);
 
+# test for low starting probability files
+
+#./testRb.pl asr1 > testRb1.sh &
+#./testRb.pl asr2 > testRb2.sh &
+#./testRb.pl asr3 > testRb3.sh
+#chmod 744 testRb?.sh
+#./testRb1.sh
+#./testRb2.sh
+#./testRb3.sh
+
+#3285   1  2  3
+#5456   0  2  3
+#5663   0  0  3
+#10007  1  2  3
+#11561  1  2  3
+
+    run("$rbP $rbRun1Rev".' >'.$logP.'asr'.$asrRun.'run1.log'.' &', 0); #run both at the same time
+    run("$rbP $rbRun2Rev".' >'.$logP.'asr'.$asrRun.'run2.log', 0);
 }
 
 #move to the cluster
