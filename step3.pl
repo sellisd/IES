@@ -12,7 +12,7 @@ my $pm = Parallel::ForkManager->new(7);
 my $homeD = File::HomeDir->my_home;
 my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
 my $rbP = '/home/dsellis/tools/revbayes-1.0.0/projects/cmake/rb'; # revBayes path
-my $logP = '/home/dsellis/data/analysis/log/';
+my $logP = '/home/dsellis/data/IES/analysis/log/';
 my $nr = getNotation($notationF);
 my $asrRevF = '/home/dsellis/projects/IES/src/asr.Rev';
 
