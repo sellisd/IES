@@ -5,6 +5,9 @@ from collections import Counter
 import numpy as np
 import re
 
+colorFile = '/Users/dsellis/projects/IES/src/colors.hex'
+colorFile9 = '/Users/dsellis/projects/IES/src/colors9.hex'
+
 def numbered2name(string):
     """Extract species name from PHYLDOG numbered leaf."""
     return(re.sub(r'(.+_.+)_\d+', r'\1', string))
@@ -137,13 +140,13 @@ def placeDupl(t, spt):
     return dup
 
 def readPalette():
-    f = open('/home/dsellis/projects/IES/src/colors.hex', 'r')
+    f = open(colorFile, 'r')
     f.readline()
     cp = [i.rstrip() for i in f]
     return cp
 
 def readPalette9():
-    f = open('/home/dsellis/projects/IES/src/colors9.hex', 'r')
+    f = open(colorFile9, 'r')
     f.readline()
     cp = [i.rstrip() for i in f]
     return cp
