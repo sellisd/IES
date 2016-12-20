@@ -1,9 +1,10 @@
 #!/usr/bin/python
 from __future__ import print_function
-from ete3 import Tree, SeqMotifFace, ImgFace, TreeStyle
-import pprint
+from ete3 import Tree, SeqMotifFace, ImgFace, TreeStyle, SeqGroup
 import os.path
 import sys, getopt
+import string
+from collections import defaultdict
 from pyies.functions import *
 
 # plot gene family phylogeny with diagram of IESs in MSA
@@ -47,11 +48,17 @@ t = colorNodes(t, 1)
 # load character matrices
 f = open (os.path.join(basePath, charMatFile), 'r')
 header = f.readline()
-charMat = Vividict()
+#charMat = Vividict()
+gfGenes  = defaultdict(list) # dictionary key is gene family value list of genes
+gfhomIES = defaultdict(list) # dictionary key is gene family value list of homologous IESs
+charMat = {}
 for line in f:
     line = line.rstrip()
     (cluster, column, geneId, begin, end, ies, iesId, beginMSA, endMSA) = line.split("\t")
-    charMat[cluster][column][geneId] = [begin, end, ies, iesId, beginMSA, endMSA]
+    gfGenes[cluster].append(geneId)
+    gfhomIES[cluster].append(column)
+    charMat[(cluster, column, geneId)] = [begin, end, ies, iesId, beginMSA, endMSA]
+#    charMat[cluster][column][geneId] = [begin, end, ies, iesId, beginMSA, endMSA]
 #    charMat[cluster] = {column: {geneId: [begin, end, ies, iesId, beginMSA, endMSA]}}
 
 # load mean ancestral states
@@ -59,30 +66,29 @@ for line in f:
 # f = open (asrF, 'r')
 # header = f.readline()
 
-# load nucleotide seuqnces
+# load nucleotide sequences for all genes!
+nuclAlnFile = os.path.join(basePath, "analysis/msas/filtered/cluster." + geneFamily + ".nucl.fa")
+seqs = SeqGroup(sequences = nuclAlnFile, format = "fasta")
+
+for leaf in t:
+    geneId = leaf.name
+    seq = seqs.get_seq(geneId)
+    seq = seq.translate(None, string.ascii_lowercase) # keep only CDS 
+    iesmotif = [[1, len(seq), "line", 2, 5, None, None, None]]
+    for homIES in gfhomIES[geneFamily]:
+        (begin, end, ies, iesId, beginMSA, endMSA) = charMat[(geneFamily, homIES, geneId)]
+        if ies == '?':
+            iesmotif.append([int(beginMSA), int(endMSA),"()", 10, 10, "red", "black", "arial|8|black|?"])
+        elif ies == '1':
+            iesmotif.append([int(beginMSA), int(endMSA),"[]", 10, 10, "black", "red", "arial|8|black|" + iesId])
+        elif ies == '0':
+            iesmotif.append([int(begin), int(end), "[]", 10, 10, "silver", "silver", None]) 
+        else:
+            quit(1)
+    seqFace = SeqMotifFace(seq = seq, motifs = iesmotif, gap_format = "blank", seq_format = "line")
+    leaf.add_face(seqFace, 0, "aligned")
 
 
-# add motif faces
-for l in t:
-#    print(l.name)
-    # build motif
-    iesmotif = []
-    for column in charMat[geneFamily]:
-#        print(column)
-        for geneId in charMat[geneFamily][column]:
-            if geneId == l.name:
-                begin    = charMat[geneFamily][column][geneId][0]
-                end      = charMat[geneFamily][column][geneId][1]
-                ies      = charMat[geneFamily][column][geneId][2]
-                iesId    = charMat[geneFamily][column][geneId][3]
-                beginMSA = charMat[geneFamily][column][geneId][4]
-                endMSA   = charMat[geneFamily][column][geneId][5]
-                iesmotif.append( [int(begin), int(end), "line", None, 10, "black", "blue", None]) # add range of homologous IES as line
-                if iesId != 'NA': # if present add IES as rectangles
-                    iesmotif.append( [int(beginMSA), int(endMSA), "[]", None, 10, "black", "red", "arial|8|black|" + iesId] )
-    if iesmotif:
-        seqFace = SeqMotifFace(seq = None, motifs = iesmotif, gap_format = "line")
-        l.add_face(seqFace, 0, "aligned")
 #           print("  " + geneId)
 # # load alignment add biopython
 # #alnF = '/home/dsellis/data/analysis/msas/filtered/cluster.10000.nucl.fa'
