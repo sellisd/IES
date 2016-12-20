@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
-from ete3 import Tree, SeqMotifFace, ImgFace, TreeStyle, SeqGroup
+from ete3 import Tree, SeqMotifFace, ImgFace, TreeStyle, SeqGroup, BarChartFace, PieChartFace, CircleFace
 import os.path
 import sys, getopt
 import string
@@ -15,11 +15,14 @@ geneFamily = ""
 phyldogResultsPath = "analysis/phyldogT1/results/"
 charMatFile = "analysis/iesdb/charMats.tab"
 outputFile = ""
+ancNodeProbFile = "analysis/tables/avNodeProb1.dat"
+nodeDictionaryFile = "analysis/tables/nodeDictionary1.dat"
+homiesLinkFile = "analysis/tables/homIES1.columns.link"
 
-usage = "./plotTree.py -b <basePath> -g <geneFamily> -p <phyldogPath> -m <charMatFile> -o <outputFile>"
+usage = "./plotTree.py -b <basePath> -g <geneFamily> -p <phyldogPath> -m <charMatFile> -o <outputFile> -a <ancestralNodeProbFile> -n <nodeDictionaryFile> -l <homiesLinkFile>"
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hg:p:m:o:b:")
+    opts, args = getopt.getopt(sys.argv[1:],"hg:p:m:o:b:a:n:l:")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -37,6 +40,34 @@ for opt, arg in opts:
         outputFile = arg
     elif opt == "-b":
         basePath = arg
+    elif opt == "-a":
+        ancNodeProbFile = arg
+    elif opt == "-n":
+        nodeDictionaryFile = arg
+    elif opt == "-l":
+        homiesLinkFile = arg
+
+# create dictionaries phyldog for translation:
+rb2ph = {} # revBayes to phyldog node notation
+hiesL = {} # homologous IES id to column number
+
+# load nodeDictionary
+nd = open(os.path.join(basePath, nodeDictionaryFile), 'r')
+header = nd.readline()
+for line in nd:
+    line = line.rstrip()
+    (cluster, r, phyldog, rb) = line.split("\t")
+    if cluster == geneFamily:
+        rb2ph[rb] = phyldog
+
+# load link file connecting iesColumnId with column numbering in revBayes
+lf = open(os.path.join(basePath, homiesLinkFile), 'r')
+header = lf.readline()
+for line in lf:
+    line = line.rstrip()
+    (gf, homIES, column) = line.split("\t")
+    if gf == geneFamily:
+        hiesL[homIES] = int(column)
 
 #  load gene family tree
 geneFamFile = geneFamily + ".ReconciledTree"
@@ -44,27 +75,60 @@ treeF = os.path.join(basePath, phyldogResultsPath, geneFamFile)
 
 t = Tree(treeF)
 
-t = colorNodes(t, 1)
+#t = colorNodes(t, 1)
+
 # load character matrices
 f = open (os.path.join(basePath, charMatFile), 'r')
 header = f.readline()
-#charMat = Vividict()
 gfGenes  = defaultdict(list) # dictionary key is gene family value list of genes
-gfhomIES = defaultdict(list) # dictionary key is gene family value list of homologous IESs
+gfhomIES = defaultdict(set) # dictionary key is gene family value list of homologous IESs
 charMat = {}
 for line in f:
     line = line.rstrip()
     (cluster, column, geneId, begin, end, ies, iesId, beginMSA, endMSA) = line.split("\t")
     gfGenes[cluster].append(geneId)
-    gfhomIES[cluster].append(column)
+    gfhomIES[cluster].add(column)
     charMat[(cluster, column, geneId)] = [begin, end, ies, iesId, beginMSA, endMSA]
-#    charMat[cluster][column][geneId] = [begin, end, ies, iesId, beginMSA, endMSA]
-#    charMat[cluster] = {column: {geneId: [begin, end, ies, iesId, beginMSA, endMSA]}}
 
 # load mean ancestral states
-# asrF = '/home/dsellis/data/IES/analysis/tables/avNodeProb.dat';
-# f = open (asrF, 'r')
-# header = f.readline()
+# avNodeProb has homIES not with ids but with increment numbering
+fa = open(os.path.join(basePath, ancNodeProbFile), 'r')
+header = fa.readline()
+anc = defaultdict(dict) # defaultdictionary with key revbayes node id and value list of prob. presence
+for line in fa:
+    line = line.rstrip()
+    (cluster, node, iesColumn, presence) = line.split("\t")
+    if cluster == geneFamily:
+        anc[rb2ph[node]][iesColumn] = float(presence)
+#        anc[ph2rb[node]][iesColumn] = float(presence)
+
+# annotate tree
+for node in t.traverse():
+    for homIES, presence in anc[node.ND].items():
+        p = 100*presence
+        a = 100 - p
+        pf = PieChartFace([p, a], 10, 10, ["black", "silver"])
+        if node.is_leaf():
+            pass
+        else:
+            column = int(homIES) + 1
+            node.add_face(pf, column, "float")
+
+for leaf in t:
+    geneId = leaf.name
+    for homIES in gfhomIES[geneFamily]:
+        cf = CircleFace(10, "white")
+        (begin, end, ies, iesId, beginMSA, endMSA) = charMat[(geneFamily, homIES, geneId)]
+        if ies == '?':
+            cf = CircleFace(10, "silver", label = "?")
+        elif ies == '1':
+            cf = CircleFace(10, "black")
+        elif ies == '0':
+            cf = CircleFace(10, "LightGrey")
+        else:
+            quit(1)
+        column = hiesL[homIES] + 1
+        leaf.add_face(cf, column, "aligned")
 
 # load nucleotide sequences for all genes!
 nuclAlnFile = os.path.join(basePath, "analysis/msas/filtered/cluster." + geneFamily + ".nucl.fa")
