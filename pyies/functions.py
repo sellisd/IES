@@ -25,7 +25,6 @@ def phyldogSpeciesTree(phyldogTreeFile, brlenTreeFile, outgroupName):
 
     t = Tree(phyldogTreeFile)
 
-    nodeKey = {}
     for node in t.traverse():
         PHYLDOGid = ''
         if node.is_leaf():
@@ -36,10 +35,10 @@ def phyldogSpeciesTree(phyldogTreeFile, brlenTreeFile, outgroupName):
         else:
             PHYLDOGid = str(int(node.support))
         node.add_feature("PHYLDOGid", PHYLDOGid)
-        leaveNames = [numbered2name(x.name) for x in node.get_leaves()]        
+        leaveNames = [numbered2name(x.name) for x in node.get_leaves()]
         leaveNames.sort()
         node.dist = brlenD[tuple(leaveNames)]
-    
+
     return(t)
 
 def parseClientOut(files, loglk, run):

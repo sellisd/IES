@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
-from ete3 import Tree, SeqMotifFace, ImgFace, TreeStyle, SeqGroup, BarChartFace, PieChartFace, CircleFace
+from ete3 import Tree, SeqMotifFace, ImgFace, SeqGroup, BarChartFace, PieChartFace, CircleFace
 import os.path
 import sys, getopt
 import string
@@ -186,7 +186,7 @@ if plotStyle == '3': # plot with MSA
     for leaf in t:
         geneId = leaf.name
         seq = seqs.get_seq(geneId)
-        seq = seq.translate(None, string.ascii_lowercase) # keep only CDS 
+        seq = seq.translate(None, string.ascii_lowercase) # keep only CDS
         iesmotif = [[1, len(seq), "line", 2, 5, None, None, None]]
         for homIES in gfhomIES[geneFamily]:
             (begin, end, ies, iesId, beginMSA, endMSA) = charMat[(geneFamily, homIES, geneId)]
@@ -198,7 +198,7 @@ if plotStyle == '3': # plot with MSA
             elif ies == '1':
                 iesmotif.append([int(beginMSA), int(endMSA),"[]", 10, 10, "black", "red", "arial|8|black|" + iesId])
             elif ies == '0':
-                iesmotif.append([int(begin), int(end), "[]", 10, 10, "silver", "silver", None]) 
+                iesmotif.append([int(begin), int(end), "[]", 10, 10, "silver", "silver", None])
             else:
                 quit(1)
         seqFace = SeqMotifFace(seq = seq, motifs = iesmotif, gap_format = "blank", seq_format = "line")
@@ -310,5 +310,4 @@ for l in t:
 # # load alignment add biopython
 # #alnF = '/home/dsellis/data/analysis/msas/filtered/cluster.10000.nucl.fa'
 
-t.show()
-"""
+t.show()"""

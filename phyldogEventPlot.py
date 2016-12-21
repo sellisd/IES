@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from __future__ import division
 from __future__ import print_function
-from ete3 import Tree, TextFace
+from ete3 import TextFace
 from pyies.functions import phyldogSpeciesTree
 import sys, getopt
 import os.path
@@ -32,9 +32,12 @@ The coding for species tree analysis is:
 3. concatenate with best codon models
 
 Example:
-~/anaconda_ete/bin/python ./phyldogEventPlot.py -n -s 0.001 -a 1 -o ~/data/IES/analysis/figures/geneConvLoss1.png &
-~/anaconda_ete/bin/python ./phyldogEventPlot.py -n -s 0.001 -a 2 -o ~/data/IES/analysis/figures/geneConvLoss2.png &
-~/anaconda_ete/bin/python ./phyldogEventPlot.py -n -s 0.001 -a 3 -o ~/data/IES/analysis/figures/geneConvLoss3.png &
+~/anaconda_ete/bin/python ./phyldogEventPlot.py -n -s 0.001 -a 1 -o ~/data/IES/analysis/figures/geneConvLossRates1.png &
+~/anaconda_ete/bin/python ./phyldogEventPlot.py -n -s 0.001 -a 2 -o ~/data/IES/analysis/figures/geneConvLossRates2.png &
+~/anaconda_ete/bin/python ./phyldogEventPlot.py -n -s 0.001 -a 3 -o ~/data/IES/analysis/figures/geneConvLossRates3.png &
+~/anaconda_ete/bin/python ./phyldogEventPlot.py -a 1 -o ~/data/IES/analysis/figures/geneConvLossEvents1.png &
+~/anaconda_ete/bin/python ./phyldogEventPlot.py -a 2 -o ~/data/IES/analysis/figures/geneConvLossEvents2.png &
+~/anaconda_ete/bin/python ./phyldogEventPlot.py -a 3 -o ~/data/IES/analysis/figures/geneConvLossEvents3.png &
 """
 
 try:

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from __future__ import print_function
-from ete3 import Tree, NodeStyle, SeqMotifFace, ImgFace, TreeStyle
-from pyies.functions import placeDupl, isDescendant, choseAnc, up2sp, choseAncList
+from ete3 import Tree, NodeStyle, SeqMotifFace, ImgFace
+from pyies.functions import placeDupl, isDescendant, choseAnc, up2sp
 from os import listdir
 import os.path
 from collections import Counter
