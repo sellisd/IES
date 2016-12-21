@@ -4,9 +4,51 @@ from ete3 import NodeStyle, TextFace, Tree
 from collections import Counter
 import numpy as np
 import re
+import os.path
 
 colorFile = '/Users/dsellis/projects/IES/src/colors.hex'
 colorFile9 = '/Users/dsellis/projects/IES/src/colors9.hex'
+
+def readScafLength(f, abr, d):
+    """ Read file with scaffold lengths into dictionary."""
+    f.readline() #header
+    for line in f:
+        line = line.rstrip()
+        (scaffold, length, gc) = line.split()
+        d[abr + '.' + scaffold] = int(length)
+
+def loadScafLengths(basePath, scafL):
+    """ Load scaffold lengths from all species."""
+    # read scaffold lenghts
+    pprs = open(os.path.join(basePath, 'analysis/filtscaf/ppr.scaf'), 'r')
+    pbis = open(os.path.join(basePath, 'analysis/filtscaf/pbi.scaf'), 'r')
+    ptes = open(os.path.join(basePath, 'analysis/filtscaf/pte.scaf'), 'r')
+    ppes = open(os.path.join(basePath, 'analysis/filtscaf/ppe.scaf'), 'r')
+    pses = open(os.path.join(basePath, 'analysis/filtscaf/pse.scaf'), 'r')
+    pocs = open(os.path.join(basePath, 'analysis/filtscaf/poc.scaf'), 'r')
+    ptrs = open(os.path.join(basePath, 'analysis/filtscaf/ptr.scaf'), 'r')
+    psos = open(os.path.join(basePath, 'analysis/filtscaf/pso.scaf'), 'r')
+    pcas = open(os.path.join(basePath, 'analysis/filtscaf/pca.scaf'), 'r')
+
+    readScafLength(pprs, "ppr", scafL)
+    readScafLength(pbis, "pbi", scafL)
+    readScafLength(ptes, "pte", scafL)
+    readScafLength(ppes, "ppe", scafL)
+    readScafLength(pses, "pse", scafL)
+    readScafLength(pocs, "poc", scafL)
+    readScafLength(ptrs, "ptr", scafL)
+    readScafLength(psos, "pso", scafL)
+    readScafLength(pcas, "pca", scafL)
+
+    pprs.close()
+    pbis.close()
+    ptes.close()
+    ppes.close()
+    pses.close()
+    pocs.close()
+    ptrs.close()
+    psos.close()
+    pcas.close()
 
 def numbered2name(string):
     """Extract species name from PHYLDOG numbered leaf."""

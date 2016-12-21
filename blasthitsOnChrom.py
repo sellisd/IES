@@ -1,14 +1,17 @@
 #!/usr/bin/python
 from __future__ import print_function
 from __future__ import division
+from pyies.functions import loadScafLengths
 import sys, getopt
+import os.path
 
 # default parameters
-blastf = "/home/dsellis/data/IES/analysis/mies/blastout/miesMac"
-usage = "./blasthitsOnChrom.py -i <blastFile>"
+basePath = '/Users/dsellis/data/IES'
+#blastf = ""
+usage = "./blasthitsOnChrom.py -b <basePath>"
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hi:")
+    opts, args = getopt.getopt(sys.argv[1:],"hb:")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -16,49 +19,13 @@ for opt, arg in opts:
     if opt == '-h':
         print(usage)
         sys.exit(1)
-    elif opt == "-i":
-        blastf = arg
+    elif opt == "-b":
+        basePath = arg
 
-# read scaffold lenghts
-pprs = open('/home/dsellis/data/IES/analysis/filtscaf/ppr.scaf', 'r')
-pbis = open('/home/dsellis/data/IES/analysis/filtscaf/pbi.scaf', 'r')
-ptes = open('/home/dsellis/data/IES/analysis/filtscaf/pte.scaf', 'r')
-ppes = open('/home/dsellis/data/IES/analysis/filtscaf/ppe.scaf', 'r')
-pses = open('/home/dsellis/data/IES/analysis/filtscaf/pse.scaf', 'r')
-pocs = open('/home/dsellis/data/IES/analysis/filtscaf/poc.scaf', 'r')
-ptrs = open('/home/dsellis/data/IES/analysis/filtscaf/ptr.scaf', 'r')
-psos = open('/home/dsellis/data/IES/analysis/filtscaf/pso.scaf', 'r')
-pcas = open('/home/dsellis/data/IES/analysis/filtscaf/pca.scaf', 'r')
-
-def readScafLength(f, abr, d):
-    f.readline() #header
-    for line in f:
-        line = line.rstrip()
-        (scaffold, length, gc) = line.split()
-        d[abr + '.' + scaffold] = int(length)
-
+blastf = os.path.join(basePath, "analysis/mies/blastout/miesMac")
 scafL = {} # scaffold lengths
 
-readScafLength(pprs, "ppr", scafL)
-readScafLength(pbis, "pbi", scafL)
-readScafLength(ptes, "pte", scafL)
-readScafLength(ppes, "ppe", scafL)
-readScafLength(pses, "pse", scafL)
-readScafLength(pocs, "poc", scafL)
-readScafLength(ptrs, "ptr", scafL)
-readScafLength(psos, "pso", scafL)
-readScafLength(pcas, "pca", scafL)
-
-pprs.close()
-pbis.close()
-ptes.close()
-ppes.close()
-pses.close()
-pocs.close()
-ptrs.close()
-psos.close()
-pcas.close()
-
+loadScafLengths(basePath, scafL)
 # read blast output
 
 f = open(blastf, 'r')

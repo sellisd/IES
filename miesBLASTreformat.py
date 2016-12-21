@@ -2,8 +2,8 @@
 from __future__ import print_function
 from collections import Counter
 
-inputfile = '/home/dsellis/data/IES/analysis/mies/blastout/mies.blastout'
-outputfile = '/home/dsellis/data/IES/analysis/mies/blastout/mies.blastout.table'
+inputfile = '/Users/dsellis/data/IES/analysis/mies/blastout/mies.blastout'
+outputfile = '/Users/dsellis/data/IES/analysis/mies/blastout/mies.blastout.table'
 
 fin = open(inputfile, 'r')
 fout = open(outputfile, 'w')
