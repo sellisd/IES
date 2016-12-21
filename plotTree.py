@@ -12,15 +12,17 @@ from pyies.functions import *
 #   gene tree with IES ancestral state probabilities and observed presence/absence
 #   gene tree with nucleotide alignment and schematic of IESs
 # parameters
+
 basePath = "/home/dsellis/data/IES/"
 geneFamily = ""
-phyldogResultsPath = "analysis/phyldogT1/results/"
 charMatFile = "analysis/iesdb/charMats.tab"
 outputFile = ""
-ancNodeProbFile = "analysis/tables/avNodeProb1.dat"
-nodeDictionaryFile = "analysis/tables/nodeDictionary1.dat"
-homiesLinkFile = "analysis/tables/homIES1.columns.link"
 plotStyle = '1'
+analysis = '2'
+phyldogResultsPath = "analysis/phyldogT" + analysis + "/results"
+ancNodeProbFile = "analysis/tables/avNodeProb" + analysis + ".dat"
+nodeDictionaryFile = "analysis/tables/nodeDictionary" + analysis + ".dat"
+homiesLinkFile = "analysis/tables/homIES" + analysis + ".columns.link"
 
 def printAndEnd(outputFile):
     """ Print or save output and end script."""
@@ -36,14 +38,10 @@ usage:
 ./plotTree.py [OPTIONS]
 
     where OPTIONS can be any of the following:
-    -b <basePath>
+    -b <basePath> Default /home/dsellis/data/IES
     -g <geneFamily>
-    -p <phyldogPath>
-    -m <charMatFile>
+    -a [1|2|3] Choice of species tree analysis to use (Default: 2)
     -o <outputFile>
-    -a <ancestralNodeProbFile>
-    -n <nodeDictionaryFile>
-    -l <homiesLinkFile>
     -s [1|2|3] plot style
     -h this help screen
 
@@ -52,10 +50,14 @@ The coding of plot style used is the following:
 2.  gene tree with IES ancestral state probabilities and observed presence/absence
 3.  gene tree with nucleotide alignment and schematic of IESs
 
+The coding for species tree is:
+1. PHYLDOG species tree
+2. concatenate with simple evolution model
+3. concatenate with best codon models
 """
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hg:p:m:o:b:a:n:l:s:")
+    opts, args = getopt.getopt(sys.argv[1:],"hg:a:o:b:s:")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -65,27 +67,29 @@ for opt, arg in opts:
         sys.exit(1)
     elif opt == "-g":
         geneFamily = arg
-    elif opt == "-p":
-        phyldogPath = arg
-    elif opt == "-m":
-        charMatFile = arg
     elif opt == "-o":
         outputFile = arg
+    elif opt == "-a":
+        if arg in ['1','2','3']:
+            analysis = arg
+        else:
+            print("Unknown value for option analysis (-a)")
+            print(usage)
+            sys.exit(1)
     elif opt == "-b":
         basePath = arg
-    elif opt == "-a":
-        ancNodeProbFile = arg
-    elif opt == "-n":
-        nodeDictionaryFile = arg
-    elif opt == "-l":
-        homiesLinkFile = arg
     elif opt == "-s":
         if arg in ['1','2','3']:
             plotStyle = arg
         else:
-            print("Unknown option for plotStyle")
+            print("Unknown value for option plotStyle (-s)")
             print(usage)
             sys.exit(1)
+
+phyldogResultsPath = "analysis/phyldogT" + analysis + "/results"
+ancNodeProbFile = "analysis/tables/avNodeProb" + analysis + ".dat"
+nodeDictionaryFile = "analysis/tables/nodeDictionary" + analysis + ".dat"
+homiesLinkFile = "analysis/tables/homIES" + analysis + ".columns.link"
 
 # create dictionaries phyldog for translation:
 rb2ph = {} # revBayes to phyldog node notation
@@ -132,30 +136,30 @@ for line in f:
     gfhomIES[cluster].add(column)
     charMat[(cluster, column, geneId)] = [begin, end, ies, iesId, beginMSA, endMSA]
 
-# load mean ancestral states
-# avNodeProb has homIES not with ids but with increment numbering
-fa = open(os.path.join(basePath, ancNodeProbFile), 'r')
-header = fa.readline()
-anc = defaultdict(dict) # defaultdictionary with key revbayes node id and value list of prob. presence
-for line in fa:
-    line = line.rstrip()
-    (cluster, node, iesColumn, presence) = line.split("\t")
-    if cluster == geneFamily:
-        anc[rb2ph[node]][iesColumn] = float(presence)
-
-# annotate tree
-for node in t.traverse():
-    for homIES, presence in anc[node.ND].items():
-        p = 100*presence
-        a = 100 - p
-        pf = PieChartFace([p, a], 10, 10, ["black", "silver"])
-        if node.is_leaf():
-            pass
-        else:
-            column = int(homIES) + 1
-            node.add_face(pf, column, "float")
-
 if plotStyle == '2':
+    # load mean ancestral states
+    # avNodeProb has homIES not with ids but with increment numbering
+    fa = open(os.path.join(basePath, ancNodeProbFile), 'r')
+    header = fa.readline()
+    anc = defaultdict(dict) # defaultdictionary with key revbayes node id and value list of prob. presence
+    for line in fa:
+        line = line.rstrip()
+        (cluster, node, iesColumn, presence) = line.split("\t")
+        if cluster == geneFamily:
+            anc[rb2ph[node]][iesColumn] = float(presence)
+
+    # annotate tree
+    for node in t.traverse():
+        for homIES, presence in anc[node.ND].items():
+            p = 100*presence
+            a = 100 - p
+            pf = PieChartFace([p, a], 10, 10, ["black", "silver"])
+            if node.is_leaf():
+                pass
+            else:
+                column = int(homIES) + 1
+                node.add_face(pf, column, "float")
+
     for leaf in t:
         geneId = leaf.name
         for homIES in gfhomIES[geneFamily]:
