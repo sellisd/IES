@@ -26,8 +26,8 @@ blastf = os.path.join(basePath, "analysis/mies/blastout/miesMac")
 scafL = {} # scaffold lengths
 
 loadScafLengths(basePath, scafL)
-# read blast output
 
+# read blast output
 f = open(blastf, 'r')
 nrow = 1
 for line in f:

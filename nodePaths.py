@@ -2,7 +2,9 @@
 from __future__ import print_function
 from ete3 import Tree
 import sys
+import os.path
 
+basePath = '/Users/dsellis/data/IES'
 asrRun = ''
 usage = "./flankFasta.py <asrRun>"
 if (len(sys.argv) != 2):
@@ -56,12 +58,12 @@ def subpaths(pairS, L):
 
 #pairs of speciation nodes
 
-spNodePairsF = '/home/dsellis/data/IES/analysis/tables/spNodePairs' + asrRun + '.dat'
+spNodePairsF = os.path.join(basePath, 'analysis/tables/spNodePairs' + asrRun + '.dat')
 pairS = [i.rstrip().split(" ") for i in open(spNodePairsF, 'r')]
 #pairS = ((0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(2,3),(2,4),(2,5),(2,6),(4,5),(4,6))
-phyldogPath = '/home/dsellis/data/IES/analysis/phyldogT' + asrRun + '/results/'
+phyldogPath = os.path.join(basePath, 'analysis/phyldogT' + asrRun + '/results/')
 
-inputF = open('/home/dsellis/data/IES/analysis/asr' + asrRun + '/geneFamilies.dat', 'r')
+inputF = open(os.path.join(basePath, 'analysis/asr' + asrRun + '/geneFamilies.dat'), 'r')
 clusters = inputF.readlines()
 clusters = [i.rstrip() for i in clusters]
 print('cluster\tfrom\tto\tpath')
