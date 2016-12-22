@@ -25,6 +25,44 @@ my $basedir = '/home/dsellis/data/IES/analysis/'; # on the cluster
 my $cmdl = 'Rscript --vanilla preRev.R > '.$logP.'preRev.log';
 run($cmdl, 1);
 
+# test for low starting probability files
+
+#./testRb.pl asr1 > testRb1.sh
+#./testRb.pl asr2 > testRb2.sh
+#./testRb.pl asr3 > testRb3.sh
+#chmod 744 testRb?.sh
+#./testRb1.sh
+#./testRb2.sh
+#./testRb3.sh
+
+#3285   1  2  3
+#5456   0  2  3
+#5663   0  0  3
+#10007  1  2  3
+#11561  1  2  3
+
+# manually remove low starting probability files from genefamilies
+
+my %filtFam = (3285  => 1,
+               5456  => 1,
+               5663  => 1,
+               10007 => 1,
+               11561 => 1);
+for(my $asrRun = 1; $asrRun<=3; $asrRun++){
+    my $gfFile = catfile($basedir,'asr'.$asrRun.'/geneFamilies.dat') 
+    open GF, $gfFile or die "$gfFile: $!"
+    while (my $line = <GF>){
+        chomp $line;
+        unless($filtFam{$line}){
+            push @keep, $line;
+        }
+    }
+    close GF;
+    open GF, '>', $gfFile or die "$gfFile: $!";
+    print GF join("\n", @keep);
+    close GF;
+}
+
 for(my $asrRun = 1; $asrRun<=3; $asrRun++){
     my $rbResultsP = catfile('/home/dsellis/data/IES/analysis/asr'.$asrRun.'/');
     # directories with rb output
@@ -38,26 +76,8 @@ for(my $asrRun = 1; $asrRun<=3; $asrRun++){
     make_path($rbNodeIndexesP) unless -e $rbNodeIndexesP;
     make_path($rbRun1) unless -e $rbRun1;
     make_path($rbRun2) unless -e $rbRun2;
-
     setOutAsr($asrRevF, $rbRun1Rev, $basedir.'asr'.$asrRun.'/', $basedir.'asr'.$asrRun.'/run1/', $basedir.'asr'.$asrRun.'/geneFamilies.dat', 1); # first time through print node index
     setOutAsr($asrRevF, $rbRun2Rev, $basedir.'asr'.$asrRun.'/', $basedir.'asr'.$asrRun.'/run2/', $basedir.'asr'.$asrRun.'/geneFamilies.dat', 0);
-
-
-# test for low starting probability files
-
-#./testRb.pl asr1 > testRb1.sh &
-#./testRb.pl asr2 > testRb2.sh &
-#./testRb.pl asr3 > testRb3.sh
-#chmod 744 testRb?.sh
-#./testRb1.sh
-#./testRb2.sh
-#./testRb3.sh
-
-#3285   1  2  3
-#5456   0  2  3
-#5663   0  0  3
-#10007  1  2  3
-#11561  1  2  3
 
     run("$rbP $rbRun1Rev".' >'.$logP.'asr'.$asrRun.'run1.log'.' &', 0); #run both at the same time
     run("$rbP $rbRun2Rev".' >'.$logP.'asr'.$asrRun.'run2.log', 0);
