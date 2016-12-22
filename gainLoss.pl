@@ -1,26 +1,27 @@
 #!/usr/bin/perl
+use File::Spec::Functions qw(catfile);
 use warnings;
 use strict;
 
 my $asrRun = $ARGV[0];
 
+my $basePath = '/Users/dsellis/data/IES';
 # make a hash to translate phyldog to rb node notation
-open DICT,'/home/dsellis/data/IES/analysis/tables/nodeDictionary'.$asrRun.'.dat' or die $!;
+open DICT,catfile($basePath, 'analysis/tables/nodeDictionary'.$asrRun.'.dat') or die $!;
 my %phyldog2rb;
-my %geneFamilies; # gene families in dictionary
+my %geneFamilies; # gene families for which we reconstructed ancestral states
 
 readline(DICT); #header
 while(my $line = <DICT>){
     chomp $line;
     (my $cluster, my $r, my $phyldog, my $rb) = split " ", $line;
     $phyldog2rb{$cluster.'.'.$phyldog} = $rb;
-    $geneFamilies{$cluster} = 1;
 }
 close DICT;
 
 # make a hash to translate from rbnode id to presence probability per ies column
 my %asr;
-open ASR, '/home/dsellis/data/IES/analysis/tables/avNodeProb'.$asrRun.'.dat' or die $!;
+open ASR, catfile($basePath, 'analysis/tables/avNodeProb'.$asrRun.'.dat') or die $!;
 while(my $line = <ASR>){
     chomp $line;
     (my $cluster, my $rb, my $iesColumn, my $presence) = split " ", $line;
@@ -29,9 +30,10 @@ while(my $line = <ASR>){
     }else{
 	$asr{$cluster.'.'.$rb} = {$iesColumn => $presence};
     }
+    $geneFamilies{$cluster} = 1;
 }
 
-open NP, '/home/dsellis/data/IES/analysis/tables/nodePaths'.$asrRun.'.dat' or die $!;
+open NP, catfile($basePath, 'analysis/tables/nodePaths'.$asrRun.'.dat') or die $!;
 
 my $lineCounter = 0;
 print join("\t",(qw/cluster iesColumn from to Panc gain loss/)), "\n";
@@ -41,9 +43,15 @@ while(my $line = <NP>){
 	chomp $line;
 	(my $cluster, my $from, my $to, my $path) = split " ", $line;
 	unless($geneFamilies{$cluster}){ # if we have no data for a gene family skip it
-	    #print "skipping $cluster\n";
+	    print "skipping $cluster\n";
 	    next;
 	}
+	my %filtFam = (3285  => 1,
+               5456  => 1,
+               5663  => 1,
+               10007 => 1,
+               11561 => 1);
+	next if defined($filtFam{$cluster});
 	my @pathP = split ",", $path;
 	my @pathRB;
 	foreach my $nodeP (@pathP){
