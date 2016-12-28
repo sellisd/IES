@@ -4,9 +4,9 @@ from ete3 import Tree
 import sys
 import os.path
 
-basePath = '/Users/dsellis/data/IES'
+basePath = '/home/dsellis/data/IES'
 asrRun = ''
-usage = "./flankFasta.py <asrRun>"
+usage = "./nodePaths.py <asrRun>"
 if (len(sys.argv) != 2):
     print(usage)
     sys.exit(2)
