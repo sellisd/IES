@@ -11,6 +11,31 @@ import matplotlib.cm
 colorFile = '/Users/dsellis/projects/IES/src/colors.hex'
 colorFile9 = '/Users/dsellis/projects/IES/src/colors9.hex'
 
+def speciesAbr2bn(abr, opt = "full", sep = "_"):
+    """ Species abbreviation to binomial."""
+    # opt can be full|dot
+    binomial = ""
+    d = {
+        'ppr':('Paramecium', 'primaurelia'),
+        'pbi':('Paramecium', 'biaurelia'),
+        'pte':('Paramecium', 'tetraurelia'),
+        'ppe':('Paramecium', 'pentaureia'),
+        'pse':('Paramecium', 'sexaurelia'),
+        'poc':('Paramecium', 'octaurelia'),
+        'ptr':('Paramecium', 'tredecaurelia'),
+        'pso':('Paramecium', 'sonneborni'),
+        'pca':('Paramecium', 'caudatum'),
+        'tth':('Tetrahymena', 'thermophila')
+    }
+    (genus, specificEpithet) = d[abr]
+    if opt == "full":
+        binomial = genus + sep + specificEpithet
+    elif opt == "dot":
+        binomial = genus[0] + "." + sep + specificEpithet
+    else:
+        sys.exit(1)
+    return binomial
+
 def scaleCol(L):
     """ Create color scale from list."""
     m = matplotlib.cm.ScalarMappable(cmap = "coolwarm")
