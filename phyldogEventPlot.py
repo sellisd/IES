@@ -2,7 +2,7 @@
 from __future__ import division
 from __future__ import print_function
 from ete3 import TextFace, NodeStyle
-from pyies.functions import phyldogSpeciesTree
+from pyies.functions import phyldogSpeciesTree, scaleCol
 import sys, getopt
 import os.path
 #/phyldogEventSum.py pathToPhyldog/results/*_Events.txt > ~/data/IES/analysis/phyldogT1/geneDuplLossT2.dat

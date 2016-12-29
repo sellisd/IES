@@ -2,9 +2,9 @@
 from __future__ import print_function
 from __future__ import division
 from collections import Counter, defaultdict
-from pyies.functions import phyldogSpeciesTree
+from pyies.functions import phyldogSpeciesTree, scaleCol
 import sys, getopt
-from ete3 import TextFace, TreeStyle
+from ete3 import TextFace, TreeStyle, NodeStyle
 from decimal import *
 
 # Normalize loss rate by  total length of conserved blocks of alignments and both insertion and loss rate by branch lengths.
@@ -15,13 +15,12 @@ gbFile = "/home/dsellis/data/IES/analysis/tables/gblocks.dat" # Gblocks file
 brlenFile = "/home/dsellis/data/IES/analysis/sgf/topoConstrSimple.treefile"
 phyldogTreeFile = "/home/dsellis/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree"
 outgroupName = "Tetrahymena_thermophila"
-outputFileFig = ""
-outputFileNewick = ""
+outputFileBaseName = ""
 
-usage = "./gainLossSum.py -g <gainLossFile> -b <gblocksFile> -l <treeFile> -p <PHYLDOGoutputFile> -n <outgroupName> -o <outputFileFig> -w <outputFileNewick>"
+usage = "./gainLossSum.py -g <gainLossFile> -b <gblocksFile> -l <treeFile> -p <PHYLDOGoutputFile> -n <outgroupName> -o <outputFileBaseName>"
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hg:b:l:p:n:o:w:")
+    opts, args = getopt.getopt(sys.argv[1:],"hg:b:l:p:n:o:")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -40,9 +39,7 @@ for opt, arg in opts:
     elif opt == '-n':
         outgroupName = arg
     elif opt == '-o':
-        outputFileFig = arg
-    elif opt == '-w':
-        outputFileNewick = arg
+        outputFileBaseName = arg
 
 # load gblock sizes and sum for each gene family
 print("sum gblock sizes")
@@ -104,16 +101,46 @@ for k in ploss:
 
 ts = TreeStyle()
 
+# calculate branch colors
+gainL = [] # list with all rates of gain
+lossL = [] # list with all rates of loss
+
+for node in t.iter_descendants():
+    gainL.append(node.gain)
+    lossL.append(node.loss)
+
+bcrg = scaleCol(gainL)  # Branch Colors for Rates of Gain
+bcrl = scaleCol(lossL)  # Branch Colors for Rates of Loss
+
+# make a "gain" and a "loss" copy of the tree
+tg = t.copy()
+tl = t.copy()
+
 #print(t.get_ascii(show_internal = True, attributes = ["PHYLDOGid", "name", "loss"]))
 #print(t.get_ascii(show_internal = True, attributes = ["PHYLDOGid", "name", "gain"]))
 
-for node in t.iter_descendants(): # do not include root
+for node in tg.iter_descendants(): # do not include root
+    style = NodeStyle()
     gainString = "+%d" % (node.gain)
-    lossString = "-%.2f" % (10000*node.loss)
-    node.add_face(TextFace(node.PHYLDOGid), column = 0, position = "float")
+    style["vt_line_color"] = bcrg[node.gain]
+    style["hz_line_color"] = bcrg[node.gain]
+    style["size"] = 0
     node.add_face(TextFace(gainString), column = 0, position = "branch-top")
-    node.add_face(TextFace(lossString), column = 0, position = "branch-bottom")
+    node.set_style(style)
 
-t.write(features = ["PHYLDOGid", "name", "loss"], outfile = outputFileNewick)
-t.render(outputFileFig, tree_style = ts)
+for node in tl.iter_descendants():
+    style = NodeStyle()
+    lossString = "-%.2f" % (10000*node.loss)
+    style["vt_line_color"] = bcrl[node.loss]
+    style["hz_line_color"] = bcrl[node.loss]
+    style["size"] = 0
+#    node.add_face(TextFace(node.PHYLDOGid), column = 0, position = "float")
+    node.add_face(TextFace(lossString), column = 0, position = "branch-bottom")
+    node.set_style(style)
+
+tg.write(features = ["PHYLDOGid", "name", "gain"], outfile = outputFileBaseName + ".gain.tre")
+tg.render(outputFileBaseName + ".gain.png", tree_style = ts)
+
+tl.write(features = ["PHYLDOGid", "name", "loss"], outfile = outputFileBaseName + ".loss.tre")
+tl.render(outputFileBaseName + ".loss.png", tree_style = ts)
 #t.show()
