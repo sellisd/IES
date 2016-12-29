@@ -5,18 +5,7 @@ from ete3 import TextFace, NodeStyle
 from pyies.functions import phyldogSpeciesTree
 import sys, getopt
 import os.path
-import matplotlib
-import matplotlib.cm
 #/phyldogEventSum.py pathToPhyldog/results/*_Events.txt > ~/data/IES/analysis/phyldogT1/geneDuplLossT2.dat
-
-def scaleCol(L):
-    """ Create color scale from list."""
-    m = matplotlib.cm.ScalarMappable(cmap = "coolwarm")
-    R = {}
-    for (i, rgba) in enumerate(m.to_rgba(L)):
-        rgb = rgba[:3]
-        R[L[i]] = matplotlib.colors.rgb2hex(rgb)
-    return(R)
 
 analysis = '2'
 basePath = "/Users/dsellis/data/IES/"

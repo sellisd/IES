@@ -5,9 +5,20 @@ from collections import Counter
 import numpy as np
 import re
 import os.path
+import matplotlib
+import matplotlib.cm
 
 colorFile = '/Users/dsellis/projects/IES/src/colors.hex'
 colorFile9 = '/Users/dsellis/projects/IES/src/colors9.hex'
+
+def scaleCol(L):
+    """ Create color scale from list."""
+    m = matplotlib.cm.ScalarMappable(cmap = "coolwarm")
+    R = {}
+    for (i, rgba) in enumerate(m.to_rgba(L)):
+        rgb = rgba[:3]
+        R[L[i]] = matplotlib.colors.rgb2hex(rgb)
+    return(R)
 
 def readScafLength(f, abr, d):
     """ Read file with scaffold lengths into dictionary."""
