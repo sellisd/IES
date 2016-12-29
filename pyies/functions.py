@@ -19,7 +19,7 @@ def speciesAbr2bn(abr, opt = "full", sep = "_"):
         'ppr':('Paramecium', 'primaurelia'),
         'pbi':('Paramecium', 'biaurelia'),
         'pte':('Paramecium', 'tetraurelia'),
-        'ppe':('Paramecium', 'pentaureia'),
+        'ppe':('Paramecium', 'pentaurelia'),
         'pse':('Paramecium', 'sexaurelia'),
         'poc':('Paramecium', 'octaurelia'),
         'ptr':('Paramecium', 'tredecaurelia'),
