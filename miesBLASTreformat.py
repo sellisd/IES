@@ -13,7 +13,7 @@ clusterSet = set()
 for line in fin:
 	line = line.rstrip()
 	(qseqid, sseqid, pident, length, mismatch, gapopen, qstart, qend, sstart, send, evalue, bitscore) = line.split()
-	cluster = qseqid[4:]
+	cluster = qseqid
 	species = sseqid[0:3]
 	hist[(cluster, species)] += 1
 	clusterSet.add(cluster)
