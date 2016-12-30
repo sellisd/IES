@@ -3,7 +3,7 @@ from __future__ import print_function
 from pyies.functions import speciesAbr2bn
 import os.path
 from collections import Counter
-from ete3 import Tree, TextFace, NodeStyle
+from ete3 import Tree, TextFace
 import sys, getopt
 
 #plot tree with mobile IESs on tips
