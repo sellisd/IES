@@ -4,19 +4,48 @@ from pyies.functions import speciesAbr2bn
 import os.path
 from collections import Counter
 from ete3 import Tree, TextFace, NodeStyle
+import sys, getopt
 
-basePath = "/Users/dsellis/data/IES/"
 #plot tree with mobile IESs on tips
-
-miesDistrF = "analysis/mies/miesDistr.tab"
-treeF = "analysis/phyldogT2/concatSimple.r.tre"
+miesDistrF = "/Users/dsellis/data/IES/analysis/mies/miesDistr.tab"
+treeF = "/Users/dsellis/data/IES/analysis/phyldogT2/concatSimple.r.tre"
 outgroupName = "Tetrahymena_thermophila"
-family = "3214"
+outputFile = ""
 
-t = Tree(os.path.join(basePath, treeF))
+usage = """
+Draws a tree next to a table of presence absence data for mobile IES families
+Usage:
+
+  ./plotMies.py [OPTIONS]
+
+where OPTIONS can be any of the following:
+ -t:    tree file
+ -m:    mobile IES presence file
+ -o:    outputFile
+ -h:    this help screen
+"""
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"ht:m:o:h",)
+except getopt.GetoptError:
+    print(usage)
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print(usage)
+        sys.exit()
+    elif opt == "-m":
+        miesDistrF = arg
+    elif opt == "-t":
+        treeF = arg
+    elif opt == "-o":
+        outputFile = arg
+
+
+t = Tree(treeF)
 t.set_outgroup(t&outgroupName)
 
-f = open(os.path.join(basePath, miesDistrF), 'r')
+f = open(miesDistrF, 'r')
 f.readline()
 mies = {}
 miesTotal = Counter()
@@ -24,12 +53,24 @@ for line in f:
 	line.rstrip()
 	(miesFamily, abr, numberOfMembers) = line.split("\t")
 	bn = speciesAbr2bn(abr, "full", "_")
-	mies[(bn, miesFamily)] = numberOfMembers
+	mies[(bn, miesFamily)] = int(numberOfMembers)
 	miesTotal[miesFamily] += int(numberOfMembers)
 
 for (column, family) in enumerate(sorted(miesTotal, key = miesTotal.get,reverse = True)):
 	for leaf in t:
 		if (leaf.name, family) in mies:
-			leaf.add_face(TextFace(mies[(leaf.name, family)]), column = column, position = "aligned")
+			members = mies[(leaf.name, family)]
+			if members > 0:
+				bgcol = "red"
+			else:
+				bgcol = "white"
+			ts = TextFace(members)
+			ts.background.color = bgcol
+			leaf.add_face(ts, column = column, position = "aligned")
 
-t.show()
+print(outputFile)
+if outputFile:
+    t.render(outputFile)
+else:
+    t.show()
+sys.exit(0)
