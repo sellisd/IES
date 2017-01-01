@@ -20,6 +20,15 @@ prefixes = c( 'PPRIM.AZ9-3.1.' = 'Paramecium primaurelia',
               'PSON.ATCC_30995.1.'     = 'Paramecium sonneborni',
               'PCAU.43c3d.1.'  = 'Paramecium caudatum')
 
+loadUserOptions <- function(){
+  # load user options from python options file
+  # example usage:
+  # opt <- loadUserOptions()
+  # opt["basePath",]
+  setwd("~/projects/IES/src")
+  opt <- read.table("./pyies/userOptions.py", stringsAsFactors = FALSE, sep = "=", strip.white = TRUE, header = FALSE, row.names = 1)
+}
+
 withinRange <- function(q, r){
   # if a be range is partially within another be range
   if((q[1]>=r[1]) & (q[1]<r[2])      # if query beginning is within range
