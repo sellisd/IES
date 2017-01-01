@@ -67,6 +67,11 @@ my $dbg = "
 
 ./gainLossSum.py -g ~/data/IES/analysis/tables/gainLoss3.dat -b ~/data/IES/analysis/tables/gblocks.dat -l ~/data/IES/analysis/sgf/concat.nexus.treefile -p ~/data/IES/analysis/phyldogT3/results/OutputSpeciesTree_ConsensusNumbered.tree -o ~/data/IES/analysis/figures/spTree3 -n Tetrahymena_thermophila
 
+./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss1.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/topoConstrSimple.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree1 -n Tetrahymena_thermophila
+~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss2.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concatSimple.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT2/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree2 -n Tetrahymena_thermophila
+~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss3.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concat.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT3/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree3 -n Tetrahymena_thermophila
+
+/Volumes/WDC/
 ";
 # summarize and prepare plots at the end of the analysis
 

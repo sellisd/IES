@@ -5,10 +5,22 @@ BEGIN{
     require Exporter;
     our $VERSION = 1.01;
     our @ISA = qw(Exporter);
-    our @EXPORT = qw(run getNotation isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot X2Y initF success removeTermCodon);
+    our @EXPORT = qw(loadUserOptions run getNotation isFloating prot2gene printab buildPaths abr2prefix whichInOne gene2species gene2prot X2Y initF success removeTermCodon);
     our @EXPORT_OK = qw();
 }
 
+sub loadUserOptions{
+    # load user options from pyies
+    open OF, './pyies/userOptions.py', or die $!;
+    my %opt;
+    while (my $line = <OF>){
+        chomp $line;
+        $line =~ /^(.*?)\s*=\s*"?(.*?)"?$/;
+        $opt{$1} = $2;
+    }
+    close OF;
+    return \%opt;
+}
 sub run{
     my $cmdl = shift @_;
     my $dryRun = shift @_;

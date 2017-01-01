@@ -7,6 +7,7 @@ import re
 import os.path
 import matplotlib
 import matplotlib.cm
+from userOptions import basePath
 
 colorFile = '/Users/dsellis/projects/IES/src/colors.hex'
 colorFile9 = '/Users/dsellis/projects/IES/src/colors9.hex'
