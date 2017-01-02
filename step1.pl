@@ -194,12 +194,3 @@ foreach my $sp (keys %$nr){
     my $cmdl = 'Rscript --vanilla ./iesInGenes.R '.$iesinF.' '.$cdsdbF.' '.$iesInGenesF;
     run($cmdl, 1);
 }
-exit(0);
-#./maleTables.pl 
-# make genebank files and incorporate ies information
-
-for my $sp (keys %$nr){
-    my %pab = %{$nr->{$sp}};
-    my $cmdl = './makeGeneBank.pl -species '.$pab{'abr'};
-    run($cmdl, 1);
-}

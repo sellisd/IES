@@ -3,7 +3,8 @@
 #then print per gene
 # read exon bed files and print corresponding intron bed files
 # Output gene start end IES with zero based indexing (although not a bed file!)
-source("~/projects/IES/src/sharedFunctions.R")
+setwd('.')
+source("sharedFunctions.R")
 args<-commandArgs(TRUE);
 inFile <- args[1]
 cdsdbF <- args[2]

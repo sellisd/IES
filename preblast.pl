@@ -5,9 +5,7 @@ use Bio::SeqIO;
 use File::Spec::Functions qw(catfile);
 my $file = $ARGV[0];
 my $fastaOutPath = $ARGV[1];
-#my $home = '/home/dsellis/';
-#my $file = $home.'data/IES_data/working/combined.fa'; #fasta file
-#my $fastaOutPath = $home.'data/IES_data/working/fasta/';
+
 mkdir $fastaOutPath unless -d $fastaOutPath;
 #prepare fasta files for running blast on cluster
 my $seqF = Bio::SeqIO->new('-file'=>$file,

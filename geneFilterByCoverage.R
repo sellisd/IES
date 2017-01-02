@@ -1,6 +1,10 @@
 # filter genes with low coverage
 # and make a report with the distributions of coverage over genes
-source("~/projects/IES/src/sharedFunctions.R")
+setwd('.')
+source("sharedFunctions.R")
+opt <- loadUserOptions()
+basePath <- opt["basePath", ]
+tablesP   <- file.path(basePath, 'analysis', 'tables')
 
 plotCovHist <- function(abr, ...){
   # load average per nucleotide read coverage over genes
@@ -16,7 +20,7 @@ plotCovHist <- function(abr, ...){
 
 #plot
 
-pdf(file="~/data/IES/analysis/figures/coverageOverGenes.pdf")
+pdf(file = file.path(basePath, "analysis", "figures", "coverageOverGenes.pdf"))
 par(las = 1, bty = "l")
 par(mfrow = c(2,2))
 gppr <- plotCovHist("ppr", main = expression(italic("P. primaurelia")),   xlim = c(0, 3))
@@ -30,13 +34,13 @@ gpso <- plotCovHist("pso", main = expression(italic("P. sonneborni")),    xlim =
 gpca <- plotCovHist("pca", main = expression(italic("P. caudatum")),      xlim = c(0, 3))
 plot.new()
 legend("center", c("< 15 reads", "10th and 90th percentile"), col = c(dred, dblue), lty = 1, bty = "n")
-write.table(gppr, file = "~/data/IES/analysis/tables/gppr.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
-write.table(gpbi, file = "~/data/IES/analysis/tables/gpbi.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
-write.table(gpte, file = "~/data/IES/analysis/tables/gpte.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
-write.table(gppe, file = "~/data/IES/analysis/tables/gppe.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
-write.table(gpse, file = "~/data/IES/analysis/tables/gpse.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
-write.table(gpoc, file = "~/data/IES/analysis/tables/gpoc.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
-write.table(gptr, file = "~/data/IES/analysis/tables/gptr.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
-write.table(gpso, file = "~/data/IES/analysis/tables/gpso.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
-write.table(gpca, file = "~/data/IES/analysis/tables/gpca.filt", row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
+write.table(gppr, file = file.path(tablesP, "analysis", "tables", "gppr.filt"), row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
+write.table(gpbi, file = file.path(tablesP, "analysis", "tables", "gpbi.filt"), row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
+write.table(gpte, file = file.path(tablesP, "analysis", "tables", "gpte.filt"), row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
+write.table(gppe, file = file.path(tablesP, "analysis", "tables", "gppe.filt"), row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
+write.table(gpse, file = file.path(tablesP, "analysis", "tables", "gpse.filt"), row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
+write.table(gpoc, file = file.path(tablesP, "analysis", "tables", "gpoc.filt"), row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
+write.table(gptr, file = file.path(tablesP, "analysis", "tables", "gptr.filt"), row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
+write.table(gpso, file = file.path(tablesP, "analysis", "tables", "gpso.filt"), row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
+write.table(gpca, file = file.path(tablesP, "analysis", "tables", "gpca.filt"), row.names = FALSE, col.names = FALSE, sep = "\t", quote = FALSE) 
 dev.off()

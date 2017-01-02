@@ -1,5 +1,6 @@
 # read exon bed files and print corresponding intron bed files
-source("~/projects/IES/src/sharedFunctions.R")
+setwd('.')
+source("sharedFunctions.R")
 args<-commandArgs(TRUE);
 inFile <- args[1]
 outFile <- args[2]
