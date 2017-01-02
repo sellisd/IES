@@ -11,6 +11,10 @@ BEGIN{
 
 sub loadUserOptions{
     # load user options from pyies
+    # example usage:
+    # use functions;
+    # my $opt =  loadUserOptions;
+    # print $$opt{'basePath'};
     open OF, './pyies/userOptions.py', or die $!;
     my %opt;
     while (my $line = <OF>){
@@ -42,30 +46,31 @@ sub run{
 
 sub getNotation{
     my $notationF = shift @_; # file with standard notation
+    my $opt = loadUserOptions();
     open N, $notationF or die $!;
     my $header = readline(N);
     my %notation;
     while(my $line = <N>){
-	chomp $line;
-	(my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix, my $micbam, my $micbamalt) = split "\t", $line;
-	$notation{$binomial} = {
-	    'annotation' => $annotation,
-	    'prefix'     => $prefix,
-	    'abr'        => $abbreviation,
-	    'datapath'   => $datapath,
-	    'taxId'      => $taxId,
-	    'geneGff'    => $geneGff,
-	    'cdsF'       => $cdsF,
-	    'protF'      => $protF,
-	    'geneF'      => $geneF,
-	    'MacF'       => $MacF,
-	    'iesGff'     => $iesGff,
-	    'micbam'     => $micbam,
-	    'micbamalt'  => $micbamalt
-	};
-    }
-    close N;
-    return \%notation;
+       chomp $line;
+       (my $abbreviation, my $datapath, my $binomial, my $taxId, my $geneGff, my $cdsF, my $protF, my $geneF, my $MacF, my $iesGff, my $annotation, my $prefix, my $micbam, my $micbamalt) = split "\t", $line;
+       $notation{$binomial} = {
+           'annotation' => $annotation,
+           'prefix'     => $prefix,
+           'abr'        => $abbreviation,
+           'datapath'   => catfile($$opt{'basePath'}, $datapath),
+           'taxId'      => $taxId,
+           'geneGff'    => $geneGff,
+           'cdsF'       => $cdsF,
+           'protF'      => $protF,
+           'geneF'      => $geneF,
+           'MacF'       => $MacF,
+           'iesGff'     => $iesGff,
+           'micbam'     => $micbam,
+           'micbamalt'  => $micbamalt
+       };
+   }
+   close N;
+   return \%notation;
 }
 
 sub success{
@@ -95,7 +100,8 @@ sub success{
 }
 
 sub initF{
-    my $notationF =  '/home/dsellis/data/IES/analysis/notation.csv';
+    my $opt = loadUserOptions();
+    my $notationF =  catfile($$opt{'basePath'},'analysis/notation.csv');
     open N, $notationF or die $!;
     my $header = readline(N);
     my %prefixes;
@@ -268,29 +274,6 @@ sub X2Y{
 
 sub printab{
     print(join("\t", @_),"\n");
-}
-
-sub buildPaths{
-    # return standard file names and paths
-    my $binomial = shift @_;
-    my $pabAnot = shift @_;
-    $binomial =~ /^([A-Z])[a-z]+\s+([a-z]+)$/ or die $binomial;
-    my $g = lc($1);
-    my $spEpithet = $2;
-    my $pab = $g.substr($spEpithet, 0, 2);
-    my $scaffoldF = 'data/IES/analysis/'.$pab.'.scaf';
-    my $proteinF  = 'data/IES/'.$spEpithet.'/gene/'.$pabAnot.'.protein.fa';
-    my $geneF     = 'data/IES/'.$spEpithet.'/gene/'.$pabAnot.'.gene.fa';
-    my $anotF     = 'data/IES/'.$spEpithet.'/gene/'.$pabAnot.'.gff3';
-    my $iesF      = 'data/IES/'.$spEpithet.'/IES/'.$g.$spEpithet.'_internal_eliminated_sequence.gff3';
-    return {
-	'scaffoldF' => $scaffoldF,
-	'proteinF'  => $proteinF,
-	'geneF'     => $geneF,
-	'anotF'     => $anotF,
-	'iesF'      => $iesF,
-	'pab'       => $pab
-    }
 }
 
 sub abr2prefix{
