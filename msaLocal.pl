@@ -1,30 +1,28 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use File::Spec::Functions qw(catfile);
+use lib'.';
+use functions;
+use File::Spec::Functions qw(catdir catfile);
 use Parallel::ForkManager;
 use File::Path qw(make_path);
 use Time::HiRes qw(gettimeofday tv_interval);
 
 # use mafft --auto for performing locally all the alignments
-my $pm = Parallel::ForkManager->new(1);
+my $opt = loadUserOptions;
+my $basePath = $$opt{'basePath'};
 
-my $fastaPath = '/home/dsellis/data/IES/analysis/msas/fasta/';
-my $outPath = '/home/dsellis/data/IES/analysis/msas/aln/';
-my $logPath = '/home/dsellis/data/IES/analysis/msas/log/';
+my $fastaPath = catdir($basePath, 'analysis', 'msas', 'fasta');
+my $outPath   = catdir($basePath, 'analysis', 'msas', 'aln');
+my $logPath   = catdir($basePath, 'analysis', 'msas', 'log');
 
 make_path($outPath) unless -d $outPath;
 make_path($logPath) unless -d $logPath;
 opendir DH, $fastaPath or die "$! $fastaPath";
 my @files = grep {/^cluster\.\d+\.fa$/} readdir(DH);
 
-# my @randomSample;
-# for(my $i = 0; $i <= 150; $i++){
-#     push @randomSample, $files[rand @files];
-# }
 my $totalTime = 0;
 foreach my $file (@files){
-#    my $pid = $pm->start and next;
     my $outFile = $file;
     my $logFile = $file;
     $outFile =~ s/^(cluster\.\d+)\.fa$/$1.aln.fa/ or die $!;
@@ -41,8 +39,6 @@ foreach my $file (@files){
     my $elapsed = tv_interval($now);
     print $elapsed, "\n";
     $totalTime += $elapsed;
-
- #   $pm->finish;
 }
 close DH;
 
