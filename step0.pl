@@ -7,16 +7,17 @@ use functions;
 use warnings;
 use strict;
 
-my $homeD = File::HomeDir->my_home;
-my $notationF =  catfile($homeD, 'data/IES/analysis/notation.csv');
-
-# binaries
-my $bedtools = '/usr/local/bin/bedtools';
+# load options
+my $opt = loadUserOptions;
+my $basePath = $$opt{'basePath'};
+my $notationF =  catfile($basePath, 'analysis/notation.csv');
+#   binaries
+my $bedtools = $$opt{'bedtools'}; #'/usr/local/bin/bedtools';
 
 # output directories
-my $coverageD = catfile($homeD, 'data/IES/analysis/coverage');
-my $bedD      = catfile($homeD, 'data/IES/analysis/bed');
-my $figuresD  = catfile($homeD, 'data/IES/analysis/figures/');
+my $coverageD = catfile($basePath, 'analysis/coverage');
+my $bedD      = catfile($basePath, 'analysis/bed');
+my $figuresD  = catfile($basePath, 'analysis/figures/');
 
 make_path($coverageD) unless -d $coverageD;
 my $nr = getNotation($notationF);
@@ -36,8 +37,6 @@ foreach my $sp (sort keys %$nr){
   # calculate average per nucleotide read coverage over genes
   run("./geneCov.pl -cov $coverageF -bed $geneBedF -out $geneCovF -avcov $avcovF", 0);
 }
-
-
 
 make_path($figuresD) unless -d $figuresD;
 run("Rscript --vanilla ./geneFilterByCoverage.R", 0);

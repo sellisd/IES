@@ -2,6 +2,7 @@
 use warnings;
 use strict;
 use Bio::SeqIO;
+use File::Spec::Functions qw(catfile);
 my $file = $ARGV[0];
 my $fastaOutPath = $ARGV[1];
 #my $home = '/home/dsellis/';
@@ -23,7 +24,7 @@ print "splitting fasta file in chunks of $batch sequences\n";
 while(my $seqO = $seqF->next_seq){
     print "   $counter\r";
     if ($counter % $batch == 0){
-	$fastaOutFile = $fastaOutPath.'chunk.'.$fileCounter.'.fa';
+	$fastaOutFile = catfile($fastaOutPath,'chunk.'.$fileCounter.'.fa');
 	$seqOut = Bio::SeqIO->new('-file'=>'>'.$fastaOutFile,
 				  '-format'=>'fasta');
 	$fileCounter++;

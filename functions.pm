@@ -1,6 +1,8 @@
 package functions;
 use strict;
 use warnings;
+use File::Spec::Functions qw(catfile);
+
 BEGIN{
     require Exporter;
     our $VERSION = 1.01;
