@@ -3,12 +3,16 @@ use warnings;
 use strict;
 use lib'.';
 use functions;
+use File::Spec::Functions qw(catfile catdir);
 
 # combine information to create the gene family table
-my $silixOutF = '/home/dsellis/data/IES/analysis/allvsall/blastout/silix.output';
-my $protAlignStatsF = '/home/dsellis/data/IES/analysis/msas/protAlignStats.dat';
 
-my $outF = '/home/dsellis/data/IES/analysis/iesdb/geneFamilydb.dat';
+my $opt = loadUserOptions;
+my $basePath = $$opt{'basePath'};
+
+my $silixOutF       = catfile($basePath, 'analysis', 'allvsall', 'blastout', 'silix.output');
+my $protAlignStatsF = catfile($basePath, 'analysis', 'msas', 'protAlignStats.dat');
+my $outF            = catfile($basePath, 'analysis', 'iesdb', 'geneFamilydb.dat');
 
 #read silix output
 print "reading SiLiX gene families\n";

@@ -1,9 +1,13 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use File::Spec::Functions qw(catfile);
+use File::Spec::Functions qw(catfile catdir);
 use lib'.';
 use functions;
+
+my $opt = loadUserOptions;
+my $basePath   = $$opt{'basePath'};
+my $tablesP    = catdir($basePath, 'analysis', 'tables');
 
 # load gene/protein notation
 my $prefixesR = initF();
@@ -11,13 +15,12 @@ my $prefixesR = initF();
 # prepare character matrices
 
 # read list of genes which have sufficient read coverage in the Mic genome and thus any IES detected in them or homologous IES present in them is of confidence
-my $path = '/home/dsellis/data/IES/analysis/tables/';
 my @gF = qw/gpbi.filt gpca.filt gpoc.filt gppe.filt gppr.filt gpse.filt gpso.filt gpte.filt gptr.filt/; # files with filtered genes 
 
 #my $covgeneF = '/home/dsellis/data/IES/analysis/tables/pca.gene.cov';
 my %h; # list of filtered genes
 foreach my $file (@gF){
-    open CV, catfile($path, $file) or die $!;
+    open CV, catfile($tablesP, $file) or die $!;
     while(my $gene = <CV>){
 	chomp $gene;
 	die if defined ($h{$gene}); #they should be unique records
@@ -28,7 +31,7 @@ close CV;
 
 #floatingIES ptr.MICA.7180000129095.207151
 
-my $homIESdb = '/home/dsellis/data/IES/analysis/tables/homIES.tab';
+my $homIESdb = catfile($tablesP, 'homIES.tab');
 open IN, $homIESdb or die "$! $homIESdb";
 readline(IN); # header
 my %charMats;

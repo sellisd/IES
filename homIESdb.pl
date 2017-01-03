@@ -3,13 +3,18 @@ use warnings;
 use strict;
 use lib'.';
 use functions;
+use File::Spec::Functions qw(catfile catdir);
 
 # Reads homColinB.be       homologous columns bed file with information on homologous IES groups locations in MSA coordinates (ranges)
 #  and  iesInGenes.msa.tab location of IES in genes in both MSA and gene coordinates, floating IES are in separate rows
+my $opt = loadUserOptions;
+my $basePath   = $$opt{'basePath'};
+my $tablesP    = catdir($basePath, 'analysis', 'tables');
+my $iesdbP     = catdir($basePath, 'analysis', 'iesdb');
 
-my $iesInGenesF = '/home/dsellis/data/IES/analysis/tables/iesInGenes.msa.tab';
-my $homColinBF = '/home/dsellis/data/IES/analysis/tables/homColinB.be';
-my $gfs = '/home/dsellis/data/IES/analysis/iesdb/geneFamilydb.dat';
+my $iesInGenesF = catfile($tablesP, 'iesInGenes.msa.tab');
+my $homColinBF  = catfile($tablesP, 'homColinB.be');
+my $gfs         = catfile($iesdbP,  'geneFamilydb.dat');
 
 my %gfH;
 # read genes in gene family

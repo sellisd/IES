@@ -1,14 +1,21 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use File::Spec::Functions qw(catfile catdir);
+use lib'.';
+use functions;
 
 # find which ies columns are within Gblocks
 
 # read gblocks.dat
 
-my $gblocksF = '/home/dsellis/data/IES/analysis/tables/gblocks.dat';
-my $homcolF = '/home/dsellis/data/IES/analysis/tables/homColumns.be';
-my $homcolBF = '/home/dsellis/data/IES/analysis/tables/homColinB.be';
+my $opt = loadUserOptions;
+my $basePath = $$opt{'basePath'};
+my $tablesP    = catdir($basePath, 'analysis', 'tables');
+
+my $gblocksF = catfile($tablesP, 'gblocks.dat');
+my $homcolF  = catfile($tablesP, 'homColumns.be');
+my $homcolBF = catfile($tablesP, 'homColinB.be');
 
 my %gblocks;
 open GB, $gblocksF or die $!;
