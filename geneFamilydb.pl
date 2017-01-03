@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use lib'.';
 use functions;
-use File::Spec::Functions qw(catfile catdir);
+use File::Spec::Functions qw(catfile);
 
 # combine information to create the gene family table
 

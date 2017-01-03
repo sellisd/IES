@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-use File::HomeDir;
 use File::Spec::Functions qw(catfile catdir);
 use File::Path qw(make_path);
 use lib'.';

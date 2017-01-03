@@ -1,21 +1,24 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Parallel::ForkManager;
+use lib'.';
+use functions;
+use File::Spec::Functions qw(catfile);
 
 # fast test to determine which gene families have too low starting probability
+my $opt = loadUserOptions;
+my $basePath = $$opt{'basePath'};
 
-my $rbP = '/home/dsellis/tools/revbayes-1.0.0/projects/cmake/rb';
-my $pm        = Parallel::ForkManager->new(7);
-my $asrTestF = "/home/dsellis/projects/IES/src/asrTestTemplate.Rev";
-my $asr = $ARGV[0];
+my $rbP      = '/home/dsellis/tools/revbayes-1.0.0/projects/cmake/rb';
+my $asrTestF = "./asrTestTemplate.Rev";
+my $asr      = $ARGV[0];
 
-open GF, '/home/dsellis/data/IES/analysis/'.$asr.'/geneFamilies.dat' or die $!;
+open GF, catfile($basePath, 'analysis', $asr, 'geneFamilies.dat') or die $!;
 chomp(my @gfs = <GF>);
 close GF;
 
 foreach my $clusterId (@gfs){
-    my $outF = '/home/dsellis/data/IES/tempdat/testrb.'.$asr.'.'.$clusterId;
+    my $outF = catfile($basePath, 'tempdat', 'testrb.'.$asr.'.'.$clusterId);
     open OUT, '>', $outF or die $!;
     open IN, $asrTestF or die $!;
     while(my $line = <IN>){

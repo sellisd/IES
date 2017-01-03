@@ -1,14 +1,16 @@
 # prepare data for revBayes
 library(reshape2)
 library(ape)
-source("~/projects/IES/src/sharedFunctions.R")
-
+setwd('.')
+source("sharedFunctions.R")
+opt <- loadUserOptions()
+basePath <- opt["basePath", ]
 for(run in c(1,2,3)){
-  outdir <- paste0("~/data/IES/analysis/asr", run)
+  outdir <- file.path(basePath, 'analysis', 'asr', run)
   if(!dir.exists(outdir)){
     dir.create(outdir)
   }
-  charMats <- read.table("~/data/IES/analysis/iesdb/charMats.tab", stringsAsFactors = FALSE, header = TRUE)
+  charMats <- read.table(file.path(basePath, 'analysis', 'iesdb', 'charMats.tab'), stringsAsFactors = FALSE, header = TRUE)
   clusters <- unique(charMats$cluster)
   geneFamiliesProcessed <- character()
   skippedFamilies <- character()
@@ -22,8 +24,8 @@ for(run in c(1,2,3)){
     nex <- l[[1]]
     spNames <- gene2species(names(nex))
     #check if we have a tree file
-    dataNexusOut <- paste0("~/data/IES/analysis/asr", run, "/charMat",clusters[i],".nexus")
-    treeFileIn <- paste0("~/data/IES/analysis/phyldogT", run, "/results/",clusters[i],".ReconciledTree")
+    dataNexusOut <- file.path(basePath, 'analysis', paste0('asr', run), paste0("charMat",clusters[i],".nexus"))
+    treeFileIn   <- file.path(basePath, 'analysis', paste0('phyldogT', run), "results", paste0(clusters[i],".ReconciledTree"))
     if(file.exists(treeFileIn)){
       # write a nexus data file for each gene family
       modif.write.nexus.data(nex, file = dataNexusOut, format = "Standard")
@@ -34,7 +36,7 @@ for(run in c(1,2,3)){
       if (!identical(sort(geneTree$tip.label), sort(gene2protName(names(nex))))){
         stop(paste("Genes do not match between tree and character matrix!: ", clusters[i], i))
       }
-      write.nexus(geneTree, file = paste0("~/data/IES/analysis/asr", run, "/tree",clusters[i],".nexus"))
+      write.nexus(geneTree, file = file.path(basePath, 'analysis', paste0("asr", run), paste0("tree", clusters[i], ".nexus")))
       geneFamiliesProcessed <- append(geneFamiliesProcessed, clusters[i])
       # gather information linking homologous IES group id and order of columns in character matrix
       homCol <- l[[2]]
@@ -47,11 +49,11 @@ for(run in c(1,2,3)){
     }
   }
   
-  write.table(geneFamiliesProcessed, file = paste0("~/data/IES/analysis/asr", run, "/geneFamilies.dat"), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(geneFamiliesProcessed, file = file.path(basePath, 'analysis', paste0('asr', run), "geneFamilies.dat"), sep = "\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
   print("skipped families")
   print(skippedFamilies)
   write.table(data.frame(geneFamily = TgeneFamily, homIES = Tid, column = Tcolumn, stringsAsFactors = FALSE), 
-              file = paste0("~/data/IES/analysis/tables/homIES", run, ".columns.link"),
+              file = file.path(basePath, "analysis", "tables", paste0("homIES", run, ".columns.link")),
               sep = "\t", 
               quote = FALSE,
               row.names = FALSE,
