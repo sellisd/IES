@@ -2,12 +2,15 @@
 use File::Spec::Functions qw(catfile);
 use warnings;
 use strict;
+use lib'.';
+use functions;
+
+my $opt = loadUserOptions;
+my $basePath = $$opt{'basePath'};
 
 my $asrRun = $ARGV[0];
-
-my $basePath = '/Users/dsellis/data/IES';
 # make a hash to translate phyldog to rb node notation
-open DICT,catfile($basePath, 'analysis/tables/nodeDictionary'.$asrRun.'.dat') or die $!;
+open DICT,catfile($basePath, 'analysis', 'tables', 'nodeDictionary'.$asrRun.'.dat') or die $!;
 my %phyldog2rb;
 my %geneFamilies; # gene families for which we reconstructed ancestral states
 
@@ -21,7 +24,7 @@ close DICT;
 
 # make a hash to translate from rbnode id to presence probability per ies column
 my %asr;
-open ASR, catfile($basePath, 'analysis/tables/avNodeProb'.$asrRun.'.dat') or die $!;
+open ASR, catfile($basePath, 'analysis', 'tables', 'avNodeProb'.$asrRun.'.dat') or die $!;
 while(my $line = <ASR>){
     chomp $line;
     (my $cluster, my $rb, my $iesColumn, my $presence) = split " ", $line;
@@ -33,7 +36,7 @@ while(my $line = <ASR>){
     $geneFamilies{$cluster} = 1;
 }
 
-open NP, catfile($basePath, 'analysis/tables/nodePaths'.$asrRun.'.dat') or die $!;
+open NP, catfile($basePath, 'analysis', 'tables', 'nodePaths'.$asrRun.'.dat') or die $!;
 
 my $lineCounter = 0;
 print join("\t",(qw/cluster iesColumn from to Panc gain loss/)), "\n";

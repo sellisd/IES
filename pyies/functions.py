@@ -9,8 +9,8 @@ import matplotlib
 import matplotlib.cm
 from userOptions import basePath
 
-colorFile = '/Users/dsellis/projects/IES/src/colors.hex'
-colorFile9 = '/Users/dsellis/projects/IES/src/colors9.hex'
+colorFile = 'colors.hex'
+colorFile9 = 'colors9.hex'
 
 def speciesAbr2bn(abr, opt = "full", sep = "_"):
     """ Species abbreviation to binomial."""

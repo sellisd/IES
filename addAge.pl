@@ -1,12 +1,19 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use lib'.';
+use functions;
+use File::Spec::Functions qw(catfile catdir);
+
+my $opt = loadUserOptions;
+my $basePath = $$opt{'basePath'};
+my $tablesP  = catdir($basePath, 'analysis', 'tables');
 
 # add homologous IES age to the iesdb by matching columns of the character matrix to the homologous IES id
 my $asrRun = $ARGV[0];
-my $linkF = '/home/dsellis/data/IES/analysis/tables/homIES'.$asrRun.'.columns.link';
-my $ageF = '/home/dsellis/data/IES/analysis/tables/iesAge'.$asrRun.'.dat';
-my $homiesF = '/home/dsellis/data/IES/analysis/tables/homIES.tab';
+my $linkF   = catfile($tablesP, 'homIES'.$asrRun.'.columns.link');
+my $ageF    = catfile($tablesP, 'iesAge'.$asrRun.'.dat');
+my $homiesF = catfile($tablesP, 'homIES.tab');
 
 my %h; # gene family age information
 my %l; # homologous IES id and column number link

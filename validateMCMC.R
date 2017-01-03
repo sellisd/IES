@@ -1,1 +1,1 @@
-rmarkdown::render("~/projects/IES/src/validateMCMC.Rmd")
+rmarkdown::render("./validateMCMC.Rmd")

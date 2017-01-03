@@ -3,8 +3,8 @@ from __future__ import print_function
 from ete3 import Tree
 import sys
 import os.path
+from userOptions import basePath
 
-basePath = '/home/dsellis/data/IES'
 asrRun = ''
 usage = "./nodePaths.py <asrRun>"
 if (len(sys.argv) != 2):
@@ -58,18 +58,18 @@ def subpaths(pairS, L):
 
 #pairs of speciation nodes
 
-spNodePairsF = os.path.join(basePath, 'analysis/tables/spNodePairs' + asrRun + '.dat')
+spNodePairsF = os.path.join(basePath, 'analysis', 'tables', 'spNodePairs' + asrRun + '.dat')
 pairS = [i.rstrip().split(" ") for i in open(spNodePairsF, 'r')]
 #pairS = ((0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(2,3),(2,4),(2,5),(2,6),(4,5),(4,6))
-phyldogPath = os.path.join(basePath, 'analysis/phyldogT' + asrRun + '/results/')
+phyldogPath = os.path.join(basePath, 'analysis', 'phyldogT' + asrRun, 'results')
 
-inputF = open(os.path.join(basePath, 'analysis/asr' + asrRun + '/geneFamilies.dat'), 'r')
+inputF = open(os.path.join(basePath, 'analysis', 'asr' + asrRun, 'geneFamilies.dat'), 'r')
 clusters = inputF.readlines()
 clusters = [i.rstrip() for i in clusters]
 print('cluster\tfrom\tto\tpath')
 
 for cluster in clusters:
-    fileNameString = phyldogPath+str(cluster)+'.ReconciledTree'
+    fileNameString = os.path.join(phyldogPath, str(cluster)+'.ReconciledTree')
     t = Tree(fileNameString)
     for leaf in t:
         L = path2anc(leaf)

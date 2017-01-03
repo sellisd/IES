@@ -1,22 +1,34 @@
 #!/usr/bin/perl
-use File::HomeDir;
-use File::Spec::Functions qw(catfile);
+use File::Spec::Functions qw(catfile catdir);
 use lib'.';
 use functions;
 use warnings;
 use strict;
 
+my $opt = loadUserOptions;
+my $basePath   = $$opt{'basePath'};
+my $tablesP    = catdir($basePath, 'analysis', 'tables');
+my $iesdbP     = catdir($basePath, 'analysis', 'iesdb');
+
 # check MCMC runs
 run("Rscript --vanilla ./validateMCMC.R", 1);
-my $basePath = '/Users/dsellis/data/IES';
 
 for(my $asrRun = 1; $asrRun<=3; $asrRun++){
-   my $rbResultsP = catfile($basePath, 'analysis/asr'.$asrRun.'/');
-   my $rbNodeIndexesP = catfile($rbResultsP, 'rbNodeIndexes');
-   run('./parseRevBayesAsr.pl -gf ~/data/IES/analysis/asr'.$asrRun.'/geneFamilies.dat -burnin 1000 -asr ~/data/IES/analysis/asr'.$asrRun.'/ -output ~/data/IES/analysis/tables/avNodeProb'.$asrRun.'.dat', 1);
+   my $rbResultsP     = catdir($basePath, 'analysis', 'asr'.$asrRun);
+   my $rbNodeIndexesP = catdir($rbResultsP, 'rbNodeIndexes');
+   my $geneFamiliesF  = catfile($rbResultsP, 'geenFamilies.dat');
+   my $avNodeProbF    = catfile($tablesP, 'avNodeProb'.$asrRun.'.dat');
+   run('./parseRevBayesAsr.pl'.
+       ' -gf '.$geneFamiliesF.
+       ' -burnin 1000'.
+       ' -asr '.$rbResultsP.
+       ' -output '.$avNodeProbF,
+       1);
    # make a dictionary of node Ids across software
-   run('./nhxNodes.pl ~/data/IES/analysis/phyldogT'.$asrRun.'/results/*.ReconciledTree', 1);
-   run("./nhxNodes.pl -rb ".$rbNodeIndexesP."/nodeIndex.*.tre", 1);
+   my $ReconciledTreeF = catfile($basePath, 'analysis', 'phyldogT'.$asrRun, 'results','*.ReconciledTree');
+   my $nodeIndexF      = catfile($rbNodeIndexesP, 'nodeIndex.*.tre');
+   run("./nhxNodes.pl $ReconciledTreeF", 1);
+   run("./nhxNodes.pl -rb $nodeIndexF", 1);
 }
 
 # make dictionary of node indexes linking revBayes, PHYLDOG and ape(R) notation
@@ -24,39 +36,69 @@ run("Rscript --vanilla ./nodeDictionary.R", 1);
 
 # find age of individual IES (MRCA of group of homologous IES)
 # 1. spEvents.py creates a table with nodes of trees that correspond to speciation events
-run("./spEvents.py -p ~/data/IES/analysis/phyldogT1/results/ -g ~/data/IES/analysis/asr1/geneFamilies.dat > ~/data/IES/analysis/tables/spEvents1.dat", 1);
-run("./spEvents.py -p ~/data/IES/analysis/phyldogT2/results/ -g ~/data/IES/analysis/asr2/geneFamilies.dat > ~/data/IES/analysis/tables/spEvents2.dat", 1);
-run("./spEvents.py -p ~/data/IES/analysis/phyldogT3/results/ -g ~/data/IES/analysis/asr3/geneFamilies.dat > ~/data/IES/analysis/tables/spEvents3.dat", 1);
+my $p1rP           = catdir($basePath, 'analysis', 'phyldogT1', 'results');
+my $p2rP           = catdir($basePath, 'analysis', 'phyldogT2', 'results');
+my $p3rP           = catdir($basePath, 'analysis', 'phyldogT3', 'results');
+my $geneFamilies1F = catfile($basePath, 'analysis', 'asr1', 'geneFamilies.dat');
+my $geneFamilies2F = catfile($basePath, 'analysis', 'asr2', 'geneFamilies.dat');
+my $geneFamilies3F = catfile($basePath, 'analysis', 'asr3', 'geneFamilies.dat');
+my $spEvents1F     = catfile($tablesP, 'spEvents1.dat');
+my $spEvents2F     = catfile($tablesP, 'spEvents1.dat');
+my $spEvents3F     = catfile($tablesP, 'spEvents1.dat');
+
+run('./spEvents.py -p '.$p1rP.' -g '.$geneFamilies1F.' > '.$spEvents1F, 1);
+run('./spEvents.py -p '.$p2rP.' -g '.$geneFamilies2F.' > '.$spEvents2F, 1);
+run('./spEvents.py -p '.$p3rP.' -g '.$geneFamilies3F.' > '.$spEvents3F, 1);
 
 # 2. then find speciation tree node is the most recent common ancestor
-run("./firstIES.py 1 > ~/data/IES/analysis/tables/iesAge1.dat", 1);
-run("./firstIES.py 2 > ~/data/IES/analysis/tables/iesAge2.dat", 1);
-run("./firstIES.py 3 > ~/data/IES/analysis/tables/iesAge3.dat", 1);
+my $iesAge1F = catfile($tablesP, 'iesAge1.dat');
+my $iesAge2F = catfile($tablesP, 'iesAge2.dat');
+my $iesAge3F = catfile($tablesP, 'iesAge3.dat');
+run("./firstIES.py 1 > $iesAge1F", 1);
+run("./firstIES.py 2 > $iesAge2F", 1);
+run("./firstIES.py 3 > $iesAge3F", 1);
 
 # 3. create homIESdb with age and other information
-run("./addAge.pl 1 > ~/data/IES/analysis/iesdb/homIESdb1.tab", 0);
-run("./addAge.pl 2 > ~/data/IES/analysis/iesdb/homIESdb2.tab", 0);
-run("./addAge.pl 3 > ~/data/IES/analysis/iesdb/homIESdb3.tab", 0);
+my $homIESdb1F = catfile($iesdbP, 'homIESdb1.tab');
+my $homIESdb2F = catfile($iesdbP, 'homIESdb2.tab');
+my $homIESdb3F = catfile($iesdbP, 'homIESdb3.tab');
+
+run("./addAge.pl 1 > $homIESdb1F", 0);
+run("./addAge.pl 2 > $homIESdb2F", 0);
+run("./addAge.pl 3 > $homIESdb3F", 0);
 
 # find per branch gain and loss events
 # calculate total length (nt) of conserved blocks in alignments for each gene family
 
 # calculate all pairs of speciation nodes on species tree
-run("./nodePairs.py ~/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree > ~/data/IES/analysis/tables/spNodePairs1.dat", 0);
-run("./nodePairs.py ~/data/IES/analysis/phyldogT2/results/OutputSpeciesTree_ConsensusNumbered.tree > ~/data/IES/analysis/tables/spNodePairs2.dat", 0);
-run("./nodePairs.py ~/data/IES/analysis/phyldogT3/results/OutputSpeciesTree_ConsensusNumbered.tree > ~/data/IES/analysis/tables/spNodePairs3.dat", 0);
+my $treeout1F = catfile($basePath, 'analysis', 'phyldogT1', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree');
+my $treeout2F = catfile($basePath, 'analysis', 'phyldogT2', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree');
+my $treeout3F = catfile($basePath, 'analysis', 'phyldogT3', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree');
+my $spNodePairs1F = catfile($tablesP, 'spNodePairs1.dat');
+my $spNodePairs2F = catfile($tablesP, 'spNodePairs2.dat');
+my $spNodePairs3F = catfile($tablesP, 'spNodePairs3.dat');
+
+run("./nodePairs.py $treeout1F > spNodePairs1F", 0);
+run("./nodePairs.py $treeout2F > spNodePairs2F", 0);
+run("./nodePairs.py $treeout3F > spNodePairs3F", 0);
 
 # calculate  node paths for each pair of speciation nodes
-run("./nodePaths.py 1 > ~/data/IES/analysis/tables/nodePaths1.dat", 0);
-run("./nodePaths.py 2 > ~/data/IES/analysis/tables/nodePaths2.dat", 0);
-run("./nodePaths.py 3 > ~/data/IES/analysis/tables/nodePaths3.dat", 0);
+my $nodePaths1F = catfile($tablesP, 'nodePaths1.dat');
+my $nodePaths2F = catfile($tablesP, 'nodePaths2.dat');
+my $nodePaths3F = catfile($tablesP, 'nodePaths3.dat');
+run("./nodePaths.py 1 > $nodePaths1F", 0);
+run("./nodePaths.py 2 > $nodePaths2F", 0);
+run("./nodePaths.py 3 > $nodePaths3F", 0);
 
 # for all paths connecting speciation nodes (Nanc-N1-N2-Noffspring)
 # calculate the difference in probability at each step
 # sum all the positive differences and all the negative differences
-run("./gainLoss.pl 1 > ~/data/IES/analysis/tables/gainLoss1.dat", 0);
-run("./gainLoss.pl 2 > ~/data/IES/analysis/tables/gainLoss2.dat", 0);
-run("./gainLoss.pl 3 > ~/data/IES/analysis/tables/gainLoss3.dat", 0);
+my $gl1F = catfile($tablesP, 'gainLoss1.dat');
+my $gl2F = catfile($tablesP, 'gainLoss1.dat');
+my $gl3F = catfile($tablesP, 'gainLoss1.dat');
+run("./gainLoss.pl 1 > $gl1F", 0);
+run("./gainLoss.pl 2 > $gl2F", 0);
+run("./gainLoss.pl 3 > $gl3F", 0);
 
 
 exit(1);
