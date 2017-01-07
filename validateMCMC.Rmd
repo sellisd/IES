@@ -39,7 +39,7 @@ loadmcmc <- function(spT, short = FALSE){
 }
 ```
 
-![species trees](/Users/dsellis/projects/IES/reports/53.FranceGenomiqueFigures/3trees.png)
+![species trees](/home/dsellis/projects/IES/reports/53.FranceGenomiqueFigures/3trees.png)
 
 ## MCMC for ancestral state reconstruction with species tree 1
 

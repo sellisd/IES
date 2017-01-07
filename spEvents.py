@@ -2,6 +2,7 @@
 from __future__ import print_function
 from ete3 import Tree
 import sys, getopt
+import os.path
 
 # Find which phyldog nodes correspond to which speciation event.
 
@@ -29,7 +30,7 @@ clusters = [i.rstrip() for i in clusters]
 print('cluster\tnodeP\tspEvent')
 
 for cluster in clusters:
-    fileNameString = phyldogPath+str(cluster)+'.ReconciledTree'
+    fileNameString = os.path.join(phyldogPath, str(cluster)+'.ReconciledTree')
     t = Tree(fileNameString)
     for node in t.traverse():
         if(node.Ev == 'S'): # if speciation event

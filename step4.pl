@@ -23,7 +23,7 @@ for(my $asrRun = 1; $asrRun<=3; $asrRun++){
        ' -burnin 1000'.
        ' -asr '.$rbResultsP.
        ' -output '.$avNodeProbF,
-       1);
+       0);
    # make a dictionary of node Ids across software
    my $ReconciledTreeF = catfile($basePath, 'analysis', 'phyldogT'.$asrRun, 'results','*.ReconciledTree');
    my $nodeIndexF      = catfile($rbNodeIndexesP, 'nodeIndex.*.tre');

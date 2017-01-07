@@ -4,7 +4,7 @@ from pyies.functions import *
 from ete3 import Tree
 import re, sys
 import os.path
-from userOptions import basePath
+from pyies.userOptions import basePath
 # Find when an IES was inserted.
 
 # In each homologous IES column of all gene families find the speciation nodes

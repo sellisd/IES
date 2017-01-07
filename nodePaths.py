@@ -3,7 +3,7 @@ from __future__ import print_function
 from ete3 import Tree
 import sys
 import os.path
-from userOptions import basePath
+from pyies.userOptions import basePath
 
 asrRun = ''
 usage = "./nodePaths.py <asrRun>"
