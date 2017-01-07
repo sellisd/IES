@@ -7,7 +7,7 @@ import sys, getopt
 from ete3 import TextFace, TreeStyle, NodeStyle
 from decimal import *
 
-# Normalize loss rate by  total length of conserved blocks of alignments and both insertion and loss rate by branch lengths.
+# Normalize loss rate by total length of conserved blocks of alignments and both insertion and loss rate by branch lengths.
 
 # program options
 gainLossFile = "/home/dsellis/data/IES/analysis/tables/gainLoss1.dat"
@@ -16,8 +16,24 @@ brlenFile = "/home/dsellis/data/IES/analysis/sgf/topoConstrSimple.treefile"
 phyldogTreeFile = "/home/dsellis/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree"
 outgroupName = "Tetrahymena_thermophila"
 outputFileBaseName = ""
+doNotDraw = 0;
 
-usage = "./gainLossSum.py -g <gainLossFile> -b <gblocksFile> -l <treeFile> -p <PHYLDOGoutputFile> -n <outgroupName> -o <outputFileBaseName>"
+usage = """
+usage:
+
+./gainLossSum.py [OPTIONS]
+
+where OPTIONS can be any of the following:
+
+    -g: gainLossFile
+    -b: gblocksFile
+    -l: Newick File of tree with branch lengths
+    -p: PHYLDOG outputFile
+    -n: outgroup name (Default: Tetrahymena_thermophila)
+    -o: output File Base Name (if not provided show in interactive tree viewer)
+    -d: do not draw tree, output text file and print ASCII tree
+    -h: this help screen
+""";
 
 try:
     opts, args = getopt.getopt(sys.argv[1:],"hg:b:l:p:n:o:")
@@ -40,6 +56,8 @@ for opt, arg in opts:
         outgroupName = arg
     elif opt == '-o':
         outputFileBaseName = arg
+    elif opt == '-d':
+        doNotDraw = 1;
 
 # load gblock sizes and sum for each gene family
 print("sum gblock sizes")
@@ -116,9 +134,6 @@ bcrl = scaleCol(lossL)  # Branch Colors for Rates of Loss
 tg = t.copy()
 tl = t.copy()
 
-#print(t.get_ascii(show_internal = True, attributes = ["PHYLDOGid", "name", "loss"]))
-#print(t.get_ascii(show_internal = True, attributes = ["PHYLDOGid", "name", "gain"]))
-
 for node in tg.iter_descendants(): # do not include root
     style = NodeStyle()
     gainString = "+%d" % (node.gain)
@@ -138,9 +153,14 @@ for node in tl.iter_descendants():
     node.add_face(TextFace(lossString), column = 0, position = "branch-bottom")
     node.set_style(style)
 
-tg.write(features = ["PHYLDOGid", "name", "gain"], outfile = outputFileBaseName + ".gain.tre")
-tg.render(outputFileBaseName + ".gain.png", tree_style = ts)
-
-tl.write(features = ["PHYLDOGid", "name", "loss"], outfile = outputFileBaseName + ".loss.tre")
-tl.render(outputFileBaseName + ".loss.png", tree_style = ts)
-#t.show()
+if outputFileBaseName:
+    tg.write(features = ["PHYLDOGid", "name", "gain"], outfile = outputFileBaseName + ".gain.tre")
+    tl.write(features = ["PHYLDOGid", "name", "loss"], outfile = outputFileBaseName + ".loss.tre")
+    if doNotDraw:
+        print(tg.get_ascii(show_internal = True, attributes = ["PHYLDOGid", "name", "loss"]))
+        print(tl.get_ascii(show_internal = True, attributes = ["PHYLDOGid", "name", "gain"]))
+    else:
+        tg.render(outputFileBaseName + ".gain.png", tree_style = ts)
+        tl.render(outputFileBaseName + ".loss.png", tree_style = ts)
+else:
+    t.show()

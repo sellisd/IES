@@ -100,23 +100,25 @@ run("./gainLoss.pl 1 > $gl1F", 0);
 run("./gainLoss.pl 2 > $gl2F", 0);
 run("./gainLoss.pl 3 > $gl3F", 0);
 
+my $gainLossF1    = catfile($tablesP, 'gainLoss1.dat');
+my $gainLossF2    = catfile($tablesP, 'gainLoss2.dat');
+my $gainLossF3    = catfile($tablesP, 'gainLoss3.dat');
+my $gblocksF      = catfile($tablesP, 'gblocks.dat');
+my $brlenTree1F   = catfile($basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile');
+my $brlenTree2F   = catfile($basePath, 'analysis', 'sgf', 'concatSimple.nexus.treefile');
+my $brlenTree3F   = catfile($basePath, 'analysis', 'sgf', 'concat.nexus.treefile');
+my $phyldogTree1F = catfile($basePath, 'analysis', 'phyldogT1', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree');
+my $phyldogTree2F = catfile($basePath, 'analysis', 'phyldogT2', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree');
+my $phyldogTree3F = catfile($basePath, 'analysis', 'phyldogT3', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree');
+my $output1F      = catfile($basePath, 'analysis', 'figures', 'spTree1');
+my $output2F      = catfile($basePath, 'analysis', 'figures', 'spTree2');
+my $output3F      = catfile($basePath, 'analysis', 'figures', 'spTree3');
 
-exit(1);
-my $dbg = "
-./gainLossSum.py -g ~/data/IES/analysis/tables/gainLoss1.dat -b ~/data/IES/analysis/tables/gblocks.dat -l ~/data/IES/analysis/sgf/topoConstrSimple.treefile -p ~/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree -o ~/data/IES/analysis/figures/spTree1 -n Tetrahymena_thermophila
-
-./gainLossSum.py -g ~/data/IES/analysis/tables/gainLoss2.dat -b ~/data/IES/analysis/tables/gblocks.dat -l ~/data/IES/analysis/sgf/concatSimple.nexus.treefile -p ~/data/IES/analysis/phyldogT2/results/OutputSpeciesTree_ConsensusNumbered.tree -o ~/data/IES/analysis/figures/spTree2 -n Tetrahymena_thermophila
-
-./gainLossSum.py -g ~/data/IES/analysis/tables/gainLoss3.dat -b ~/data/IES/analysis/tables/gblocks.dat -l ~/data/IES/analysis/sgf/concat.nexus.treefile -p ~/data/IES/analysis/phyldogT3/results/OutputSpeciesTree_ConsensusNumbered.tree -o ~/data/IES/analysis/figures/spTree3 -n Tetrahymena_thermophila
-
-./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss1.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/topoConstrSimple.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree1 -n Tetrahymena_thermophila
-~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss2.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concatSimple.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT2/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree2 -n Tetrahymena_thermophila
-~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss3.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concat.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT3/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree3 -n Tetrahymena_thermophila
-
-/Volumes/WDC/
-";
+run("./gainLossSum.py -g $gainLoss1.dat -b $gblocks.dat -l $brlenTree1F -p $phyldogTree1F -o ~/data/IES/analysis/figures/spTree1 -n Tetrahymena_thermophila", 0);
+run("./gainLossSum.py -g $gainLoss2.dat -b $gblocks.dat -l $brlenTree2F -p $phyldogTree2F -o ~/data/IES/analysis/figures/spTree2 -n Tetrahymena_thermophila", 0);
+run("./gainLossSum.py -g $gainLoss3.dat -b $gblocks.dat -l $brlenTree3F -p $phyldogTree3F -o ~/data/IES/analysis/figures/spTree3 -n Tetrahymena_thermophila", 0);
 # summarize and prepare plots at the end of the analysis
-
+exit(1);
 system("./pwm.py ~/data/IES/analysis/tables/consensus.dat"); # calculate position weight matrices and draw sequence logo diagrams
 system("./lengthAge.pl > ~/data/IES/analysis/tables/ageLength.dat"); # combine age and length information for each IES
 
