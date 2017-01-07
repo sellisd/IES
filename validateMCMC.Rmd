@@ -22,7 +22,7 @@ Two MCMC runs were performed for each species tree topology for 1000000, with th
 ```{r, loadLibraries, echo = FALSE}
 library(coda)
 loadmcmc <- function(spT, short = FALSE){
-  runsPath <- file.path(basePath, paste0('asr', spT))
+  runsPath <- file.path(basePath, 'analysis', paste0('asr', spT))
   runs <- c(file.path(runsPath, "run1"), file.path(runsPath, "run2"))
   mcmcL <- list()
   counter <- 1
@@ -45,7 +45,7 @@ loadmcmc <- function(spT, short = FALSE){
 
 
 ```{r, asr1, echo = FALSE}
-mcmcL <- loadmcmc(1, short = 9707)
+mcmcL <- loadmcmc(1)
 ```
 
 

@@ -78,9 +78,9 @@ my $spNodePairs1F = catfile($tablesP, 'spNodePairs1.dat');
 my $spNodePairs2F = catfile($tablesP, 'spNodePairs2.dat');
 my $spNodePairs3F = catfile($tablesP, 'spNodePairs3.dat');
 
-run("./nodePairs.py $treeout1F > spNodePairs1F", 0);
-run("./nodePairs.py $treeout2F > spNodePairs2F", 0);
-run("./nodePairs.py $treeout3F > spNodePairs3F", 0);
+run("./nodePairs.py $treeout1F > $spNodePairs1F", 0);
+run("./nodePairs.py $treeout2F > $spNodePairs2F", 0);
+run("./nodePairs.py $treeout3F > $spNodePairs3F", 0);
 
 # calculate  node paths for each pair of speciation nodes
 my $nodePaths1F = catfile($tablesP, 'nodePaths1.dat');
