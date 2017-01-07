@@ -100,9 +100,9 @@ run("./gainLoss.pl 1 > $gl1F", 0);
 run("./gainLoss.pl 2 > $gl2F", 0);
 run("./gainLoss.pl 3 > $gl3F", 0);
 
-my $gainLossF1    = catfile($tablesP, 'gainLoss1.dat');
-my $gainLossF2    = catfile($tablesP, 'gainLoss2.dat');
-my $gainLossF3    = catfile($tablesP, 'gainLoss3.dat');
+my $gainLoss1F    = catfile($tablesP, 'gainLoss1.dat');
+my $gainLoss2F    = catfile($tablesP, 'gainLoss2.dat');
+my $gainLoss3F    = catfile($tablesP, 'gainLoss3.dat');
 my $gblocksF      = catfile($tablesP, 'gblocks.dat');
 my $brlenTree1F   = catfile($basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile');
 my $brlenTree2F   = catfile($basePath, 'analysis', 'sgf', 'concatSimple.nexus.treefile');
@@ -114,9 +114,9 @@ my $output1F      = catfile($basePath, 'analysis', 'figures', 'spTree1');
 my $output2F      = catfile($basePath, 'analysis', 'figures', 'spTree2');
 my $output3F      = catfile($basePath, 'analysis', 'figures', 'spTree3');
 
-run("./gainLossSum.py -g $gainLoss1.dat -b $gblocks.dat -l $brlenTree1F -p $phyldogTree1F -o ~/data/IES/analysis/figures/spTree1 -n Tetrahymena_thermophila", 0);
-run("./gainLossSum.py -g $gainLoss2.dat -b $gblocks.dat -l $brlenTree2F -p $phyldogTree2F -o ~/data/IES/analysis/figures/spTree2 -n Tetrahymena_thermophila", 0);
-run("./gainLossSum.py -g $gainLoss3.dat -b $gblocks.dat -l $brlenTree3F -p $phyldogTree3F -o ~/data/IES/analysis/figures/spTree3 -n Tetrahymena_thermophila", 0);
+run("./gainLossSum.py -g $gainLoss1F -b $gblocksF -l $brlenTree1F -p $phyldogTree1F -o ~/data/IES/analysis/figures/spTree1 -n Tetrahymena_thermophila", 0);
+run("./gainLossSum.py -g $gainLoss2F -b $gblocksF -l $brlenTree2F -p $phyldogTree2F -o ~/data/IES/analysis/figures/spTree2 -n Tetrahymena_thermophila", 0);
+run("./gainLossSum.py -g $gainLoss3F -b $gblocksF -l $brlenTree3F -p $phyldogTree3F -o ~/data/IES/analysis/figures/spTree3 -n Tetrahymena_thermophila", 0);
 # summarize and prepare plots at the end of the analysis
 exit(1);
 system("./pwm.py ~/data/IES/analysis/tables/consensus.dat"); # calculate position weight matrices and draw sequence logo diagrams
