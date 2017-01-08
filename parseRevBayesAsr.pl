@@ -50,7 +50,7 @@ foreach my $cluster (@clusters){
     my @sums;
     my $its = 0;
     foreach my $run (@runs){
-	my $file = catfile($asrPath, 'ancStates'.$cluster.'.log');
+	my $file = catfile($asrPath, $run, 'ancStates'.$cluster.'.log');
 	if (! -e $file){
 	    print "skipping $file\n";
 	    next;
