@@ -2,6 +2,12 @@
 use warnings;
 use strict;
 use Getopt::Long;
+use File::Spec::Functions qw(catfile);
+use lib'.';
+use functions;
+
+my $opt = loadUserOptions;
+my $basePath = $$opt{'basePath'};
 my $help;
 my $asrPath;
 my $outputF;
@@ -44,7 +50,7 @@ foreach my $cluster (@clusters){
     my @sums;
     my $its = 0;
     foreach my $run (@runs){
-	my $file = $asrPath.$run.'/ancStates'.$cluster.'.log';
+	my $file = catfile($asrPath, 'ancStates'.$cluster.'.log');
 	if (! -e $file){
 	    print "skipping $file\n";
 	    next;

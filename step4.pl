@@ -16,7 +16,7 @@ run("Rscript --vanilla ./validateMCMC.R", 0);
 for(my $asrRun = 1; $asrRun<=3; $asrRun++){
    my $rbResultsP     = catdir($basePath, 'analysis', 'asr'.$asrRun);
    my $rbNodeIndexesP = catdir($rbResultsP, 'rbNodeIndexes');
-   my $geneFamiliesF  = catfile($rbResultsP, 'geenFamilies.dat');
+   my $geneFamiliesF  = catfile($rbResultsP, 'geneFamilies.dat');
    my $avNodeProbF    = catfile($tablesP, 'avNodeProb'.$asrRun.'.dat');
    run('./parseRevBayesAsr.pl'.
        ' -gf '.$geneFamiliesF.
