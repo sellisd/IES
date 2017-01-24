@@ -16,7 +16,8 @@ brlenFile = "/home/dsellis/data/IES/analysis/sgf/topoConstrSimple.treefile"
 phyldogTreeFile = "/home/dsellis/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree"
 outgroupName = "Tetrahymena_thermophila"
 outputFileBaseName = ""
-doNotDraw = 0;
+doNotDraw = 0
+normBrLen = 0
 
 usage = """
 usage:
@@ -32,11 +33,12 @@ where OPTIONS can be any of the following:
     -n: outgroup name (Default: Tetrahymena_thermophila)
     -o: output File Base Name (if not provided show in interactive tree viewer)
     -d: do not draw tree, output text file and print ASCII tree
+    -r: normalize by branch lengths
     -h: this help screen
 """;
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hg:b:l:p:n:o:")
+    opts, args = getopt.getopt(sys.argv[1:],"hg:b:l:p:n:o:d:r")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -57,7 +59,9 @@ for opt, arg in opts:
     elif opt == '-o':
         outputFileBaseName = arg
     elif opt == '-d':
-        doNotDraw = 1;
+        doNotDraw = 1
+    elif opt == '-r':
+        normBrLen = 1
 
 # load gblock sizes and sum for each gene family
 print("sum gblock sizes")
@@ -109,12 +113,14 @@ for k in pgain:
 t = phyldogSpeciesTree(phyldogTreeFile, brlenFile, outgroupName)
 for k in pgain:
     node = t.search_nodes(PHYLDOGid=k[1])[0]
-    pgain[k] /= float(node.dist)
+    if normBrLen == 0:
+        pgain[k] /= float(node.dist)
     node.add_feature("gain", pgain[k])
 
 for k in ploss:
     node = t.search_nodes(PHYLDOGid=k[1])[0]
-    ploss[k] /= float(node.dist)
+    if normBrLen == 0:
+        ploss[k] /= float(node.dist)
     node.add_feature("loss", ploss[k])
 
 ts = TreeStyle()
