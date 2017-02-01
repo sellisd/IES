@@ -113,13 +113,13 @@ for k in pgain:
 t = phyldogSpeciesTree(phyldogTreeFile, brlenFile, outgroupName)
 for k in pgain:
     node = t.search_nodes(PHYLDOGid=k[1])[0]
-    if normBrLen == 0:
+    if normBrLen == 1:
         pgain[k] /= float(node.dist)
     node.add_feature("gain", pgain[k])
 
 for k in ploss:
     node = t.search_nodes(PHYLDOGid=k[1])[0]
-    if normBrLen == 0:
+    if normBrLen == 1:
         ploss[k] /= float(node.dist)
     node.add_feature("loss", ploss[k])
 
