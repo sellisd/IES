@@ -142,7 +142,7 @@ tl = t.copy()
 
 for node in tg.iter_descendants(): # do not include root
     style = NodeStyle()
-    gainString = "+%d" % (node.gain)
+    gainString = "+%.2f" % (0.001*node.gain)
     style["vt_line_color"] = bcrg[node.gain]
     style["hz_line_color"] = bcrg[node.gain]
     style["size"] = 0
