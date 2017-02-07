@@ -3,6 +3,8 @@ from __future__ import print_function
 from __future__ import division
 from collections import Counter, defaultdict
 from pyies.functions import phyldogSpeciesTree, scaleCol
+from pyies.userOptions import basePath
+import os.path
 import sys, getopt
 from ete3 import TextFace, TreeStyle, NodeStyle
 from decimal import *
@@ -10,10 +12,12 @@ from decimal import *
 # Normalize loss rate by total length of conserved blocks of alignments and both insertion and loss rate by branch lengths.
 
 # program options
-gainLossFile = "/home/dsellis/data/IES/analysis/tables/gainLoss1.dat"
-gbFile = "/home/dsellis/data/IES/analysis/tables/gblocks.dat" # Gblocks file
-brlenFile = "/home/dsellis/data/IES/analysis/sgf/topoConstrSimple.treefile"
-phyldogTreeFile = "/home/dsellis/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree"
+spNodePairsF = os.path.join(basePath, 'analysis', 'tables', 'spNodePairs' + asrRun + '.dat')
+
+gainLossFile = os.path.join(basePath, 'analysis', 'tables', 'gainLoss1.dat')
+gbFile = os.path.join(basePath, 'analysis', 'tables', 'gblocks.dat') # Gblocks file
+brlenFile = os.path.join(basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile')
+phyldogTreeFile = os.path.join(basePath, 'analysis', 'phyldogT1', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree')
 outgroupName = "Tetrahymena_thermophila"
 outputFileBaseName = ""
 doNotDraw = 0
