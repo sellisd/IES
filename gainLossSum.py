@@ -12,8 +12,7 @@ from decimal import *
 # Normalize loss rate by total length of conserved blocks of alignments and both insertion and loss rate by branch lengths.
 
 # program options
-spNodePairsF = os.path.join(basePath, 'analysis', 'tables', 'spNodePairs' + asrRun + '.dat')
-
+spNodePairsF = os.path.join(basePath, 'analysis', 'tables', 'spNodePairs1.dat')
 gainLossFile = os.path.join(basePath, 'analysis', 'tables', 'gainLoss1.dat')
 gbFile = os.path.join(basePath, 'analysis', 'tables', 'gblocks.dat') # Gblocks file
 brlenFile = os.path.join(basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile')
@@ -22,7 +21,7 @@ outgroupName = "Tetrahymena_thermophila"
 outputFileBaseName = ""
 doNotDraw = 0
 normBrLen = 0
-excludeGF = ""
+includeGF = ""
 usage = """
 usage:
 
@@ -38,12 +37,12 @@ where OPTIONS can be any of the following:
     -o: output File Base Name (if not provided show in interactive tree viewer)
     -d: do not draw tree, output text file and print ASCII tree
     -r: normalize by branch lengths
-    -e: file with gene families to exclude from the analysis
+    -i: file with gene familie to include in the analysis
     -h: this help screen
 """;
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hg:b:l:p:n:o:d:e:r")
+    opts, args = getopt.getopt(sys.argv[1:],"hg:b:l:p:n:o:d:i:r")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -67,15 +66,15 @@ for opt, arg in opts:
         doNotDraw = 1
     elif opt == '-r':
         normBrLen = 1
-    elif opt == '-e':
-        excludeGF = arg
+    elif opt == '-i':
+        includeGF = arg
 
-# if parameter defined load a list of gene families to exclude from the analysis
-excludedGeneFamilies = []
-if excludeGF:
-    with open(excludeGF, 'r') as f:
+# if parameter defined load a list of gene families to include from the analysis
+includedGeneFamilies = []
+if includeGF:
+    with open(includeGF, 'r') as f:
         for line in f:
-            excludedGeneFamilies = [line.rstrip() for line in f]
+            includedGeneFamilies = [line.rstrip() for line in f]
 
 # load gblock sizes and sum for each gene family
 print("sum gblock sizes")
@@ -84,7 +83,7 @@ gb = Counter()
 for line in gf:
     line = line.rstrip()
     (geneFamily, begin, end) = line.split()
-    if geneFamily not in excludedGeneFamilies:
+    if geneFamily in includedGeneFamilies:
         gb[geneFamily] += int(end) - int(begin) + 1
 
 # sum gain and loss probabilities along branches
@@ -100,7 +99,7 @@ Nij = defaultdict(set) # number of gene families with Si-Sj path
 for line in gl:
     line = line.rstrip()
     (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) = line.split()
-    if geneFamily not in excludedGeneFamilies:
+    if geneFamily in includedGeneFamilies:
         sumloss[(fromNode, toNode)] += float(panc) * float(loss) # normalize rate of loss by the probability of being present
         noloss[(fromNode, toNode)] += 1
         sumgain[(geneFamily, fromNode, toNode)] += float(gain)
