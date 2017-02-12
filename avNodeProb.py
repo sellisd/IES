@@ -4,7 +4,7 @@ from __future__ import division
 from pyies.functions import phyldogSpeciesTree
 from pyies.userOptions import basePath
 from collections import Counter
-from ete3 import Tree, NodeStyle
+from ete3 import Tree, NodeStyle, TextFace
 import os.path
 
 # read spEvents into dictionary node->sp event
@@ -53,9 +53,10 @@ with open(avNodeProbF, 'r') as f:
 t = phyldogSpeciesTree(phyldogTreeFile, brlenFile, outgroupName)
 for node in t.traverse():
     #print(node.PHYLDOGid+' '+ str(sumProb[node.PHYLDOGid]/countProb[node.PHYLDOGid]))
-    nstyle = NodeStyle()
-    nstyle["size"] = 100 * sumProb[node.PHYLDOGid]/countProb[node.PHYLDOGid]
-    node.set_style(nstyle)
+    #nstyle = NodeStyle()
+    p = 100 * sumProb[node.PHYLDOGid]/countProb[node.PHYLDOGid]
+    #node.set_style(nstyle)
+    node.add_face(TextFace(str(round(p,2))), column = 0, position = "branch-right")
 t.show()
 #for k in countProb:
 #    print("\t".join([k, str(sumProb[k]/countProb[k])]))
