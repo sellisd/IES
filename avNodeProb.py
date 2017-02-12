@@ -14,6 +14,17 @@ nodeDictF = os.path.join(basePath, 'analysis', 'tables', 'nodeDictionary1.dat')
 brlenFile = os.path.join(basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile')
 phyldogTreeFile = os.path.join(basePath, 'analysis', 'phyldogT1', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree')
 outgroupName = "Tetrahymena_thermophila"
+outputFile = os.path.join(basePath, 'analysis', 'figures', 'avnodeProb.png')
+includeGF = "/Users/dsellis/Desktop/temp.dat"
+
+# if parameter defined load a list of gene families to include from the analysis
+includedGeneFamilies = []
+if includeGF:
+    with open(includeGF, 'r') as f:
+        for line in f:
+            includedGeneFamilies = [line.rstrip() for line in f]
+
+
 # load node dictionary
 rb2phyldog = {}
 with open(nodeDictF, 'r') as f:
@@ -43,10 +54,11 @@ with open(avNodeProbF, 'r') as f:
         (cluster, rb, iesColumn, presence) = line.split("\t")
         #homIESid = column2homIESid[(cluster, iesColumn)]
         nodeP = rb2phyldog[(cluster, rb)]
-        if (cluster, nodeP) in node2Event: # if node is speciation node (not duplication)
-            spEvent = node2Event[(cluster,nodeP)]
-            sumProb[spEvent] += float(presence)
-            countProb[spEvent] += 1
+        if cluster in includedGeneFamilies:
+            if (cluster, nodeP) in node2Event: # if node is speciation node (not duplication)
+                spEvent = node2Event[(cluster,nodeP)]
+                sumProb[spEvent] += float(presence)
+                countProb[spEvent] += 1
 
 # load species tree with branch lengths
 # load phyldog tree
@@ -57,6 +69,7 @@ for node in t.traverse():
     p = 100 * sumProb[node.PHYLDOGid]/countProb[node.PHYLDOGid]
     #node.set_style(nstyle)
     node.add_face(TextFace(str(round(p,2))), column = 0, position = "branch-right")
-t.show()
+
+t.render(outputFile)
 #for k in countProb:
 #    print("\t".join([k, str(sumProb[k]/countProb[k])]))
