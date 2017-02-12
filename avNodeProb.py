@@ -1,15 +1,19 @@
 #!/usr/bin/python
 from __future__ import print_function
 from __future__ import division
+from pyies.functions import phyldogSpeciesTree
 from pyies.userOptions import basePath
 from collections import Counter
+from ete3 import Tree, NodeStyle
 import os.path
 
 # read spEvents into dictionary node->sp event
 spEventsF = os.path.join(basePath, 'analysis', 'tables', 'spEvents1.dat')
 avNodeProbF = os.path.join(basePath, 'analysis', 'tables', 'avNodeProb1.dat')
 nodeDictF = os.path.join(basePath, 'analysis', 'tables', 'nodeDictionary1.dat')
-homIESLinkF = os.path.join(basePath, 'analysis', 'tables', 'homIES1.columns.link')
+brlenFile = os.path.join(basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile')
+phyldogTreeFile = os.path.join(basePath, 'analysis', 'phyldogT1', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree')
+outgroupName = "Tetrahymena_thermophila"
 # load node dictionary
 rb2phyldog = {}
 with open(nodeDictF, 'r') as f:
@@ -26,20 +30,12 @@ with open(spEventsF, 'r') as f:
     for line in f:
         line = line.rstrip()
         (cluster, nodeP, spEvent) = line.split("\t")
-        node2Event[nodeP] = spEvent
-
-# load column Ids homIES id
-column2homIESid = {}
-with open(homIESLinkF, 'r') as f:
-    f.readline()
-    for line in f:
-        line = line.rstrip()
-        (geneFamily, homIES, column) = line.split("\t")
-        column2homIESid[(geneFamily, column)] = homIES
+        node2Event[(cluster, nodeP)] = spEvent
 
 # read avnodProb use dictionary to translate from node to sp event
 # sum for each sp event
-avProb = Counter()
+sumProb = Counter()
+countProb = Counter()
 with open(avNodeProbF, 'r') as f:
     f.readline()
     for line in f:
@@ -47,8 +43,19 @@ with open(avNodeProbF, 'r') as f:
         (cluster, rb, iesColumn, presence) = line.split("\t")
         #homIESid = column2homIESid[(cluster, iesColumn)]
         nodeP = rb2phyldog[(cluster, rb)]
-        print("\t".join([cluster, nodeP]))
-        spEvent = node2Event[nodeP]
-        avProb[spEvent] += float(presence)
+        if (cluster, nodeP) in node2Event: # if node is speciation node (not duplication)
+            spEvent = node2Event[(cluster,nodeP)]
+            sumProb[spEvent] += float(presence)
+            countProb[spEvent] += 1
 
-print(avProb)
+# load species tree with branch lengths
+# load phyldog tree
+t = phyldogSpeciesTree(phyldogTreeFile, brlenFile, outgroupName)
+for node in t.traverse():
+    #print(node.PHYLDOGid+' '+ str(sumProb[node.PHYLDOGid]/countProb[node.PHYLDOGid]))
+    nstyle = NodeStyle()
+    nstyle["size"] = 100 * sumProb[node.PHYLDOGid]/countProb[node.PHYLDOGid]
+    node.set_style(nstyle)
+t.show()
+#for k in countProb:
+#    print("\t".join([k, str(sumProb[k]/countProb[k])]))
