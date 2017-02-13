@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from __future__ import print_function
 from ete3 import Tree, SeqMotifFace, ImgFace, SeqGroup, BarChartFace, PieChartFace, CircleFace
+from pyies.userOptions import basePath
 import os.path
 import sys, getopt
 import string
@@ -13,8 +14,7 @@ from pyies.functions import *
 #   gene tree with nucleotide alignment and schematic of IESs
 # parameters
 
-basePath = "/home/dsellis/data/IES/"
-geneFamily = ""
+includeGF = ""
 charMatFile = "analysis/iesdb/charMats.tab"
 outputFile = ""
 plotStyle = '1'
@@ -38,12 +38,12 @@ usage:
 ./plotTree.py [OPTIONS]
 
     where OPTIONS can be any of the following:
-    -b <basePath> Default /home/dsellis/data/IES
     -g <geneFamily>
     -a [1|2|3] Choice of species tree analysis to use (Default: 2)
     -o <outputFile>
     -s [1|2|3] plot style
     -h this help screen
+    -i file with gene families to include
 
 The coding of plot style used is the following:
 1.  gene tree with PHYLDOG species numbering and duplication nodes annotated
@@ -69,6 +69,8 @@ for opt, arg in opts:
         geneFamily = arg
     elif opt == "-o":
         outputFile = arg
+    elif opt == "-i":
+        includeF = arg
     elif opt == "-a":
         if arg in ['1','2','3']:
             analysis = arg
@@ -76,8 +78,6 @@ for opt, arg in opts:
             print("Unknown value for option analysis (-a)")
             print(usage)
             sys.exit(1)
-    elif opt == "-b":
-        basePath = arg
     elif opt == "-s":
         if arg in ['1','2','3']:
             plotStyle = arg
@@ -91,6 +91,13 @@ ancNodeProbFile = "analysis/tables/avNodeProb" + analysis + ".dat"
 nodeDictionaryFile = "analysis/tables/nodeDictionary" + analysis + ".dat"
 homiesLinkFile = "analysis/tables/homIES" + analysis + ".columns.link"
 
+# if parameter defined load a list of gene families to include from the analysis
+includedGeneFamilies = [geneFamily]
+if includeGF:
+    with open(includeGF, 'r') as f:
+        for line in f:
+            includedGeneFamilies = [line.rstrip() for line in f]
+
 # create dictionaries phyldog for translation:
 rb2ph = {} # revBayes to phyldog node notation
 hiesL = {} # homologous IES id to column number
@@ -101,8 +108,8 @@ header = nd.readline()
 for line in nd:
     line = line.rstrip()
     (cluster, r, phyldog, rb) = line.split("\t")
-    if cluster == geneFamily:
-        rb2ph[rb] = phyldog
+    if cluster in includedGeneFamilies:
+        rb2ph[(cluster, rb)] = phyldog
 
 # load link file connecting iesColumnId with column numbering in revBayes
 lf = open(os.path.join(basePath, homiesLinkFile), 'r')
@@ -110,18 +117,8 @@ header = lf.readline()
 for line in lf:
     line = line.rstrip()
     (gf, homIES, column) = line.split("\t")
-    if gf == geneFamily:
-        hiesL[homIES] = int(column)
-
-#  load gene family tree
-geneFamFile = geneFamily + ".ReconciledTree"
-treeF = os.path.join(basePath, phyldogResultsPath, geneFamFile)
-
-t = Tree(treeF)
-
-if plotStyle == '1':
-    t = colorNodes(t, 1)
-    printAndEnd(outputFile)
+    if gf in includedGeneFamilies:
+        hiesL[(gf, homIES)] = int(column)
 
 # load character matrices
 f = open (os.path.join(basePath, charMatFile), 'r')
@@ -136,77 +133,89 @@ for line in f:
     gfhomIES[cluster].add(column)
     charMat[(cluster, column, geneId)] = [begin, end, ies, iesId, beginMSA, endMSA]
 
-if plotStyle == '2':
-    # load mean ancestral states
-    # avNodeProb has homIES not with ids but with increment numbering
-    fa = open(os.path.join(basePath, ancNodeProbFile), 'r')
-    header = fa.readline()
-    anc = defaultdict(dict) # defaultdictionary with key revbayes node id and value list of prob. presence
-    for line in fa:
-        line = line.rstrip()
-        (cluster, node, iesColumn, presence) = line.split("\t")
-        if cluster == geneFamily:
-            anc[rb2ph[node]][iesColumn] = float(presence)
+# for each gene family
+for geneFamily in includedGeneFamilies:
+    #  load gene family tree
+    geneFamFile = geneFamily + ".ReconciledTree"
+    treeF = os.path.join(basePath, phyldogResultsPath, geneFamFile)
 
-    # annotate tree
-    for node in t.traverse():
-        for homIES, presence in anc[node.ND].items():
-            p = 100*presence
-            a = 100 - p
-            pf = PieChartFace([p, a], 10, 10, ["black", "silver"])
-            if node.is_leaf():
-                pass
-            else:
-                column = int(homIES) + 1
-                node.add_face(pf, column, "float")
+    t = Tree(treeF)
 
-    for leaf in t:
-        geneId = leaf.name
-        for homIES in gfhomIES[geneFamily]:
-            cf = CircleFace(10, "white")
-            (begin, end, ies, iesId, beginMSA, endMSA) = charMat[(geneFamily, homIES, geneId)]
-            if ies == '?':
-                cf = CircleFace(10, "silver", label = "?")
-            elif ies == '1':
-                cf = CircleFace(10, "black")
-            elif ies == '0':
-                cf = CircleFace(10, "LightGrey")
-            else:
-                sys.exit(1)
-            column = hiesL[homIES] + 1
-            leaf.add_face(cf, column, "aligned")
-    printAndEnd(outputFile)
+    if plotStyle == '1':
+        t = colorNodes(t, 1)
+        printAndEnd(outputFile)
 
+    if plotStyle == '2':
+        # load mean ancestral states
+        # avNodeProb has homIES not with ids but with increment numbering
+        fa = open(os.path.join(basePath, ancNodeProbFile), 'r')
+        header = fa.readline()
+        anc = defaultdict(dict) # defaultdictionary with key revbayes node id and value list of prob. presence
+        for line in fa:
+            line = line.rstrip()
+            (cluster, node, iesColumn, presence) = line.split("\t")
+            if cluster == geneFamily:
+                anc[rb2ph[(cluster, node)]][iesColumn] = float(presence)
 
-if plotStyle == '3': # plot with MSA
-    # load nucleotide sequences for all genes!
-    nuclAlnFile = os.path.join(basePath, "analysis/msas/filtered/cluster." + geneFamily + ".nucl.fa")
-    seqs = SeqGroup(sequences = nuclAlnFile, format = "fasta")
-
-    for leaf in t:
-        geneId = leaf.name
-        seq = seqs.get_seq(geneId)
-        seq = seq.translate(None, string.ascii_lowercase) # keep only CDS
-        iesmotif = [[1, len(seq), "line", 2, 5, None, None, None]]
-        for homIES in gfhomIES[geneFamily]:
-            (begin, end, ies, iesId, beginMSA, endMSA) = charMat[(geneFamily, homIES, geneId)]
-            if ies == '?':
-                if beginMSA == 'NA':
-                    iesmotif.append([int(begin), int(end),"()", 10, 10, "red", "black", "arial|8|black|?"])
+        # annotate tree
+        for node in t.traverse():
+            for homIES, presence in anc[node.ND].items():
+                p = 100*presence
+                a = 100 - p
+                pf = PieChartFace([p, a], 10, 10, ["black", "silver"])
+                if node.is_leaf():
+                    pass
                 else:
-                    iesmotif.append([int(begin), int(end),"()", 10, 10, "red", "black", "arial|8|black|?"])
-            elif ies == '1':
-                iesmotif.append([int(beginMSA), int(endMSA),"[]", 10, 10, "black", "red", "arial|8|black|" + iesId])
-            elif ies == '0':
-                iesmotif.append([int(begin), int(end), "[]", 10, 10, "silver", "silver", None])
-            else:
-                quit(1)
-        seqFace = SeqMotifFace(seq = seq, motifs = iesmotif, gap_format = "blank", seq_format = "line")
-        leaf.add_face(seqFace, 0, "aligned")
-    printAndEnd(outputFile)
+                    column = int(homIES) + 1
+                    node.add_face(pf, column, "float")
+
+        for leaf in t:
+            geneId = leaf.name
+            for homIES in gfhomIES[geneFamily]:
+                cf = CircleFace(10, "white")
+                (begin, end, ies, iesId, beginMSA, endMSA) = charMat[(geneFamily, homIES, geneId)]
+                if ies == '?':
+                    cf = CircleFace(10, "silver", label = "?")
+                elif ies == '1':
+                    cf = CircleFace(10, "black")
+                elif ies == '0':
+                    cf = CircleFace(10, "LightGrey")
+                else:
+                    sys.exit(1)
+                column = hiesL[(geneFamily, homIES)] + 1
+                leaf.add_face(cf, column, "aligned")
+        printAndEnd(outputFile)
 
 
-"""
+    if plotStyle == '3': # plot with MSA
+        # load nucleotide sequences for all genes!
+        nuclAlnFile = os.path.join(basePath, 'analysis', 'msas', 'filtered', 'cluster.' + geneFamily + '.nucl.fa')
+        seqs = SeqGroup(sequences = nuclAlnFile, format = "fasta")
+
+        for leaf in t:
+            geneId = leaf.name
+            seq = seqs.get_seq(geneId)
+            seq = seq.translate(None, string.ascii_lowercase) # keep only CDS
+            iesmotif = [[1, len(seq), "line", 2, 5, None, None, None]]
+            for homIES in gfhomIES[geneFamily]:
+                (begin, end, ies, iesId, beginMSA, endMSA) = charMat[(geneFamily, homIES, geneId)]
+                if ies == '?':
+                    if beginMSA == 'NA':
+                        iesmotif.append([int(begin), int(end),"()", 10, 10, "red", "black", "arial|8|black|?"])
+                    else:
+                        iesmotif.append([int(begin), int(end),"()", 10, 10, "red", "black", "arial|8|black|?"])
+                elif ies == '1':
+                    iesmotif.append([int(beginMSA), int(endMSA),"[]", 10, 10, "black", "red", "arial|8|black|" + iesId])
+                elif ies == '0':
+                    iesmotif.append([int(begin), int(end), "[]", 10, 10, "silver", "silver", None])
+                else:
+                    quit(1)
+            seqFace = SeqMotifFace(seq = seq, motifs = iesmotif, gap_format = "blank", seq_format = "line")
+            leaf.add_face(seqFace, 0, "aligned")
+        printAndEnd(outputFile)
+
+
+    """
 t.show()
 
 # Draw trees.
