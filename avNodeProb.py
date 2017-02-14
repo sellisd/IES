@@ -15,15 +15,13 @@ brlenFile = os.path.join(basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile
 phyldogTreeFile = os.path.join(basePath, 'analysis', 'phyldogT1', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree')
 outgroupName = "Tetrahymena_thermophila"
 outputFile = os.path.join(basePath, 'analysis', 'figures', 'avnodeProb.png')
-includeGF = "/Users/dsellis/Desktop/temp.dat"
+includeGF = "/Volumes/WDC/data/IES/analysis/tables/singleGeneFamilies.dat"
 
 # if parameter defined load a list of gene families to include from the analysis
 includedGeneFamilies = []
 if includeGF:
     with open(includeGF, 'r') as f:
-        for line in f:
-            includedGeneFamilies = [line.rstrip() for line in f]
-
+        includedGeneFamilies = [line.rstrip() for line in f]
 
 # load node dictionary
 rb2phyldog = {}
@@ -58,7 +56,7 @@ with open(avNodeProbF, 'r') as f:
             if (cluster, nodeP) in node2Event: # if node is speciation node (not duplication)
                 spEvent = node2Event[(cluster,nodeP)]
                 sumProb[spEvent] += float(presence)
-                countProb[spEvent] += 1
+                countProb[spEvent] += 1.
 
 # load species tree with branch lengths
 # load phyldog tree

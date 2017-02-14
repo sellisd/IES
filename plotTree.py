@@ -94,8 +94,7 @@ homiesLinkFile = "analysis/tables/homIES" + analysis + ".columns.link"
 # if parameter defined load a list of gene families to include from the analysis
 if includeGF:
     with open(includeGF, 'r') as f:
-        for line in f:
-            includedGeneFamilies = [line.rstrip() for line in f]
+        includedGeneFamilies = [line.rstrip() for line in f]
 
 # create dictionaries phyldog for translation:
 rb2ph = {} # revBayes to phyldog node notation
