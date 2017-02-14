@@ -14,9 +14,10 @@ from pyies.functions import *
 #   gene tree with nucleotide alignment and schematic of IESs
 # parameters
 
+includedGeneFamilies = []
 includeGF = ""
 charMatFile = "analysis/iesdb/charMats.tab"
-outputFile = ""
+outputPath = ""
 plotStyle = '1'
 analysis = '2'
 phyldogResultsPath = "analysis/phyldogT" + analysis + "/results"
@@ -24,13 +25,12 @@ ancNodeProbFile = "analysis/tables/avNodeProb" + analysis + ".dat"
 nodeDictionaryFile = "analysis/tables/nodeDictionary" + analysis + ".dat"
 homiesLinkFile = "analysis/tables/homIES" + analysis + ".columns.link"
 
-def printAndEnd(outputFile):
+def drawTree(outputFile):
     """ Print or save output and end script."""
     if outputFile:
         t.render(outputFile)
     else:
         t.show()
-    sys.exit(0)
 
 usage = """
 usage:
@@ -40,10 +40,10 @@ usage:
     where OPTIONS can be any of the following:
     -g <geneFamily>
     -a [1|2|3] Choice of species tree analysis to use (Default: 2)
-    -o <outputFile>
+    -o <outputPath> Path to output the file named geneFamily.a.s.png
     -s [1|2|3] plot style
     -h this help screen
-    -i file with gene families to include
+    -i file with gene families to include (ignoring option -g)
 
 The coding of plot style used is the following:
 1.  gene tree with PHYLDOG species numbering and duplication nodes annotated
@@ -57,7 +57,7 @@ The coding for species tree is:
 """
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hg:a:o:b:s:")
+    opts, args = getopt.getopt(sys.argv[1:],"hg:a:o:i:s:")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -66,11 +66,11 @@ for opt, arg in opts:
         print(usage)
         sys.exit(1)
     elif opt == "-g":
-        geneFamily = arg
+        includedGeneFamilies = [arg]
     elif opt == "-o":
-        outputFile = arg
+        outputPath = arg
     elif opt == "-i":
-        includeF = arg
+        includeGF = arg
     elif opt == "-a":
         if arg in ['1','2','3']:
             analysis = arg
@@ -92,7 +92,6 @@ nodeDictionaryFile = "analysis/tables/nodeDictionary" + analysis + ".dat"
 homiesLinkFile = "analysis/tables/homIES" + analysis + ".columns.link"
 
 # if parameter defined load a list of gene families to include from the analysis
-includedGeneFamilies = [geneFamily]
 if includeGF:
     with open(includeGF, 'r') as f:
         for line in f:
@@ -135,7 +134,9 @@ for line in f:
 
 # for each gene family
 for geneFamily in includedGeneFamilies:
+    print("Ploting gene family: " + geneFamily)
     #  load gene family tree
+    outputFile = os.path.join(outputPath, geneFamily + '.' + analysis + '.' + plotStyle + '.png')
     geneFamFile = geneFamily + ".ReconciledTree"
     treeF = os.path.join(basePath, phyldogResultsPath, geneFamFile)
 
@@ -143,9 +144,8 @@ for geneFamily in includedGeneFamilies:
 
     if plotStyle == '1':
         t = colorNodes(t, 1)
-        printAndEnd(outputFile)
-
-    if plotStyle == '2':
+        drawTree(outputFile)
+    elif plotStyle == '2':
         # load mean ancestral states
         # avNodeProb has homIES not with ids but with increment numbering
         fa = open(os.path.join(basePath, ancNodeProbFile), 'r')
@@ -184,10 +184,8 @@ for geneFamily in includedGeneFamilies:
                     sys.exit(1)
                 column = hiesL[(geneFamily, homIES)] + 1
                 leaf.add_face(cf, column, "aligned")
-        printAndEnd(outputFile)
-
-
-    if plotStyle == '3': # plot with MSA
+        drawTree(outputFile)
+    elif plotStyle == '3': # plot with MSA
         # load nucleotide sequences for all genes!
         nuclAlnFile = os.path.join(basePath, 'analysis', 'msas', 'filtered', 'cluster.' + geneFamily + '.nucl.fa')
         seqs = SeqGroup(sequences = nuclAlnFile, format = "fasta")
@@ -212,7 +210,7 @@ for geneFamily in includedGeneFamilies:
                     quit(1)
             seqFace = SeqMotifFace(seq = seq, motifs = iesmotif, gap_format = "blank", seq_format = "line")
             leaf.add_face(seqFace, 0, "aligned")
-        printAndEnd(outputFile)
+        drawTree(outputFile)
 
 
     """
