@@ -270,3 +270,7 @@ def addattr( t, bratr ):
                     node.add_face(TextFace(bratr[branch]['under']), column = 0, position = "branch-bottom")
 
     return t
+
+def makeNodeTable(t1, t2):
+    for n1 in t1.traverse():
+        "|".join(n1.get_descendants().names().sort())
