@@ -17,14 +17,8 @@ def revBayesTree2key(file):
     t=Tree(file, format = 1)
     keyD = {}
     for node in t.traverse():
-        k = "|".join(sorted([n for n in node.get_leaf_names()]))
-        m = re.search('\[&index=(\d+)\]', node.name)
-        if m:
-            nodeId = m.group(1)
-        else:
-            print(node.name)
-            quit(1)
-        keyD[k] = nodeId
+        k = "|".join(sorted([re.sub('\[&index=\d+\]','', n) for n in node.get_leaf_names()]))
+        keyD[k] = nodeIndexFromString(node.name)
     return(keyD)
 
 def nodeIndexFromString(nodeName):
@@ -35,7 +29,7 @@ def nodeIndexFromString(nodeName):
         return(nodeId)
     else:
         print(node.name)
-    quit(1)
+        quit(1)
 
 def nhx2key(nhxtree):
     """Parse a PHYLDOG nhx file or string and create key for each node."""
