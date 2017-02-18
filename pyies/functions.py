@@ -12,6 +12,15 @@ from userOptions import basePath
 colorFile = 'colors.hex'
 colorFile9 = 'colors9.hex'
 
+def nhx2key(file):
+    """Parse a PHYLDOG nhx file and create key for each node."""
+    t = Tree(file)
+    keyD = {}
+    for node in t.traverse():
+        k = "|".join(sorted([n for n in node.get_leaf_names()]))
+        keyD[k] = node.ND
+    return(keyD)
+
 def speciesAbr2bn(abr, opt = "full", sep = "_"):
     """ Species abbreviation to binomial."""
     # opt can be full|dot
@@ -270,7 +279,3 @@ def addattr( t, bratr ):
                     node.add_face(TextFace(bratr[branch]['under']), column = 0, position = "branch-bottom")
 
     return t
-
-def makeNodeTable(t1, t2):
-    for n1 in t1.traverse():
-        "|".join(n1.get_descendants().names().sort())
