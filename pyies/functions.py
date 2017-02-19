@@ -12,6 +12,18 @@ from userOptions import basePath
 colorFile = 'colors.hex'
 colorFile9 = 'colors9.hex'
 
+def makeNodeTable(phyldogTreeF, revBayesTreeF):
+    """Create node dictioary to link two trees."""
+    rbDict = revBayesTree2key(revBayesTreeF)
+    phDict = nhx2key(phyldogTreeF)
+    L = []
+    if not sorted(rbDict.keys()) == sorted(phDict.keys()):
+        print("Warning: keys not identical")
+    else:
+        for k in rbDict:
+            L.append((rbDict[k], phDict[k]))
+    return L
+
 def revBayesTree2key(file):
     """Parse a revBayes node index tree file and create a key for each node."""
     t=Tree(file, format = 1)
@@ -33,7 +45,7 @@ def nodeIndexFromString(nodeName):
 
 def nhx2key(nhxtree):
     """Parse a PHYLDOG nhx file or string and create key for each node."""
-    t = Tree(file)
+    t = Tree(nhxtree)
     keyD = {}
     for node in t.traverse():
         k = "|".join(sorted([n for n in node.get_leaf_names()]))
