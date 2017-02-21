@@ -30,4 +30,4 @@ for asrRun in (1,2,3):
             if(os.path.isfile(rbTree) & os.path.isfile(phTree)):
                 L = makeNodeTable(phyldogTreeF = phTree, revBayesTreeF = rbTree)
                 for (rb, ph) in L:
-                    fout.write("\t".join([str(gfId), 'NA', rb, ph + '\n']))
+                    fout.write("\t".join([str(gfId), 'NA', ph, rb + '\n']))
