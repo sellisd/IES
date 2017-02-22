@@ -137,7 +137,6 @@ exon2intronsBed <- function(exons){
       introns[rowCounter, "gene"]     <- gene
       rowCounter <- rowCounter + 1
     }
-    cat(rowCounter,"/",l,"\r")
   }
   introns[1:(rowCounter-1),]
 }
@@ -178,7 +177,7 @@ gene2intergenicBed <- function(genes, scaffoldLengths){
         intergenic[rowCounter, "name"]       <- paste0(scaffold, '.', nameId)
         nameId <- nameId + 1
         rowCounter <- rowCounter + 1
-        cat(rowCounter,"/",l,"\r")
+        #cat(rowCounter,"/",l,"\r")
       }
     }
   }
