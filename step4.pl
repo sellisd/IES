@@ -24,15 +24,10 @@ for(my $asrRun = 1; $asrRun<=3; $asrRun++){
        ' -asr '.$rbResultsP.
        ' -output '.$avNodeProbF,
        1);
-   # make a dictionary of node Ids across software
-   my $ReconciledTreeF = catfile($basePath, 'analysis', 'phyldogT'.$asrRun, 'results','*.ReconciledTree');
-   my $nodeIndexF      = catfile($rbNodeIndexesP, 'nodeIndex.*.tre');
-   run("./nhxNodes.pl $ReconciledTreeF", 1);
-   run("./nhxNodes.pl -rb $nodeIndexF", 1);
 }
 
 # make dictionary of node indexes linking revBayes, PHYLDOG and ape(R) notation
-run("Rscript --vanilla ./nodeDictionary.R", 1);
+run("./nodeDict.py", 1);
 
 # find age of individual IES (MRCA of group of homologous IES)
 # 1. spEvents.py creates a table with nodes of trees that correspond to speciation events
@@ -43,20 +38,20 @@ my $geneFamilies1F = catfile($basePath, 'analysis', 'asr1', 'geneFamilies.dat');
 my $geneFamilies2F = catfile($basePath, 'analysis', 'asr2', 'geneFamilies.dat');
 my $geneFamilies3F = catfile($basePath, 'analysis', 'asr3', 'geneFamilies.dat');
 my $spEvents1F     = catfile($tablesP, 'spEvents1.dat');
-my $spEvents2F     = catfile($tablesP, 'spEvents1.dat');
-my $spEvents3F     = catfile($tablesP, 'spEvents1.dat');
+my $spEvents2F     = catfile($tablesP, 'spEvents2.dat');
+my $spEvents3F     = catfile($tablesP, 'spEvents3.dat');
 
-run('./spEvents.py -p '.$p1rP.' -g '.$geneFamilies1F.' > '.$spEvents1F, 1);
-run('./spEvents.py -p '.$p2rP.' -g '.$geneFamilies2F.' > '.$spEvents2F, 1);
-run('./spEvents.py -p '.$p3rP.' -g '.$geneFamilies3F.' > '.$spEvents3F, 1);
+run('./spEvents.py -p '.$p1rP.' -g '.$geneFamilies1F.' > '.$spEvents1F, 0);
+run('./spEvents.py -p '.$p2rP.' -g '.$geneFamilies2F.' > '.$spEvents2F, 0);
+run('./spEvents.py -p '.$p3rP.' -g '.$geneFamilies3F.' > '.$spEvents3F, 0);
 
 # 2. then find speciation tree node is the most recent common ancestor
 my $iesAge1F = catfile($tablesP, 'iesAge1.dat');
 my $iesAge2F = catfile($tablesP, 'iesAge2.dat');
 my $iesAge3F = catfile($tablesP, 'iesAge3.dat');
-run("./firstIES.py 1 > $iesAge1F", 1);
-run("./firstIES.py 2 > $iesAge2F", 1);
-run("./firstIES.py 3 > $iesAge3F", 1);
+run("./firstIES.py 1 > $iesAge1F", 0);
+run("./firstIES.py 2 > $iesAge2F", 0);
+run("./firstIES.py 3 > $iesAge3F", 0);
 
 # 3. create homIESdb with age and other information
 my $homIESdb1F = catfile($iesdbP, 'homIESdb1.tab');
