@@ -37,7 +37,7 @@ where OPTIONS can be any of the following:
     -o: output File Base Name (if not provided show in interactive tree viewer)
     -d: do not draw tree, output text file and print ASCII tree
     -r: normalize by branch lengths
-    -i: file with gene familie to include in the analysis
+    -i: file with gene families to include in the analysis. Default all included
     -h: this help screen
 """;
 
@@ -83,7 +83,7 @@ gb = Counter()
 for line in gf:
     line = line.rstrip()
     (geneFamily, begin, end) = line.split()
-    if geneFamily in includedGeneFamilies:
+    if (includeGF and (geneFamily in includedGeneFamilies)) or (not includeGF):
         gb[geneFamily] += int(end) - int(begin) + 1
 
 # sum gain and loss probabilities along branches
@@ -99,7 +99,7 @@ Nij = defaultdict(set) # number of gene families with Si-Sj path
 for line in gl:
     line = line.rstrip()
     (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) = line.split()
-    if geneFamily in includedGeneFamilies:
+    if (includeGF and (geneFamily in includedGeneFamilies)) or (not includeGF):
         sumloss[(fromNode, toNode)] += float(panc) * float(loss) # normalize rate of loss by the probability of being present
         noloss[(fromNode, toNode)] += 1
         sumgain[(geneFamily, fromNode, toNode)] += float(gain)
