@@ -8,6 +8,10 @@ output:
     number_sections: TRUE
 ---
 
+```{r, setup, echo = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
 ```{r, setPaths, echo = FALSE}
 setwd('.')
 source("sharedFunctions.R")
@@ -17,7 +21,7 @@ basePath <- opt["basePath", ]
 
 # Validate MCMC convergence
 
-Two MCMC runs were performed for each species tree topology for 1000000, with the exception of 1 replicate run for species tree 1 which reached 970600 generations. Thus the estimation of convergence for the runs of species tree 3 where restricted to 970600 generations.
+Two MCMC runs were performed for each species tree topology for 500000.
 
 ```{r, loadLibraries, echo = FALSE}
 library(coda)
@@ -39,7 +43,7 @@ loadmcmc <- function(spT, short = FALSE){
 }
 ```
 
-![species trees](/home/dsellis/projects/IES/reports/53.FranceGenomiqueFigures/3trees.png)
+![species trees](/Users/dsellis/projects/IES/reports/53.FranceGenomiqueFigures/3trees.png)
 
 ## MCMC for ancestral state reconstruction with species tree 1
 
