@@ -41,17 +41,17 @@ my $spEvents1F     = catfile($tablesP, 'spEvents1.dat');
 my $spEvents2F     = catfile($tablesP, 'spEvents2.dat');
 my $spEvents3F     = catfile($tablesP, 'spEvents3.dat');
 
-run('./spEvents.py -p '.$p1rP.' -g '.$geneFamilies1F.' > '.$spEvents1F, 0);
-run('./spEvents.py -p '.$p2rP.' -g '.$geneFamilies2F.' > '.$spEvents2F, 0);
-run('./spEvents.py -p '.$p3rP.' -g '.$geneFamilies3F.' > '.$spEvents3F, 0);
+run('./spEvents.py -p '.$p1rP.' -g '.$geneFamilies1F.' > '.$spEvents1F, 1);
+run('./spEvents.py -p '.$p2rP.' -g '.$geneFamilies2F.' > '.$spEvents2F, 1);
+run('./spEvents.py -p '.$p3rP.' -g '.$geneFamilies3F.' > '.$spEvents3F, 1);
 
 # 2. then find speciation tree node is the most recent common ancestor
 my $iesAge1F = catfile($tablesP, 'iesAge1.dat');
 my $iesAge2F = catfile($tablesP, 'iesAge2.dat');
 my $iesAge3F = catfile($tablesP, 'iesAge3.dat');
-run("./firstIES.py 1 > $iesAge1F", 0);
-run("./firstIES.py 2 > $iesAge2F", 0);
-run("./firstIES.py 3 > $iesAge3F", 0);
+run("./firstIES.py 1 > $iesAge1F", 1);
+run("./firstIES.py 2 > $iesAge2F", 1);
+run("./firstIES.py 3 > $iesAge3F", 1);
 
 # 3. create homIESdb with age and other information
 my $homIESdb1F = catfile($iesdbP, 'homIESdb1.tab');
@@ -89,8 +89,8 @@ run("./nodePaths.py 3 > $nodePaths3F", 1);
 # calculate the difference in probability at each step
 # sum all the positive differences and all the negative differences
 my $gl1F = catfile($tablesP, 'gainLoss1.dat');
-my $gl2F = catfile($tablesP, 'gainLoss1.dat');
-my $gl3F = catfile($tablesP, 'gainLoss1.dat');
+my $gl2F = catfile($tablesP, 'gainLoss2.dat');
+my $gl3F = catfile($tablesP, 'gainLoss3.dat');
 run("./gainLoss.pl 1 > $gl1F", 1);
 run("./gainLoss.pl 2 > $gl2F", 1);
 run("./gainLoss.pl 3 > $gl3F", 1);
@@ -109,18 +109,26 @@ my $output1F      = catfile($basePath, 'analysis', 'figures', 'spTree1');
 my $output2F      = catfile($basePath, 'analysis', 'figures', 'spTree2');
 my $output3F      = catfile($basePath, 'analysis', 'figures', 'spTree3');
 
+# summarize and prepare plots at the end of the analysis
 run("./gainLossSum.py -r -g $gainLoss1F -b $gblocksF -l $brlenTree1F -p $phyldogTree1F -o $output1F -n Tetrahymena_thermophila", 1);
 run("./gainLossSum.py -r -g $gainLoss2F -b $gblocksF -l $brlenTree2F -p $phyldogTree2F -o $output2F -n Tetrahymena_thermophila", 1);
 run("./gainLossSum.py -r -g $gainLoss3F -b $gblocksF -l $brlenTree3F -p $phyldogTree3F -o $output3F -n Tetrahymena_thermophila", 1);
-# summarize and prepare plots at the end of the analysis
-exit(1);
-#~/anaconda_ete/bin/python ./gainLossSum.py -i ~/Desktop/temp.dat -g /Volumes/WDC/data/IES/analysis/tables/gainLoss1.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/topoConstrSimple.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree1 -n Tetrahymena_thermophila
-#~/anaconda_ete/bin/python ./gainLossSum.py -i ~/Desktop/temp.dat -g /Volumes/WDC/data/IES/analysis/tables/gainLoss2.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concatSimple.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT2/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree2 -n Tetrahymena_thermophila
-#~/anaconda_ete/bin/python ./gainLossSum.py -i ~/Desktop/temp.dat -g /Volumes/WDC/data/IES/analysis/tables/gainLoss3.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concat.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT3/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree3 -n Tetrahymena_thermophila
 
-#~/anaconda_ete/bin/python ./gainLossSum.py -i ~/Desktop/temp.dat -r -g /Volumes/WDC/data/IES/analysis/tables/gainLoss1.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/topoConstrSimple.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree1Norm -n Tetrahymena_thermophila
-#~/anaconda_ete/bin/python ./gainLossSum.py -i ~/Desktop/temp.dat -r -g /Volumes/WDC/data/IES/analysis/tables/gainLoss2.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concatSimple.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT2/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree2Norm -n Tetrahymena_thermophila
-#~/anaconda_ete/bin/python ./gainLossSum.py -i ~/Desktop/temp.dat -r -g /Volumes/WDC/data/IES/analysis/tables/gainLoss3.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concat.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT3/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree3Norm -n Tetrahymena_thermophila
+# combine age and length information for each IES
+my $ageLengthOut1F = catfile($tablesP, 'ageLength1.dat');
+my $ageLengthOut2F = catfile($tablesP, 'ageLength2.dat');
+my $ageLengthOut3F = catfile($tablesP, 'ageLength3.dat');
+run("./lengthAge.pl 1 > $ageLengthOut1F", 1);
+run("./lengthAge.pl 2 > $ageLengthOut2F", 1);
+run("./lengthAge.pl 3 > $ageLengthOut3F", 1);
+
+exit(1);
+#~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss1.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/topoConstrSimple.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree1 -n Tetrahymena_thermophila
+#~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss2.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concatSimple.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT2/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree2 -n Tetrahymena_thermophila
+#~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss3.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concat.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT3/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree3 -n Tetrahymena_thermophila
+
+#~/anaconda_ete/bin/python ./gainLossSum.py -r -g /Volumes/WDC/data/IES/analysis/tables/gainLoss1.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/topoConstrSimple.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT1/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree1Norm -n Tetrahymena_thermophila
+#~/anaconda_ete/bin/python ./gainLossSum.py -r -g /Volumes/WDC/data/IES/analysis/tables/gainLoss2.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concatSimple.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT2/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree2Norm -n Tetrahymena_thermophila
+#~/anaconda_ete/bin/python ./gainLossSum.py -r -g /Volumes/WDC/data/IES/analysis/tables/gainLoss3.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -l /Volumes/WDC/data/IES/analysis/sgf/concat.nexus.treefile -p /Volumes/WDC/data/IES/analysis/phyldogT3/results/OutputSpeciesTree_ConsensusNumbered.tree -o /Volumes/WDC/data/IES/analysis/figures/spTree3Norm -n Tetrahymena_thermophila
 
 system("./pwm.py ~/data/IES/analysis/tables/consensus.dat"); # calculate position weight matrices and draw sequence logo diagrams
-system("./lengthAge.pl > ~/data/IES/analysis/tables/ageLength.dat"); # combine age and length information for each IES

@@ -8,13 +8,22 @@ from ete3 import Tree, NodeStyle, TextFace
 import os.path
 
 # read spEvents into dictionary node->sp event
-spEventsF = os.path.join(basePath, 'analysis', 'tables', 'spEvents1.dat')
-avNodeProbF = os.path.join(basePath, 'analysis', 'tables', 'avNodeProb1.dat')
-nodeDictF = os.path.join(basePath, 'analysis', 'tables', 'nodeDictionary1.dat')
-brlenFile = os.path.join(basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile')
-phyldogTreeFile = os.path.join(basePath, 'analysis', 'phyldogT1', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree')
+#asrRun = 1|2|3
+asrRun = 3
+spEventsF = os.path.join(basePath, 'analysis', 'tables', 'spEvents'+str(asrRun)+'.dat')
+avNodeProbF = os.path.join(basePath, 'analysis', 'tables', 'avNodeProb'+str(asrRun)+'.dat')
+nodeDictF = os.path.join(basePath, 'analysis', 'tables', 'nodeDictionary'+str(asrRun)+'.dat')
+if asrRun == 1:
+    brlenFile = os.path.join(basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile')
+elif asrRun == 2:
+    brlenFile = os.path.join(basePath, 'analysis', 'sgf', 'concatSimple.nexus.treefile')
+elif asrRun == 3:
+    brlenFile = os.path.join(basePath, 'analysis', 'sgf', 'concat.nexus.treefile')
+else:
+    quit(1)
+phyldogTreeFile = os.path.join(basePath, 'analysis', 'phyldogT'+str(asrRun), 'results', 'OutputSpeciesTree_ConsensusNumbered.tree')
 outgroupName = "Tetrahymena_thermophila"
-outputFile = os.path.join(basePath, 'analysis', 'figures', 'avnodeProb.png')
+outputFile = os.path.join(basePath, 'analysis', 'figures', 'avnodeProb'+str(asrRun)+'.png')
 includeGF = "/Volumes/WDC/data/IES/analysis/tables/singleGeneFamilies.dat"
 
 # if parameter defined load a list of gene families to include from the analysis
@@ -22,6 +31,9 @@ includedGeneFamilies = []
 if includeGF:
     with open(includeGF, 'r') as f:
         includedGeneFamilies = [line.rstrip() for line in f]
+
+#includedGeneFamilies = ['10623']
+#print(includedGeneFamilies)
 
 # load node dictionary
 rb2phyldog = {}
@@ -39,8 +51,14 @@ with open(spEventsF, 'r') as f:
     for line in f:
         line = line.rstrip()
         (cluster, nodeP, spEvent) = line.split("\t")
-        node2Event[(cluster, nodeP)] = spEvent
+        if cluster in includedGeneFamilies:
+            #print(line)
+            node2Event[(cluster, nodeP)] = spEvent
 
+#quit()
+#for k in node2Event:
+#    print((k,node2Event[k]))
+#quit()
 # read avnodProb use dictionary to translate from node to sp event
 # sum for each sp event
 sumProb = Counter()
@@ -55,16 +73,20 @@ with open(avNodeProbF, 'r') as f:
         if cluster in includedGeneFamilies:
             if (cluster, nodeP) in node2Event: # if node is speciation node (not duplication)
                 spEvent = node2Event[(cluster,nodeP)]
+                #print(nodeP + ' ' + spEvent+' '+presence)
                 sumProb[spEvent] += float(presence)
                 countProb[spEvent] += 1.
-
+#quit(0)
 # load species tree with branch lengths
 # load phyldog tree
 t = phyldogSpeciesTree(phyldogTreeFile, brlenFile, outgroupName)
 for node in t.traverse():
     #print(node.PHYLDOGid+' '+ str(sumProb[node.PHYLDOGid]/countProb[node.PHYLDOGid]))
     #nstyle = NodeStyle()
-    p = 100 * sumProb[node.PHYLDOGid]/countProb[node.PHYLDOGid]
+    if(countProb[node.PHYLDOGid] == 0):
+        p = -1
+    else:
+        p = 100 * sumProb[node.PHYLDOGid]/countProb[node.PHYLDOGid]
     #node.set_style(nstyle)
     node.add_face(TextFace(str(round(p,2))), column = 0, position = "branch-right")
 
