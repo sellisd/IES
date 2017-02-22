@@ -69,6 +69,10 @@ for opt, arg in opts:
         includedGeneFamilies = [arg]
     elif opt == "-o":
         outputPath = arg
+        if not os.path.isdir(outputPath):
+            print("Warning: Not existing path: " + outputPath)
+            print(usage)
+            quit(1)
     elif opt == "-i":
         includeGF = arg
     elif opt == "-a":
@@ -135,7 +139,9 @@ for line in f:
 for geneFamily in includedGeneFamilies:
     print("Ploting gene family: " + geneFamily)
     #  load gene family tree
-    outputFile = os.path.join(outputPath, geneFamily + '.' + analysis + '.' + plotStyle + '.png')
+    outputFile = ""
+    if outputPath:
+        outputFile = os.path.join(outputPath, geneFamily + '.' + analysis + '.' + plotStyle + '.png')
     geneFamFile = geneFamily + ".ReconciledTree"
     treeF = os.path.join(basePath, phyldogResultsPath, geneFamFile)
 
