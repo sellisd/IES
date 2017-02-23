@@ -12,16 +12,16 @@ from decimal import *
 # Normalize loss rate by total length of conserved blocks of alignments and both insertion and loss rate by branch lengths.
 
 # program options
-spNodePairsF = os.path.join(basePath, 'analysis', 'tables', 'spNodePairs1.dat')
-gainLossFile = os.path.join(basePath, 'analysis', 'tables', 'gainLoss1.dat')
-gbFile = os.path.join(basePath, 'analysis', 'tables', 'gblocks.dat') # Gblocks file
-brlenFile = os.path.join(basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile')
-phyldogTreeFile = os.path.join(basePath, 'analysis', 'phyldogT1', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree')
-outgroupName = "Tetrahymena_thermophila"
+spNodePairsF       = ""
+gainLossFile       = ""
+gbFile             = ""
+brlenFile          = ""
+phyldogTreeFile    = ""
+outgroupName       = ""
 outputFileBaseName = ""
-doNotDraw = 0
-normBrLen = 0
-includeGF = ""
+doNotDraw          = 0
+normBrLen          = 0
+includeGF          = ""
 usage = """
 usage:
 
@@ -103,25 +103,24 @@ for line in gl:
         sumloss[(fromNode, toNode)] += float(panc) * float(loss) # normalize rate of loss by the probability of being present
         noloss[(fromNode, toNode)] += 1
         sumgain[(geneFamily, fromNode, toNode)] += float(gain)
-        nogain[(geneFamily, fromNode, toNode)] += 1
+        nogain[(fromNode, toNode)] += 1
         Nij[(fromNode, toNode)].add(geneFamily)
 
-# normalize rate of gain by gblocks length and number of paths
+# normalize rate of gain by gblocks length
 print("normalize")
 pgain = Counter()
 for k in sumgain:
-    pgain[(k[1], k[2])] += sumgain[k] * gb[k[0]] / nogain[k]
+    pgain[(k[1], k[2])] += sumgain[k] * gb[k[0]]
 
 # normalize rate of loss by number of paths
 ploss = Counter()
 for k in sumloss:
     ploss[k] = sumloss[k] / noloss[k]
 
-# normalize rate of gain and loss by number of gene families with Si-Sj path
+# normalize rate of gain and loss by total number of Si-Sj paths
 for k in pgain:
-    pgain[k] /= len(Nij[k])
-    ploss[k] /= len(Nij[k])
-
+    pgain[k] /= nogain[k]
+    ploss[k] /= noloss[k]
 
 # normalize by branch length
 t = phyldogSpeciesTree(phyldogTreeFile, brlenFile, outgroupName)
