@@ -20,6 +20,7 @@ charMatFile = "analysis/iesdb/charMats.tab"
 outputPath = ""
 plotStyle = '1'
 analysis = '2'
+skipExisting = True
 phyldogResultsPath = "analysis/phyldogT" + analysis + "/results"
 ancNodeProbFile = "analysis/tables/avNodeProb" + analysis + ".dat"
 nodeDictionaryFile = "analysis/tables/nodeDictionary" + analysis + ".dat"
@@ -137,14 +138,18 @@ for line in f:
 
 # for each gene family
 for geneFamily in includedGeneFamilies:
-    print("Ploting gene family: " + geneFamily)
     #  load gene family tree
     outputFile = ""
     if outputPath:
         outputFile = os.path.join(outputPath, geneFamily + '.' + analysis + '.' + plotStyle + '.png')
     geneFamFile = geneFamily + ".ReconciledTree"
     treeF = os.path.join(basePath, phyldogResultsPath, geneFamFile)
+    if os.path.isfile(outputFile):
+        if skipExisting:
+            print("Skipping gene family " + geneFamily + " with existing output.")
+            continue
 
+    print("Ploting gene family: " + geneFamily)
     t = Tree(treeF)
 
     if plotStyle == '1':
