@@ -1,13 +1,11 @@
 #!/usr/bin/python
 from __future__ import print_function
 from __future__ import division
-from collections import Counter, defaultdict
-from pyies.functions import phyldogSpeciesTree, scaleCol
+from collections import Counter
 from pyies.userOptions import basePath
 import os.path
 import sys, getopt
-from ete3 import TextFace, TreeStyle, NodeStyle
-from decimal import *
+from ete3 import Tree
 
 # Normalize loss rate by total length of conserved blocks of alignments and both insertion and loss rate by branch lengths.
 
@@ -15,11 +13,9 @@ from decimal import *
 spNodePairsF       = ""
 gainLossFile       = ""
 gbFile             = ""
-brlenFile          = ""
-phyldogTreeFile    = ""
+spTreeF            = ""
 outgroupName       = ""
 outputF            = ""
-normBrLen          = 0
 includeGF          = ""
 usage = """
 usage:
@@ -30,17 +26,14 @@ where OPTIONS can be any of the following:
 
     -g: gainLossFile
     -b: gblocksFile
-    -l: Newick File of tree with branch lengths
-    -p: PHYLDOG outputFile
-    -n: outgroup name (Default: Tetrahymena_thermophila)
+    -t: species tree file with branch lengths
     -o: output file name
-    -r: normalize by branch lengths
     -i: file with gene families to include in the analysis. Default all included
     -h: this help screen
 """;
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hg:b:l:p:n:o:i:r")
+    opts, args = getopt.getopt(sys.argv[1:],"hg:b:t:o:i")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -52,18 +45,12 @@ for opt, arg in opts:
         gainLossFile = arg
     elif opt == '-b':
         gbFile = arg
-    elif opt == '-l':
-        brlenFile = arg
-    elif opt == '-p':
-        phyldogTreeFile = arg
+    elif opt == '-t':
+        spTreeF = arg
     elif opt == '-n':
         outgroupName = arg
     elif opt == '-o':
         outputF = arg
-    elif opt == '-d':
-        doNotDraw = 1
-    elif opt == '-r':
-        normBrLen = 1
     elif opt == '-i':
         includeGF = arg
 
@@ -115,19 +102,17 @@ for k in pgain:
     ploss[k] = sumloss[k] / noloss[k]
 
 # normalize by branch length
-t = phyldogSpeciesTree(phyldogTreeFile, brlenFile, outgroupName)
+t = Tree(spTreeF)
 for k in pgain:
-    node = t.search_nodes(PHYLDOGid=k[1])[0]
-    if normBrLen == 1:
-        pgain[k] /= float(node.dist)
+    node = t.search_nodes(ND=k[1])[0]
+    pgain[k] /= float(node.dist)
 
 for k in ploss:
-    node = t.search_nodes(PHYLDOGid=k[1])[0]
-    if normBrLen == 1:
-        ploss[k] /= float(node.dist)
+    node = t.search_nodes(ND=k[1])[0]
+    ploss[k] /= float(node.dist)
 
 with open(outputF, 'w') as fout:
-    fout.write("\t".join(["from", "to", "pgain", "ploss\n"]))
+    fout.write("\t".join(["fromNode", "toNode", "pgain", "ploss\n"]))
 
     for k in pgain:
         fout.write("\t".join([k[0], k[1], str(pgain[k]), str(ploss[k]) + "\n"]))

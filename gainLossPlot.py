@@ -1,60 +1,66 @@
-#!/usr/bin/evn python
+#!/usr/bin/env python
 from __future__ import print_function
 from __future__ import division
 from pyies.userOptions import basePath
-from ete3 import TextFace, TreeStyle, NodeStyle
+from pyies.functions import scaleCol
+from ete3 import Tree, TextFace, TreeStyle, NodeStyle
 import pandas as pd
+import os.path
+
 # only decorate a tree that has already PHYDLOG ids
-outputF = ""
-inputGLF = os.path.join(basePath, 'analysis', 'tables', 'gainLossSum1.dat')
-inputTF = "/Volumes/WDC/data/IES/analysis/sgf/topoConstrSimple.treefile"
-gl = pd.read_csv(inputGLF)
-t = Tree(inputTF)
+for asrRun in (1,2,3):
+    inputGLF = os.path.join(basePath, 'analysis', 'tables', 'gainLossSum' + str(asrRun) + '.dat')
+    spTreeF  = os.path.join(basePath, 'analysis', 'iesdb', 'speciesTree' + str(asrRun) + '.nhx')
+    outP     = os.path.join(basePath, 'analysis', 'figures', 'spTree' + str(asrRun))
 
-ts = TreeStyle()
+    gl = pd.read_csv(inputGLF, sep = "\t")
 
-# calculate branch colors
-gainL = [] # list with all rates of gain
-lossL = [] # list with all rates of loss
+    t = Tree(spTreeF)
 
-for node in t.iter_descendants():
-    gainL.append(node.gain)
-    lossL.append(node.loss)
+    ts = TreeStyle()
 
-bcrg = scaleCol(gl.pgain.tolist())  # Branch Colors for Rates of Gain
-bcrl = scaleCol(gl.ploss.tolist())  # Branch Colors for Rates of Loss
+    # calculate branch colors
+    gainL = [] # list with all rates of gain
+    lossL = [] # list with all rates of loss
 
-# make a "gain" and a "loss" copy of the tree
-tg = t.copy()
-tl = t.copy()
+    bcrg = scaleCol(gl.pgain.tolist())  # Branch Colors for Rates of Gain
+    bcrl = scaleCol(gl.ploss.tolist())  # Branch Colors for Rates of Loss
+    print(bcrg)
+    quit()
+    # make a "gain" and a "loss" copy of the tree
+    tg = t.copy()
+    tl = t.copy()
+    for node in tg.iter_descendants(): # do not include root
+        if node.up.is_root():
+            pgain = gl.pgain[(gl.fromNode == 0) & (gl.toNode == int(node.ND))].tolist()
+        else:
+            pgain = gl.pgain[(gl.fromNode == int(node.up.ND)) & (gl.toNode == int(node.ND))].tolist()
+        style = NodeStyle()
+        pgain = pgain[0]
+        gainString = "+%.2f" % (pgain)
+        style["vt_line_color"] = bcrg[pgain]
+        style["hz_line_color"] = bcrg[pgain]
+        style["hz_line_width"] = 3
+        style["vt_line_width"] = 3
+        style["size"] = 0
+        node.add_face(TextFace(gainString), column = 0, position = "branch-top")
+        node.set_style(style)
 
-for node in tg.iter_descendants(): # do not include root
-    style = NodeStyle()
-    gainString = "+%.2f" % (0.001*node.gain)
-    style["vt_line_color"] = bcrg[node.gain]
-    style["hz_line_color"] = bcrg[node.gain]
-    style["size"] = 0
-    node.add_face(TextFace(gainString), column = 0, position = "branch-top")
-    node.set_style(style)
-
-for node in tl.iter_descendants():
-    style = NodeStyle()
-    lossString = "-%.2f" % (10000*node.loss)
-    style["vt_line_color"] = bcrl[node.loss]
-    style["hz_line_color"] = bcrl[node.loss]
-    style["size"] = 0
-#    node.add_face(TextFace(node.PHYLDOGid), column = 0, position = "float")
-    node.add_face(TextFace(lossString), column = 0, position = "branch-bottom")
-    node.set_style(style)
-
-if outputFileBaseName:
-    tg.write(features = ["PHYLDOGid", "name", "gain"], outfile = outputFileBaseName + ".gain.tre")
-    tl.write(features = ["PHYLDOGid", "name", "loss"], outfile = outputFileBaseName + ".loss.tre")
-    if doNotDraw:
-        print(tg.get_ascii(show_internal = True, attributes = ["PHYLDOGid", "name", "loss"]))
-        print(tl.get_ascii(show_internal = True, attributes = ["PHYLDOGid", "name", "gain"]))
-    else:
-        tg.render(outputFileBaseName + ".gain.png", tree_style = ts)
-        tl.render(outputFileBaseName + ".loss.png", tree_style = ts)
-else:
-    t.show()
+    for node in tl.iter_descendants():
+        if node.up.is_root():
+            ploss = gl.ploss[(gl.fromNode == 0) & (gl.toNode == int(node.ND))].tolist()
+        else:
+            ploss = gl.ploss[(gl.fromNode == int(node.up.ND)) & (gl.toNode == int(node.ND))].tolist()
+        ploss = ploss[0]
+        style = NodeStyle()
+        lossString = "-%.2f" % (ploss*100)
+        style["vt_line_color"] = bcrl[ploss]
+        style["hz_line_color"] = bcrl[ploss]
+        style["hz_line_width"] = 3
+        style["vt_line_width"] = 3
+        style["size"] = 0
+        node.add_face(TextFace(lossString), column = 0, position = "branch-bottom")
+        node.set_style(style)
+    tg.show()
+    tg.render(outP + ".gain.png", tree_style = ts)
+    tl.render(outP + ".loss.png", tree_style = ts)
