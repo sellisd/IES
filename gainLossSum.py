@@ -114,13 +114,11 @@ for k in sumgain:
 
 # normalize rate of loss by number of paths
 ploss = Counter()
-for k in sumloss:
-    ploss[k] = sumloss[k] / noloss[k]
 
 # normalize rate of gain and loss by total number of Si-Sj paths
 for k in pgain:
     pgain[k] /= nogain[k]
-    ploss[k] /= noloss[k]
+    ploss[k] = sumloss[k] / noloss[k]
 
 # normalize by branch length
 t = phyldogSpeciesTree(phyldogTreeFile, brlenFile, outgroupName)
@@ -135,6 +133,10 @@ for k in ploss:
     if normBrLen == 1:
         ploss[k] /= float(node.dist)
     node.add_feature("loss", ploss[k])
+
+print("\t".join(["from", "to", "pgain", "ploss"]))
+for k in pgain:
+    print("\t".join([k[0], k[1], str(pgain[k]), str(ploss[k])]))
 
 ts = TreeStyle()
 
