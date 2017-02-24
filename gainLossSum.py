@@ -18,8 +18,7 @@ gbFile             = ""
 brlenFile          = ""
 phyldogTreeFile    = ""
 outgroupName       = ""
-outputFileBaseName = ""
-doNotDraw          = 0
+outputF            = ""
 normBrLen          = 0
 includeGF          = ""
 usage = """
@@ -34,15 +33,14 @@ where OPTIONS can be any of the following:
     -l: Newick File of tree with branch lengths
     -p: PHYLDOG outputFile
     -n: outgroup name (Default: Tetrahymena_thermophila)
-    -o: output File Base Name (if not provided show in interactive tree viewer)
-    -d: do not draw tree, output text file and print ASCII tree
+    -o: output file name
     -r: normalize by branch lengths
     -i: file with gene families to include in the analysis. Default all included
     -h: this help screen
 """;
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hg:b:l:p:n:o:d:i:r")
+    opts, args = getopt.getopt(sys.argv[1:],"hg:b:l:p:n:o:i:r")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -61,7 +59,7 @@ for opt, arg in opts:
     elif opt == '-n':
         outgroupName = arg
     elif opt == '-o':
-        outputFileBaseName = arg
+        outputF = arg
     elif opt == '-d':
         doNotDraw = 1
     elif opt == '-r':
@@ -94,7 +92,8 @@ sumgain = Counter()
 nogain  = Counter()
 sumloss = Counter()
 noloss  = Counter()
-Nij = defaultdict(set) # number of gene families with Si-Sj path
+pgain = Counter()
+ploss = Counter()
 
 for line in gl:
     line = line.rstrip()
@@ -104,16 +103,11 @@ for line in gl:
         noloss[(fromNode, toNode)] += 1
         sumgain[(geneFamily, fromNode, toNode)] += float(gain)
         nogain[(fromNode, toNode)] += 1
-        Nij[(fromNode, toNode)].add(geneFamily)
 
 # normalize rate of gain by gblocks length
 print("normalize")
-pgain = Counter()
 for k in sumgain:
     pgain[(k[1], k[2])] += sumgain[k] * gb[k[0]]
-
-# normalize rate of loss by number of paths
-ploss = Counter()
 
 # normalize rate of gain and loss by total number of Si-Sj paths
 for k in pgain:
@@ -126,62 +120,14 @@ for k in pgain:
     node = t.search_nodes(PHYLDOGid=k[1])[0]
     if normBrLen == 1:
         pgain[k] /= float(node.dist)
-    node.add_feature("gain", pgain[k])
 
 for k in ploss:
     node = t.search_nodes(PHYLDOGid=k[1])[0]
     if normBrLen == 1:
         ploss[k] /= float(node.dist)
-    node.add_feature("loss", ploss[k])
 
-print("\t".join(["from", "to", "pgain", "ploss"]))
-for k in pgain:
-    print("\t".join([k[0], k[1], str(pgain[k]), str(ploss[k])]))
+with open(outputF, 'w') as fout:
+    fout.write("\t".join(["from", "to", "pgain", "ploss\n"]))
 
-ts = TreeStyle()
-
-# calculate branch colors
-gainL = [] # list with all rates of gain
-lossL = [] # list with all rates of loss
-
-for node in t.iter_descendants():
-    gainL.append(node.gain)
-    lossL.append(node.loss)
-
-bcrg = scaleCol(gainL)  # Branch Colors for Rates of Gain
-bcrl = scaleCol(lossL)  # Branch Colors for Rates of Loss
-
-# make a "gain" and a "loss" copy of the tree
-tg = t.copy()
-tl = t.copy()
-
-for node in tg.iter_descendants(): # do not include root
-    style = NodeStyle()
-    gainString = "+%.2f" % (0.001*node.gain)
-    style["vt_line_color"] = bcrg[node.gain]
-    style["hz_line_color"] = bcrg[node.gain]
-    style["size"] = 0
-    node.add_face(TextFace(gainString), column = 0, position = "branch-top")
-    node.set_style(style)
-
-for node in tl.iter_descendants():
-    style = NodeStyle()
-    lossString = "-%.2f" % (10000*node.loss)
-    style["vt_line_color"] = bcrl[node.loss]
-    style["hz_line_color"] = bcrl[node.loss]
-    style["size"] = 0
-#    node.add_face(TextFace(node.PHYLDOGid), column = 0, position = "float")
-    node.add_face(TextFace(lossString), column = 0, position = "branch-bottom")
-    node.set_style(style)
-
-if outputFileBaseName:
-    tg.write(features = ["PHYLDOGid", "name", "gain"], outfile = outputFileBaseName + ".gain.tre")
-    tl.write(features = ["PHYLDOGid", "name", "loss"], outfile = outputFileBaseName + ".loss.tre")
-    if doNotDraw:
-        print(tg.get_ascii(show_internal = True, attributes = ["PHYLDOGid", "name", "loss"]))
-        print(tl.get_ascii(show_internal = True, attributes = ["PHYLDOGid", "name", "gain"]))
-    else:
-        tg.render(outputFileBaseName + ".gain.png", tree_style = ts)
-        tl.render(outputFileBaseName + ".loss.png", tree_style = ts)
-else:
-    t.show()
+    for k in pgain:
+        fout.write("\t".join([k[0], k[1], str(pgain[k]), str(ploss[k]) + "\n"]))
