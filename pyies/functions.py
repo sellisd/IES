@@ -131,8 +131,15 @@ def numbered2name(string):
     """Extract species name from PHYLDOG numbered leaf."""
     return(re.sub(r'(.+_.+)_\d+', r'\1', string))
 
-def phyldogSpeciesTree(phyldogTreeFile, brlenTreeFile, outgroupName):
-    """Add branch lengths to PHYLDOG tree from a topologically equivalent tree."""
+def phyldogSpeciesTree(phyldogTreeFile, brlenTreeFile, outgroupName, codon = False):
+    """Add branch lengths to PHYLDOG tree from a topologically equivalent tree.
+
+    Args:
+        phyldogTreeFile (string) ""    Path and file name of PHYLDOG output file.
+        brlenTreeFile   (string) ""    Path and file name of tree with branch lengths.
+        outgroupName    (string) ""    Leaf name of outgroup in brlenTreeFile.
+        codon           (bool)   False If True branch lengths divided by 3 (for codon models).
+    """
     b = Tree(brlenTreeFile)
     b.set_outgroup(b&outgroupName)
 
@@ -140,8 +147,11 @@ def phyldogSpeciesTree(phyldogTreeFile, brlenTreeFile, outgroupName):
     for node in b.traverse():
         leaveNames = [x.name for x in node.get_leaves()]
         leaveNames.sort()
-        brlenD[tuple(leaveNames)] = node.dist
-
+        if codon: # nucleotide substitutions per codon site
+            branchLength = node.dist / 3.
+        else: # nucleotide substitutions per site
+            branchLength = node.dist
+        brlenD[tuple(leaveNames)] = branchLength
     t = Tree(phyldogTreeFile)
 
     for node in t.traverse():

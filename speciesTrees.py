@@ -18,7 +18,7 @@ phT3 = os.path.join(basePath, 'analysis', 'phyldogT3', 'results', 'OutputSpecies
 
 t1 = phyldogSpeciesTree(phT1, brlenT1, outgroupName)
 t2 = phyldogSpeciesTree(phT2, brlenT2, outgroupName)
-t3 = phyldogSpeciesTree(phT3, brlenT3, outgroupName)
+t3 = phyldogSpeciesTree(phT3, brlenT3, outgroupName, codon = True)
 
 t1.write(outfile = os.path.join(basePath, 'analysis', 'iesdb', 'speciesTree1.nhx'), features=['PHYLDOGid'])
 t2.write(outfile = os.path.join(basePath, 'analysis', 'iesdb', 'speciesTree2.nhx'), features=['PHYLDOGid'])
