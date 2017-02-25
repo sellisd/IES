@@ -99,20 +99,16 @@ my $gainLoss1F    = catfile($tablesP, 'gainLoss1.dat');
 my $gainLoss2F    = catfile($tablesP, 'gainLoss2.dat');
 my $gainLoss3F    = catfile($tablesP, 'gainLoss3.dat');
 my $gblocksF      = catfile($tablesP, 'gblocks.dat');
-my $brlenTree1F   = catfile($basePath, 'analysis', 'sgf', 'topoConstrSimple.treefile');
-my $brlenTree2F   = catfile($basePath, 'analysis', 'sgf', 'concatSimple.nexus.treefile');
-my $brlenTree3F   = catfile($basePath, 'analysis', 'sgf', 'concat.nexus.treefile');
-my $phyldogTree1F = catfile($basePath, 'analysis', 'phyldogT1', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree');
-my $phyldogTree2F = catfile($basePath, 'analysis', 'phyldogT2', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree');
-my $phyldogTree3F = catfile($basePath, 'analysis', 'phyldogT3', 'results', 'OutputSpeciesTree_ConsensusNumbered.tree');
-my $output1F      = catfile($basePath, 'analysis', 'figures', 'spTree1');
-my $output2F      = catfile($basePath, 'analysis', 'figures', 'spTree2');
-my $output3F      = catfile($basePath, 'analysis', 'figures', 'spTree3');
-
+my $output1F      = catfile($tablesP, 'gainLossSum1.dat');
+my $output2F      = catfile($tablesP, 'gainLossSum2.dat');
+my $output3F      = catfile($tablesP, 'gainLossSum3.dat');
+my $spTree1F      = catfile($iesdbP,  'speciesTree1.nhx');
+my $spTree2F      = catfile($iesdbP,  'speciesTree2.nhx');
+my $spTree3F      = catfile($iesdbP,  'speciesTree3.nhx');
 # summarize and prepare plots at the end of the analysis
-run("./gainLossSum.py -r -g $gainLoss1F -b $gblocksF -l $brlenTree1F -p $phyldogTree1F -o $output1F -n Tetrahymena_thermophila", 1);
-run("./gainLossSum.py -r -g $gainLoss2F -b $gblocksF -l $brlenTree2F -p $phyldogTree2F -o $output2F -n Tetrahymena_thermophila", 1);
-run("./gainLossSum.py -r -g $gainLoss3F -b $gblocksF -l $brlenTree3F -p $phyldogTree3F -o $output3F -n Tetrahymena_thermophila", 1);
+run("./gainLossSum.py -g $gainLoss1F -b $gblocksF -t $spTree1F -o $output1F", 1);
+run("./gainLossSum.py -g $gainLoss2F -b $gblocksF -t $spTree2F -o $output2F", 1);
+run("./gainLossSum.py -g $gainLoss3F -b $gblocksF -t $spTree3F -o $output3F", 1);
 
 # combine age and length information for each IES
 my $ageLengthOut1F = catfile($tablesP, 'ageLength1.dat');
@@ -124,7 +120,7 @@ run("./lengthAge.pl 3 > $ageLengthOut3F", 1);
 
 exit(1);
 #~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss1.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -t /Volumes/WDC/data/IES/analysis/iesdb/speciesTree1.nhx -o /Volumes/WDC/data/IES/analysis/tables/gainLossSum1.dat
-#~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss2.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -t /Volumes/WDC/data/IES/analysis/iesdb/speciesTree1.nhx -o /Volumes/WDC/data/IES/analysis/tables/gainLossSum2.dat
-#~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss3.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -t /Volumes/WDC/data/IES/analysis/iesdb/speciesTree1.nhx -o /Volumes/WDC/data/IES/analysis/tables/gainLossSum3.dat
+#~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss2.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -t /Volumes/WDC/data/IES/analysis/iesdb/speciesTree2.nhx -o /Volumes/WDC/data/IES/analysis/tables/gainLossSum2.dat
+#~/anaconda_ete/bin/python ./gainLossSum.py -g /Volumes/WDC/data/IES/analysis/tables/gainLoss3.dat -b /Volumes/WDC/data/IES/analysis/tables/gblocks.dat -t /Volumes/WDC/data/IES/analysis/iesdb/speciesTree3.nhx -o /Volumes/WDC/data/IES/analysis/tables/gainLossSum3.dat
 
 system("./pwm.py ~/data/IES/analysis/tables/consensus.dat"); # calculate position weight matrices and draw sequence logo diagrams
