@@ -1,11 +1,13 @@
 #!/usr/bin/python
 from __future__ import print_function
 from collections import defaultdict
+from pyies.userOptions import basePath
+import os.path
 
-bloutF = '/home/dsellis/data/IES/analysis/mies/blastout/ies.blastout'
-flankBlastF = '/home/dsellis/data/IES/analysis/mies/blastout/iesflanks.blastout'
-homOutF = '/home/dsellis/data/IES/analysis/mies/blastout/ies.homl.blastout'
-nhomOutF = '/home/dsellis/data/IES/analysis/mies/blastout/ies.nonhoml.blastout'
+bloutF      = os.path.join(basePath, 'analysis', 'mies', 'blastout', 'ies.blastout')
+flankBlastF = os.path.join(basePath, 'analysis', 'mies', 'blastout', 'iesflanks.blastout')
+homOutF     = os.path.join(basePath, 'analysis', 'mies', 'blastout', 'ies.homl.blastout')
+nhomOutF    = os.path.join(basePath, 'analysis', 'mies', 'blastout', 'ies.nonhoml.blastout')
 
 # criteria for homology of flanking sequences
 evalueMin = 10^8 # less than evalue
@@ -26,15 +28,15 @@ for line in fl:
 fl.close()
 
 #load IES lengths
-ppr = open("/home/dsellis/data/IES/analysis/iesdb/ppr.iesdb", 'r')
-pbi = open("/home/dsellis/data/IES/analysis/iesdb/pbi.iesdb", 'r')
-pte = open("/home/dsellis/data/IES/analysis/iesdb/pte.iesdb", 'r')
-ppe = open("/home/dsellis/data/IES/analysis/iesdb/ppe.iesdb", 'r')
-pse = open("/home/dsellis/data/IES/analysis/iesdb/pse.iesdb", 'r')
-poc = open("/home/dsellis/data/IES/analysis/iesdb/poc.iesdb", 'r')
-ptr = open("/home/dsellis/data/IES/analysis/iesdb/ptr.iesdb", 'r')
-pso = open("/home/dsellis/data/IES/analysis/iesdb/pso.iesdb", 'r')
-pca = open("/home/dsellis/data/IES/analysis/iesdb/pca.iesdb", 'r')
+ppr = open(os.path.join(basePath, 'analysis', 'iesdb', 'ppr.iesdb'), 'r')
+pbi = open(os.path.join(basePath, 'analysis', 'iesdb', 'pbi.iesdb'), 'r')
+pte = open(os.path.join(basePath, 'analysis', 'iesdb', 'pte.iesdb'), 'r')
+ppe = open(os.path.join(basePath, 'analysis', 'iesdb', 'ppe.iesdb'), 'r')
+pse = open(os.path.join(basePath, 'analysis', 'iesdb', 'pse.iesdb'), 'r')
+poc = open(os.path.join(basePath, 'analysis', 'iesdb', 'poc.iesdb'), 'r')
+ptr = open(os.path.join(basePath, 'analysis', 'iesdb', 'ptr.iesdb'), 'r')
+pso = open(os.path.join(basePath, 'analysis', 'iesdb', 'pso.iesdb'), 'r')
+pca = open(os.path.join(basePath, 'analysis', 'iesdb', 'pca.iesdb'), 'r')
 
 def readIESlength(f, abr, d):
     f.readline() # header
