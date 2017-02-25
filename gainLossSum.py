@@ -102,17 +102,24 @@ for k in pgain:
     ploss[k] = sumloss[k] / noloss[k]
 
 # normalize by branch length
+# if a branch is not present in the species tree (e.g. skips a speciation events
+# then in order to properly normalize we would have to add up the total branch
+# as we don't need it for the figures we only keep the branch lengths observed
+# in the species trees)
+obspgain = {}
+obsploss = {}
 t = Tree(spTreeF)
-for k in pgain:
-    node = t.search_nodes(ND=k[1])[0]
-    pgain[k] /= float(node.dist)
-
-for k in ploss:
-    node = t.search_nodes(ND=k[1])[0]
-    ploss[k] /= float(node.dist)
+for node in t.iter_descendants():
+    if node.up.is_root():
+        fromNode = 0
+    else:
+        fromNode = node.up.ND
+    k = (fromNode, node.ND)
+    obspgain[k]  = pgain[k]/float(node.dist)
+    obsploss[k] = ploss[k]/float(node.dist)
 
 with open(outputF, 'w') as fout:
     fout.write("\t".join(["fromNode", "toNode", "pgain", "ploss\n"]))
 
-    for k in pgain:
-        fout.write("\t".join([k[0], k[1], str(pgain[k]), str(ploss[k]) + "\n"]))
+    for k in obspgain:
+        fout.write("\t".join([str(k[0]), str(k[1]), str(obspgain[k]), str(obsploss[k]) + "\n"]))
