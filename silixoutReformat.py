@@ -3,7 +3,7 @@ from __future__ import print_function
 from collections import Counter
 import sys, getopt
 
-# Prepare histogram of IES cluster sizes by species.
+# Prepare histogram of IES cluster sizes by species from SiLiX.
 
 inputfile = ''
 outputfile = ''
@@ -60,4 +60,3 @@ for cl in clusterSet:
     if(sum(L) > cutoff and spNo>spcutof):
         L = [cl] + L + [sum(L)]
         fout.write("\t".join(str(x) for x in L) + "\n")
-
