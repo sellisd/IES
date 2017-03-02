@@ -101,10 +101,10 @@ my $gainLoss3F    = catfile($tablesP, 'gainLoss3.dat');
 my $gblocksF      = catfile($tablesP, 'gblocks.dat');
 my $output1F      = catfile($tablesP, 'gainLossSum1.dat');
 my $output2F      = catfile($tablesP, 'gainLossSum2.dat');
-my $output3F      = catfile($tablesP, 'gainLossSum3.dat');
+my $output3F      = catfile($tablesP, 'gainLossSum3b.dat');
 my $spTree1F      = catfile($iesdbP,  'speciesTree1.nhx');
 my $spTree2F      = catfile($iesdbP,  'speciesTree2.nhx');
-my $spTree3F      = catfile($iesdbP,  'speciesTree3.nhx');
+my $spTree3F      = catfile($iesdbP,  'speciesTree3b.nhx');
 # summarize and prepare plots at the end of the analysis
 run("./gainLossSum.py -g $gainLoss1F -b $gblocksF -t $spTree1F -o $output1F", 1);
 run("./gainLossSum.py -g $gainLoss2F -b $gblocksF -t $spTree2F -o $output2F", 1);

@@ -10,7 +10,7 @@ import matplotlib.cm as cm
 import matplotlib.colors as colors
 
 # only decorate a tree that has already PHYDLOG ids
-for asrRun in (1,2,3):
+for asrRun in ('1','2','3b'):
     inputGLF = os.path.join(basePath, 'analysis', 'tables', 'gainLossSum' + str(asrRun) + '.dat')
     spTreeF  = os.path.join(basePath, 'analysis', 'iesdb', 'speciesTree' + str(asrRun) + '.nhx')
     outP     = os.path.join(basePath, 'analysis', 'figures', 'spTree' + str(asrRun))
