@@ -110,10 +110,7 @@ obspgain = {}
 obsploss = {}
 t = Tree(spTreeF)
 for node in t.iter_descendants():
-    if node.up.is_root():
-        fromNode = 0
-    else:
-        fromNode = node.up.ND
+    fromNode = node.up.ND
     k = (fromNode, node.ND)
     obspgain[k]  = pgain[k]/float(node.dist)
     obsploss[k] = ploss[k]/float(node.dist)
