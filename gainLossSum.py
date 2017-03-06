@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 from __future__ import print_function
 from __future__ import division
 from collections import Counter
@@ -76,9 +76,8 @@ print("sum gain and loss probability along paths")
 gl = open(gainLossFile, 'r')
 gl.readline() # header
 sumgain = Counter()
-nogain  = Counter()
 sumloss = Counter()
-noloss  = Counter()
+noPath  = Counter() # total number of paths connecting Si and Sj
 pgain = Counter()
 ploss = Counter()
 
@@ -87,19 +86,18 @@ for line in gl:
     (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) = line.split()
     if (includeGF and (geneFamily in includedGeneFamilies)) or (not includeGF):
         sumloss[(fromNode, toNode)] += float(panc) * float(loss) # normalize rate of loss by the probability of being present
-        noloss[(fromNode, toNode)] += 1
+        noPath[(fromNode, toNode)] += 1
         sumgain[(geneFamily, fromNode, toNode)] += float(gain)
-        nogain[(fromNode, toNode)] += 1
 
-# normalize rate of gain by gblocks length
+# normalize rate of gain by gblocks length in Kb
 print("normalize")
 for k in sumgain:
-    pgain[(k[1], k[2])] += sumgain[k] * gb[k[0]]
+    pgain[(k[1], k[2])] += sumgain[k] / (gb[k[0]] / 1000.)
 
 # normalize rate of gain and loss by total number of Si-Sj paths
 for k in pgain:
-    pgain[k] /= nogain[k]
-    ploss[k] = sumloss[k] / noloss[k]
+    pgain[k] /= noPath[k]
+    ploss[k] = sumloss[k] / noPath[k]
 
 # normalize by branch length
 # if a branch is not present in the species tree (e.g. skips a speciation events

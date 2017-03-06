@@ -60,7 +60,7 @@ for asrRun in ('1','2','3b'):
             ploss = gl.ploss[(gl.fromNode == int(node.up.ND)) & (gl.toNode == int(node.ND))].tolist()
         ploss = ploss[0]
         style = NodeStyle()
-        lossString = "-%.2f" % (ploss*100)
+        lossString = "-%.2f" % (ploss)
         ci = colors.rgb2hex(lcm.to_rgba(ploss)[:3])
         style["vt_line_color"] = ci
         style["hz_line_color"] = ci
