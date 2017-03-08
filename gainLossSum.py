@@ -17,6 +17,7 @@ spTreeF            = ""
 outgroupName       = ""
 outputF            = ""
 includeGF          = ""
+nodePathsF         = ""
 usage = """
 usage:
 
@@ -24,6 +25,7 @@ usage:
 
 where OPTIONS can be any of the following:
 
+    -k: nodePaths file
     -g: gainLossFile
     -b: gblocksFile
     -t: species tree file with branch lengths
@@ -33,7 +35,7 @@ where OPTIONS can be any of the following:
 """;
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hg:b:t:o:i")
+    opts, args = getopt.getopt(sys.argv[1:],"hg:b:t:o:k:i")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -53,6 +55,8 @@ for opt, arg in opts:
         outputF = arg
     elif opt == '-i':
         includeGF = arg
+    elif opt == '-k':
+        nodePathsF = arg
 
 # if parameter defined load a list of gene families to include from the analysis
 includedGeneFamilies = []
@@ -71,33 +75,41 @@ for line in gf:
     if (includeGF and (geneFamily in includedGeneFamilies)) or (not includeGF):
         gb[geneFamily] += int(end) - int(begin) + 1
 
+# load kij
+kij = Counter() # The number of paths connecting nodes i and j per gene family
+with open(nodePathsF, 'r') as f:
+    for line in f:
+        line = line.rstrip()
+        (cluster, fromNode, toNode, path) = line.split() # nodes in phyldog notation
+        kij[(cluster, fromNode, toNode)] += 1
+
 # sum gain and loss probabilities along branches
 print("sum gain and loss probability along paths")
 gl = open(gainLossFile, 'r')
 gl.readline() # header
 sumgain = Counter()
 sumloss = Counter()
-noPath  = Counter() # total number of paths connecting Si and Sj
 pgain = Counter()
 ploss = Counter()
+Ig = Counter()
+iIg = Counter() # number of IES columns per gene family
 
 for line in gl:
     line = line.rstrip()
     (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) = line.split()
     if (includeGF and (geneFamily in includedGeneFamilies)) or (not includeGF):
-        sumloss[(fromNode, toNode)] += float(panc) * float(loss) # normalize rate of loss by the probability of being present
-        noPath[(fromNode, toNode)] += 1
         sumgain[(geneFamily, fromNode, toNode)] += float(gain)
+        sumloss[(fromNode, toNode)] += float(loss)
+        iIg[(geneFamily, iesColumn)] = 1
 
-# normalize rate of gain by gblocks length in Kb
+for i in iIg:
+    Ig[i[0]] +=1
+
+# normalize by number of paths and for rate of gain also by gblocks length in nt
 print("normalize")
 for k in sumgain:
-    pgain[(k[1], k[2])] += sumgain[k] / (gb[k[0]] / 1000.)
-
-# normalize rate of gain and loss by total number of Si-Sj paths
-for k in pgain:
-    pgain[k] /= noPath[k]
-    ploss[k] = sumloss[k] / noPath[k]
+    pgain[(k[1], k[2])] += sumgain[k] / (gb[k[0]] * kij[k])
+    ploss[(k[1], k[2])] += sumloss[k] / ( Ig[k[0]] * kij[k])
 
 # normalize by branch length
 # if a branch is not present in the species tree (e.g. skips a speciation events
