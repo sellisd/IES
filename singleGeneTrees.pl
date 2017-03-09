@@ -6,18 +6,21 @@ use File::Path qw(make_path);
 use lib'.';
 use functions;
 use File::Copy;
-use Parallel::ForkManager;
-my $pm = Parallel::ForkManager->new(7);
 
-my $notationF = '/home/dsellis/data/IES/analysis/notation.csv';
-my $gfF = '/home/dsellis/data/IES/analysis/iesdb/geneFamilydb.dat';
-my $iqtreeBP = '/home/dsellis/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 '; # binary location
-my $iqtreeB =  '/home/dsellis/tools/iqtree-1.4.2-Linux/bin/iqtree';
-my $pathIN = '/home/dsellis/data/IES/analysis/msas/filtered/';
-my $pathOUT = '/home/dsellis/data/IES/analysis/sgf/';
-my $nex =  '/home/dsellis/data/IES/analysis/sgf/part.nex';
-my $concatF = catfile($pathOUT, 'concat.fa');
-my $bmF = '/home/dsellis/data/IES/analysis/tables/bestModels.tab'; # best models for each single gene family
+my $opt = loadUserOptions;
+my $basePath = $$opt{'basePath'};
+
+my $notationF = catfile($basePath, 'analysis', 'notation.csv');
+my $gfF       = catfile($basePath, 'analysis', 'iesdb', '/geneFamilydb.dat');
+my $iqtreeBP  = '/home/dsellis/tools/iqtree-omp-1.4.2-Linux/bin/iqtree-omp -nt 7 '; # binary location
+my $pathIN    = catfile($basePath, 'analysis', 'msas', 'filtered');
+my $pathOUT   = catfile($basePath, 'analysis', 'sgf');
+my $nex       = catfile($basePath, 'analysis', 'sgf', 'part.nex');
+my $bmF       = catfile($basePath, 'analysis', 'tables', 'bestModels.tab'); # best models for each single gene family
+my $tthF      = catfile($basePath, 'genomicData', 'thermophila' ,'gene', 'T_thermophila_June2014_CDS.fasta')
+my $sgfP      = catfile($basePath, 'analysis', 'sgf')
+my $concatF   = catfile($pathOUT, 'concat.fa');
+
 make_path($pathOUT) unless -e $pathOUT;
 
 my @selectedGroups;
@@ -32,9 +35,9 @@ while (my $line = <IN>){
     chomp $line;
     (my $id, my $seqNo, my $avPairId, my $genes, my $pprGenes, my $pbiGenes, my $pteGenes, my $ppeGenes, my $pseGenes, my $pocGenes, my $ptrGenes, my $psoGenes, my $pcaGenes, my $tthGenes) = split " ", $line;
     if($pprGenes == 1 and $pbiGenes == 1 and  $pteGenes == 1 and $ppeGenes == 1 and $pseGenes == 1 and $pocGenes == 1 and $ptrGenes == 1 and $psoGenes == 1 and $pcaGenes == 1 and $tthGenes <=1){
-	my $fileName = 'cluster.'.$id.'.aln.fa';
-	push @selectedGroups, $id;
-	push @gtF, catfile($pathIN, $fileName);
+	     my $fileName = 'cluster.'.$id.'.aln.fa';
+	      push @selectedGroups, $id;
+	       push @gtF, catfile($pathIN, $fileName);
     }
 }
 close IN;
@@ -52,15 +55,17 @@ foreach my $sp (sort keys %$nr){
     my %pab = %{$nr->{$sp}}; #de-reference for less typing
     $cdsF .= ' -cds '.catfile($pab{'datapath'}, $pab{'cdsF'});
 }
-$cdsF .= ' -cds /home/dsellis/data/IES/genomicData/thermophila/gene/T_thermophila_June2014_CDS.fasta'; #add Tth
+$cdsF .= ' -cds '.$tthF; #add Tth
 
-run('./prot2nucl.pl -noterm'.$cdsF.' ~/data/IES/analysis/sgf/*.aln.fa', 1);
+run('./prot2nucl.pl -noterm'.$cdsF.' '.$sgfP.'/*.aln.fa', 1);
 
 # rename sequences
-run('./nameReplaceAlign.pl ~/data/IES/analysis/sgf/cluster.*.nucl.fa', 1);
+run('./nameReplaceAlign.pl '.$sgfP.'/cluster.*.nucl.fa', 1);
 
 # infer concatenated (species) tree with simple model, do not ovewrite $bmF
-run('./bestModel.pl -model GTR+G{1.0} -nex ~/data/IES/analysis/sgf/concatSimple.nexus -table /dev/null ~/data/IES/analysis/sgf/cluster.*.nucl.fa.renamed', 1);
-run($iqtreeBP.' -bb 1000 -spp  ~/data/IES/analysis/sgf/concatSimple.nexus > ~/data/IES/analysis/log/concatSimple.log', 1);
+my $concatSimpleF = catfile($sgfP, 'concatSimple.nexus')
+my $concatSimpleL = catfile($basePath, 'analysis', 'log', 'concatSimple.log')
+run('./bestModel.pl -model GTR+G{1.0} -nex '.$concatSimpleF.' -table /dev/null '.$sgfP.'/cluster.*.nucl.fa.renamed', 1);
+run($iqtreeBP.' -bb 1000 -spp  '.$concatSimpleF.' > '.$concatSimpleL, 1);
 
 #move to cluster
