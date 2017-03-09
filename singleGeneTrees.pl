@@ -20,7 +20,7 @@ my $bmF       = catfile($basePath, 'analysis', 'tables', 'bestModels.tab'); # be
 my $tthF      = catfile($basePath, 'genomicData', 'thermophila' ,'gene', 'T_thermophila_June2014_CDS.fasta')
 my $sgfP      = catfile($basePath, 'analysis', 'sgf')
 my $concatF   = catfile($pathOUT, 'concat.fa');
-
+my $sgfOutF   = catfile($basePath, 'analysis', 'tables', 'singleGeneFamilies.dat')
 make_path($pathOUT) unless -e $pathOUT;
 
 my @selectedGroups;
@@ -30,18 +30,20 @@ my @partitionModels;
 open IN, $gfF or die $!;
 readline(IN); #header
 # find which gene families have only one memeber of each species
-
 while (my $line = <IN>){
-    chomp $line;
-    (my $id, my $seqNo, my $avPairId, my $genes, my $pprGenes, my $pbiGenes, my $pteGenes, my $ppeGenes, my $pseGenes, my $pocGenes, my $ptrGenes, my $psoGenes, my $pcaGenes, my $tthGenes) = split " ", $line;
-    if($pprGenes == 1 and $pbiGenes == 1 and  $pteGenes == 1 and $ppeGenes == 1 and $pseGenes == 1 and $pocGenes == 1 and $ptrGenes == 1 and $psoGenes == 1 and $pcaGenes == 1 and $tthGenes <=1){
-	     my $fileName = 'cluster.'.$id.'.aln.fa';
-	      push @selectedGroups, $id;
-	       push @gtF, catfile($pathIN, $fileName);
-    }
+  chomp $line;
+  (my $id, my $seqNo, my $avPairId, my $genes, my $pprGenes, my $pbiGenes, my $pteGenes, my $ppeGenes, my $pseGenes, my $pocGenes, my $ptrGenes, my $psoGenes, my $pcaGenes, my $tthGenes) = split " ", $line;
+  if($pprGenes == 1 and $pbiGenes == 1 and  $pteGenes == 1 and $ppeGenes == 1 and $pseGenes == 1 and $pocGenes == 1 and $ptrGenes == 1 and $psoGenes == 1 and $pcaGenes == 1 and $tthGenes <=1){
+    my $fileName = 'cluster.'.$id.'.aln.fa';
+    push @selectedGroups, $id;
+    push @gtF, catfile($pathIN, $fileName);
+  }
 }
 close IN;
 
+open OUT, '>', $sgfOutF or die $!;
+print OUT join("\n", @selectedGroups)
+close OUT;
 # copy aminoacid alignments to sgf folder
 foreach my $sgf (@selectedGroups){
     my $from = catfile($pathIN, 'cluster.'.$sgf.'.aln.fa');
