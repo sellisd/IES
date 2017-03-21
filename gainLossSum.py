@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 from __future__ import division
-from collections import Counter
+from collections import Counter, defaultdict
 from pyies.userOptions import basePath
 import os.path
 import sys, getopt
@@ -91,25 +91,21 @@ sumgain = Counter()
 sumloss = Counter()
 pgain = Counter()
 ploss = Counter()
-Ig = Counter()
-iIg = Counter() # number of IES columns per gene family
+Ig = defaultdict(set) # IES columns per gene family
 
 for line in gl:
     line = line.rstrip()
     (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) = line.split()
     if (includeGF and (geneFamily in includedGeneFamilies)) or (not includeGF):
         sumgain[(geneFamily, fromNode, toNode)] += float(gain)
-        sumloss[(fromNode, toNode)] += float(loss)
-        iIg[(geneFamily, iesColumn)] = 1
-
-for i in iIg:
-    Ig[i[0]] +=1
+        sumloss[(geneFamily, fromNode, toNode)] += float(loss)
+        Ig[geneFamily].add(iesColumn)
 
 # normalize by number of paths and for rate of gain also by gblocks length in nt
 print("normalize")
 for k in sumgain:
     pgain[(k[1], k[2])] += sumgain[k] / (gb[k[0]] * kij[k])
-    ploss[(k[1], k[2])] += sumloss[k] / ( Ig[k[0]] * kij[k])
+    ploss[(k[1], k[2])] += sumloss[k] / ( len(Ig[k[0]]) * kij[k])
 
 # normalize by branch length
 # if a branch is not present in the species tree (e.g. skips a speciation events
