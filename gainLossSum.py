@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 from __future__ import division
+import pandas as pd
 from collections import Counter, defaultdict
 from pyies.userOptions import basePath
 import os.path
@@ -11,9 +12,10 @@ from ete3 import Tree
 
 # program options
 spNodePairsF       = ""
-gainLossFile       = ""
+gainLossF          = ""
 gbFile             = ""
 spTreeF            = ""
+speciesNodePairsF  = ""
 outgroupName       = ""
 outputF            = ""
 includeGF          = ""
@@ -26,16 +28,17 @@ usage:
 where OPTIONS can be any of the following:
 
     -k: nodePaths file
-    -g: gainLossFile
+    -g: gainLoss file
     -b: gblocksFile
     -t: species tree file with branch lengths
     -o: output file name
     -i: file with gene families to include in the analysis. Default all included
+    -p: species node pairs file
     -h: this help screen
 """;
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hg:b:t:o:k:i")
+    opts, args = getopt.getopt(sys.argv[1:],"hg:b:t:o:k:p:i")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -44,7 +47,7 @@ for opt, arg in opts:
         print(usage)
         sys.exit(1)
     elif opt == '-g':
-        gainLossFile = arg
+        gainLossF = arg
     elif opt == '-b':
         gbFile = arg
     elif opt == '-t':
@@ -57,7 +60,17 @@ for opt, arg in opts:
         includeGF = arg
     elif opt == '-k':
         nodePathsF = arg
+    elif opt == '-p':
+        speciesNodePairsF = arg
+    else:
+        print("Unknown argument" + arg)
+        print(usage)
+        sys.exit(1)
 
+npF = pd.read_table(nodePathsF, sep = "\t", index_col = False)
+glF = pd.read_table(gainLossF, sep = "\t", index_col = False)
+gbF = pd.read_table(gbFile, sep = "\t", index_col = False)
+snpF = pd.read_table(speciesNodePairsF, sep = "\s+", index_col = False)
 # if parameter defined load a list of gene families to include from the analysis
 includedGeneFamilies = []
 if includeGF:
@@ -67,46 +80,36 @@ if includeGF:
 
 # load gblock sizes and sum for each gene family
 print("sum gblock sizes")
-gf = open(gbFile, 'r')
-gb = Counter()
-for line in gf:
-    line = line.rstrip()
-    (geneFamily, begin, end) = line.split()
-    if (includeGF and (geneFamily in includedGeneFamilies)) or (not includeGF):
+gb = Counter() #ng
+for (geneFamily, begin, end) in gbF.itertuples(index = False, name = None):
         gb[geneFamily] += int(end) - int(begin) + 1
 
-# load kij
 kij = Counter() # The number of paths connecting nodes i and j per gene family
-with open(nodePathsF, 'r') as f:
-    for line in f:
-        line = line.rstrip()
-        (cluster, fromNode, toNode, path) = line.split() # nodes in phyldog notation
-        kij[(cluster, fromNode, toNode)] += 1
+for (geneFamily, fromNode, toNode, path) in npF.itertuples(index = False, name = None):
+    kij[(cluster, fromNode, toNode)] += 1 # nodes are in phyldog notation
 
-# sum gain and loss probabilities along branches
 print("sum gain and loss probability along paths")
-gl = open(gainLossFile, 'r')
-gl.readline() # header
-sumgain = Counter()
-sumloss = Counter()
-pgain = Counter()
-ploss = Counter()
+sumgain = Counter() # pcij
 Ig = defaultdict(set) # IES columns per gene family
 
-for line in gl:
-    line = line.rstrip()
-    (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) = line.split()
-    if (includeGF and (geneFamily in includedGeneFamilies)) or (not includeGF):
-        sumgain[(geneFamily, fromNode, toNode)] += float(gain)
-        sumloss[(geneFamily, fromNode, toNode)] += float(loss)
-        Ig[geneFamily].add(iesColumn)
+df = pd.dataFrame(0, index =range(len(glF)), columns=["geneFamily", "pgij", "kij", "ng", "plij"])
+#fill in data frame .
+#  read by row gailloss.dat file and add to the correect row of df the rate of gain or loss
+for (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) in glF.itertuples(index = False, name = None):
+    df.loc[df["geneFamily"]==geneFamily,"pgij"] += pgain
+    df.loc[df["geneFamily"]==geneFamily,"plij"] += ploss
+    df.loc[df["geneFamily"]==geneFamily,"kij"]  = kij[(geneFamily, fromNode, toNode)]
+    df.loc[df["geneFamily"]==geneFamily,"ng"]   = gb[geneFamily]
+    Ig[geneFamily].add(iesColumn)
 
-# normalize by number of paths and for rate of gain also by gblocks length in nt
-print("normalize")
-for k in sumgain:
-    pgain[(k[1], k[2])] += sumgain[k] / (gb[k[0]] * kij[k])
-    ploss[(k[1], k[2])] += sumloss[k] / ( len(Ig[k[0]]) * kij[k])
+#print("\t".join(["geneFamily", "pcij", "kij", "ng"]))
 
+#for k in sumgain:
+#    print("\t".join([str(geneFamily), str(sumgain[k]), str(kij[k]), str(gb[k[0]])]))
+
+#for each pair of speciation nodes perform a sum
+
+quit()
 # normalize by branch length
 # if a branch is not present in the species tree (e.g. skips a speciation events
 # then in order to properly normalize we would have to add up the total branch
