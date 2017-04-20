@@ -86,28 +86,29 @@ for (geneFamily, begin, end) in gbF.itertuples(index = False, name = None):
 
 kij = Counter() # The number of paths connecting nodes i and j per gene family
 for (geneFamily, fromNode, toNode, path) in npF.itertuples(index = False, name = None):
-    kij[(cluster, fromNode, toNode)] += 1 # nodes are in phyldog notation
+    kij[(geneFamily, fromNode, toNode)] += 1 # nodes are in phyldog notation
 
 print("sum gain and loss probability along paths")
 sumgain = Counter() # pcij
+sumloss = Counter()
 Ig = defaultdict(set) # IES columns per gene family
 
-df = pd.dataFrame(0, index =range(len(glF)), columns=["geneFamily", "pgij", "kij", "ng", "plij"])
-#fill in data frame .
+#fill a data frame is too slow
+#df = pd.DataFrame(0, index =range(len(glF)), columns=["geneFamily", "pgij", "kij", "ng", "plij"])
 #  read by row gailloss.dat file and add to the correect row of df the rate of gain or loss
 for (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) in glF.itertuples(index = False, name = None):
-    df.loc[df["geneFamily"]==geneFamily,"pgij"] += pgain
-    df.loc[df["geneFamily"]==geneFamily,"plij"] += ploss
-    df.loc[df["geneFamily"]==geneFamily,"kij"]  = kij[(geneFamily, fromNode, toNode)]
-    df.loc[df["geneFamily"]==geneFamily,"ng"]   = gb[geneFamily]
+    sumgain[(geneFamily, fromNode, toNode)] += gain
+    sumloss[(geneFamily, fromNode, toNode)] += loss
+    #df.loc[df["geneFamily"]==geneFamily,"pgij"] += gain
+    #df.loc[df["geneFamily"]==geneFamily,"plij"] += loss
+    #df.loc[df["geneFamily"]==geneFamily,"kij"]  = kij[(geneFamily, fromNode, toNode)]
+    #df.loc[df["geneFamily"]==geneFamily,"ng"]   = gb[geneFamily]
     Ig[geneFamily].add(iesColumn)
 
-#print("\t".join(["geneFamily", "pcij", "kij", "ng"]))
-
-#for k in sumgain:
-#    print("\t".join([str(geneFamily), str(sumgain[k]), str(kij[k]), str(gb[k[0]])]))
-
-#for each pair of speciation nodes perform a sum
+with open(outputF, 'w') as f:
+    print("\t".join(["geneFamily", "pcij", "kij", "ng"]))
+    for k in sumgain:
+        f.write("\t".join([str(geneFamily), str(sumgain[k]), str(kij[k]), str(gb[k[0]]), "\t"]))
 
 quit()
 # normalize by branch length
