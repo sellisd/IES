@@ -45,18 +45,24 @@ for opt, arg in opts:
 glsF = pd.read_table(gainLossSumF, sep = "\t", index_col = False)
 
 # normalize by branch length
-# if a branch is not present in the species tree (e.g. skips a speciation events
-# then in order to properly normalize we would have to add up the total branch
-# as we don't need it for the figures we only keep the branch lengths observed
-# in the species trees)
 obspgain = {}
 obsploss = {}
 t = Tree(spTreeF)
+# Sum pgij for each i j and
+# sum kgij*ng for each ij
+
 for node in t.iter_descendants():
     fromNode = node.up.ND
-    k = (fromNode, node.ND)
-    obspgain[k]  = pgain[k]/float(node.dist)
-    obsploss[k] = ploss[k]/float(node.dist)
+    toNode = node.ND
+    rowIndexes = (glsF['fromNode']==fromNode) & (glsF['toNode']==toNode)
+    obspgain[k] = glsF.loc[rowIndexes,'pcijGain'].sum()
+    obsploss[k] = glsF.loc[rowIndexes,'pcijLoss'].sum()
+
+for node in t.iter_descendants():
+    fromNode = node.up.ND
+    toNode = node.ND
+    obspgain[k] /= float(node.dist)
+    obsploss[k] /= float(node.dist)
 
 with open(outputF, 'w') as fout:
     fout.write("\t".join(["fromNode", "toNode", "pgain", "ploss\n"]))
