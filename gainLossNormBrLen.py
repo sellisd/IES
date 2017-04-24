@@ -3,6 +3,9 @@ from __future__ import print_function
 from __future__ import division
 import pandas as pd
 from ete3 import Tree
+from pyies.userOptions import basePath
+import os.path
+import sys, getopt
 
 #Normalize by branch lengths
 spTreeF            = ""
@@ -54,15 +57,15 @@ t = Tree(spTreeF)
 for node in t.iter_descendants():
     fromNode = node.up.ND
     toNode = node.ND
-    rowIndexes = (glsF['fromNode']==fromNode) & (glsF['toNode']==toNode)
-    obspgain[k] = glsF.loc[rowIndexes,'pcijGain'].sum()
-    obsploss[k] = glsF.loc[rowIndexes,'pcijLoss'].sum()
+    rowIndexes = (glsF['fromNode']==int(fromNode)) & (glsF['toNode']==int(toNode))
+    obspgain[(fromNode, toNode)] = glsF.loc[rowIndexes,'pcijGain'].sum()
+    obsploss[(fromNode, toNode)] = glsF.loc[rowIndexes,'pcijLoss'].sum()
 
 for node in t.iter_descendants():
     fromNode = node.up.ND
     toNode = node.ND
-    obspgain[k] /= float(node.dist)
-    obsploss[k] /= float(node.dist)
+    obspgain[(fromNode, toNode)] /= float(node.dist)
+    obsploss[(fromNode, toNode)] /= float(node.dist)
 
 with open(outputF, 'w') as fout:
     fout.write("\t".join(["fromNode", "toNode", "pgain", "ploss\n"]))
