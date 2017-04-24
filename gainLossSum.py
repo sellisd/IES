@@ -7,8 +7,8 @@ from pyies.userOptions import basePath
 import os.path
 import sys, getopt
 
-# Calculate gain and loss rate.
-
+# Sum pgij for gain and gain and loss rate.
+# and calculate alignment length and number of paths for each gene family
 # program options
 spNodePairsF       = ""
 gainLossF          = ""
@@ -99,6 +99,6 @@ for (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) in glF.itertuple
     Ig[geneFamily].add(iesColumn)
 
 with open(outputF, 'w') as f:
-    f.write("\t".join(["geneFamily", "fromNode", "toNode", "pcijGain", "pcijLoss", "kij", "ng\n"]))
+    f.write("\t".join(["geneFamily", "fromNode", "toNode", "pcijGain", "pcijLoss", "kij", "ng", "Ig\n"]))
     for k in sumgain:
-        f.write("\t".join([str(geneFamily), str(k[1]), str(k[2]), str(sumgain[k]), str(sumloss[k]), str(kij[k]), str(gb[k[0]]) + "\n"]))
+        f.write("\t".join([str(geneFamily), str(k[1]), str(k[2]), str(sumgain[k]), str(sumloss[k]), str(kij[k]), str(len(gb[k[0]])), str(Ig[k[0]]) + "\n"]))
