@@ -7,7 +7,7 @@ from pyies.userOptions import basePath
 import os.path
 import sys, getopt
 
-#Normalize by branch lengths
+#Normalize by branch lengths and alignment length (kb)
 spTreeF            = ""
 gainLossSumF       = ""
 outputF            = ""
@@ -57,7 +57,10 @@ branches = {}
 for node in t.iter_descendants():
     fromNode = node.up.ND
     toNode = node.ND
-    branches[(fromNode, toNode)] = float(node.dist)
+    key = "|".join(sorted([n for n in node.get_leaf_names()]))
+    branches[(fromNode, toNode)] = {'brlen' : float(node.dist),
+                                    'leaves': key}
+
 sumpgijGain = {}
 sumpgijLoss = {}
 sumNK       = {}
@@ -74,11 +77,11 @@ for k in branches:
 RGij = {} # rate of gain
 RLij = {} # rate of loss
 for k in branches:
-    RGij[k] = sumpgijGain[k]/(sumNK[k]*branches[k])
-    RLij[k] = sumpgijLoss[k]/(sumIK[k]*branches[k])
+    RGij[k] = 1000 * sumpgijGain[k]/(sumNK[k]*branches[k]['brlen'])
+    RLij[k] = sumpgijLoss[k]/(sumIK[k]*branches[k]['brlen'])
 
 with open(outputF, 'w') as fout:
-    fout.write("\t".join(["fromNode", "toNode", "rgain", "rloss\n"]))
+    fout.write("\t".join(["fromNode", "toNode", "rgain", "rloss", "leavesUnderNode\n"]))
 
     for k in branches:
-        fout.write("\t".join([str(k[0]), str(k[1]), str(RGij[k]), str(RLij[k]) + "\n"]))
+        fout.write("\t".join([str(k[0]), str(k[1]), str(RGij[k]), str(RLij[k]), branches[k]['leaves'] + "\n"]))
