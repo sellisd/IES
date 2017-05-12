@@ -12,6 +12,22 @@ from userOptions import basePath
 colorFile = 'colors.hex'
 colorFile9 = 'colors9.hex'
 
+def NDS(t):
+    """Get a data frame of PHYLDOG node ids (ND) and corresponding speciation
+    event (S).
+
+    Args:
+
+    t ete3 tree object
+
+    returns dictionary {ND=S}
+    """
+    ndsD = {}
+    for node in t.traverse():
+        if node.Ev == 'S':
+            ndsD[node.ND] = node.S
+    return(ndsD)
+
 def makeNodeTable(phyldogTreeF, revBayesTreeF):
     """Create node dictioary to link two trees."""
     rbDict = revBayesTree2key(revBayesTreeF)
