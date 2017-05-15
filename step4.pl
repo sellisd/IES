@@ -95,6 +95,8 @@ run("./gainLoss.pl 1 > $gl1F", 1);
 run("./gainLoss.pl 2 > $gl2F", 1);
 run("./gainLoss.pl 3 > $gl3F", 1);
 
+run("./gfnodeDict.py", 1);
+
 my $gainLoss1F    = catfile($tablesP, 'gainLoss1.dat');
 my $gainLoss2F    = catfile($tablesP, 'gainLoss2.dat');
 my $gainLoss3F    = catfile($tablesP, 'gainLoss3.dat');
@@ -105,10 +107,14 @@ my $gainLossSum3F = catfile($tablesP, 'gainLossSum3b.dat');
 my $spTree1F      = catfile($iesdbP,  'speciesTree1.nhx');
 my $spTree2F      = catfile($iesdbP,  'speciesTree2.nhx');
 my $spTree3F      = catfile($iesdbP,  'speciesTree3b.nhx');
+my $nds1F         = catfile($tablesP, 'gfnodeDict1.tsv');
+my $nds2F         = catfile($tablesP, 'gfnodeDict2.tsv');
+my $nds3F         = catfile($tablesP, 'gfnodeDict3.tsv');
+
 # summarize and prepare plots at the end of the analysis
-run("./gainLossSum.py -k $nodePaths1F -g $gainLoss1F -b $gblocksF -t $spTree1F -o $gainLossSum1F", 1);
-run("./gainLossSum.py -k $nodePaths2F -g $gainLoss2F -b $gblocksF -t $spTree2F -o $gainLossSum2F", 1);
-run("./gainLossSum.py -k $nodePaths3F -g $gainLoss3F -b $gblocksF -t $spTree3F -o $gainLossSum3F", 1);
+run("./gainLossSum.py -d $nds1F -k $nodePaths1F -g $gainLoss1F -b $gblocksF -t $spTree1F -o $gainLossSum1F", 1);
+run("./gainLossSum.py -d $nds2F -k $nodePaths2F -g $gainLoss2F -b $gblocksF -t $spTree2F -o $gainLossSum2F", 1);
+run("./gainLossSum.py -d $nds3F -k $nodePaths3F -g $gainLoss3F -b $gblocksF -t $spTree3F -o $gainLossSum3F", 1);
 
 my $gainLossNormBrLen1F = catfile($tablesP, 'gainLossNormBrLen1.dat');
 my $gainLossNormBrLen2F = catfile($tablesP, 'gainLossNormBrLen2.dat');
