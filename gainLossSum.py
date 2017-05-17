@@ -17,7 +17,6 @@ outgroupName       = ""
 outputF            = ""
 includeGF          = ""
 nodePathsF         = ""
-ndsF               = ""
 usage = """
 usage:
 
@@ -31,7 +30,6 @@ where OPTIONS can be any of the following:
     -t: species tree file with branch lengths
     -o: output file name
     -i: file with gene families to include in the analysis. Default all included
-    -d: PHYLDOG ND2S dictionary linking node numbers to speciation events
     -h: this help screen
 """;
 
@@ -58,8 +56,6 @@ for opt, arg in opts:
         includeGF = arg
     elif opt == '-k':
         nodePathsF = arg
-    elif opt == '-d':
-        ndsF = arg
     else:
         print("Unknown argument" + arg)
         print(usage)
@@ -68,7 +64,6 @@ for opt, arg in opts:
 npF = pd.read_table(nodePathsF, sep = "\t", index_col = False)
 glF = pd.read_table(gainLossF, sep = "\t", index_col = False)
 gbF = pd.read_table(gbFile, sep = "\t", index_col = False)
-ndsF = pd.read_table(ndsF, sep = "\t", index_col = False)
 
 # if parameter defined load a list of gene families to include from the analysis
 includedGeneFamilies = []
@@ -105,23 +100,11 @@ for (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) in glF.itertuple
     Ig[geneFamily].add(iesColumn)
 
 with open(outputF, 'w') as f:
-    f.write("\t".join(["geneFamily", "fromNodeND", "toNodeND", "fromNodeS", "toNodeS", "pcijGain", "pcijLoss", "kij", "ng", "Ig\n"]))
+    f.write("\t".join(["geneFamily", "fromNode", "toNode", "pcijGain", "pcijLoss", "kij", "ng", "Ig\n"]))
     for k in sumgain:
-        geneFamily = k[0]
-        fromNodeND = k[1]
-        toNodeND = k[2]
-        print(geneFamily)
-        print(fromNodeND)
-        print(toNodeND)
-        print(ndsF.S[(ndsF.geneFamily == geneFamily) & (ndsF.ND == fromNodeND)])
-        print(ndsF.S[(ndsF.geneFamily == geneFamily) & (ndsF.ND == toNodeND)])
-        fromNodeS = ndsF.S[(ndsF.geneFamily == geneFamily) & (ndsF.ND == fromNodeND)].item()
-        toNodeS = ndsF.S[(ndsF.geneFamily == geneFamily) & (ndsF.ND == toNodeND)].item()
         f.write("\t".join([str(geneFamily),
-                           str(fromNodeND),
-                           str(toNodeND),
-                           str(fromNodeS),
-                           str(toNodeS),
+                           str(fromNode),
+                           str(toNode),
                            str(sumgain[k]),
                            str(sumloss[k]),
                            str(kij[k]),

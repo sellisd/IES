@@ -3,7 +3,6 @@ from __future__ import print_function
 from __future__ import division
 import pandas as pd
 from ete3 import Tree
-from pyies.functions import NDS
 from pyies.userOptions import basePath
 import os.path
 import sys, getopt
@@ -47,12 +46,6 @@ for opt, arg in opts:
         sys.exit(1)
 
 glsF = pd.read_table(gainLossSumF, sep = "\t", index_col = False)
-nd2s = {} # Dictionary linking ND to S for each gene family {geneFamily{ND=S}}
-for i in glsF.geneFamily:
-    geneTreeFile = os.path.join(basePath,"analysis", "phyldogT1", "results", str(i) + ".ReconciledTree")
-    t = Tree(geneTreeFile)
-    nd2s[i] = NDS(t)
-
 
 # normalize by branch length
 t = Tree(spTreeF)
