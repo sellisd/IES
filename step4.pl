@@ -95,8 +95,6 @@ run("./gainLoss.pl 1 > $gl1F", 1);
 run("./gainLoss.pl 2 > $gl2F", 1);
 run("./gainLoss.pl 3 > $gl3F", 1);
 
-run("./gfnodeDict.py", 1);
-
 my $gainLoss1F    = catfile($tablesP, 'gainLoss1.dat');
 my $gainLoss2F    = catfile($tablesP, 'gainLoss2.dat');
 my $gainLoss3F    = catfile($tablesP, 'gainLoss3.dat');
@@ -117,9 +115,9 @@ my $gainLossNormBrLen1F = catfile($tablesP, 'gainLossNormBrLen1.dat');
 my $gainLossNormBrLen2F = catfile($tablesP, 'gainLossNormBrLen2.dat');
 my $gainLossNormBrLen3F = catfile($tablesP, 'gainLossNormBrLen3.dat');
 
-run("./gainLossNormBrLen.py -g $gainLossSum1F -t $spTree1F -o $gainLossNormBrLen1F", 1);
-run("./gainLossNormBrLen.py -g $gainLossSum2F -t $spTree2F -o $gainLossNormBrLen2F", 1);
-run("./gainLossNormBrLen.py -g $gainLossSum3F -t $spTree3F -o $gainLossNormBrLen3F", 1);
+run("~/anaconda_ete/bin/python ./gainLossNormBrLen.py -g $gainLossSum1F -t $spTree1F -o $gainLossNormBrLen1F", 0);
+run("~/anaconda_ete/bin/python ./gainLossNormBrLen.py -g $gainLossSum2F -t $spTree2F -o $gainLossNormBrLen2F", 0);
+run("~/anaconda_ete/bin/python ./gainLossNormBrLen.py -g $gainLossSum3F -t $spTree3F -o $gainLossNormBrLen3F", 0);
 
 # combine age and length information for each IES
 my $ageLengthOut1F = catfile($tablesP, 'ageLength1.dat');
