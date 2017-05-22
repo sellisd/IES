@@ -14,10 +14,10 @@ for asrRun in ('1','2','3'):
     inputGLF = os.path.join(basePath, 'analysis', 'tables', 'gainLossNormBrLen' + str(asrRun) + '.dat')
     outP     = os.path.join(basePath, 'analysis', 'figures', 'spTree' + str(asrRun))
     if asrRun == 3:
-        three = '3'
+        analysisNumber = '3b'
     else:
-        three = '3b'
-    spTreeF  = os.path.join(basePath, 'analysis', 'iesdb', 'speciesTree' + three + '.nhx')
+        analysisNumber = asrRun
+    spTreeF  = os.path.join(basePath, 'analysis', 'iesdb', 'speciesTree' + analysisNumber + '.nhx')
     gl = pd.read_csv(inputGLF, sep = "\t")
     t = Tree(spTreeF)
     ts = TreeStyle()
