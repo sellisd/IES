@@ -60,7 +60,7 @@ for asrRun in ('1','2','3'):
             rloss = gl.rloss[(gl.fromNode == 0) & (gl.toNode == int(node.ND))]
         else:
             rloss = gl.rloss[(gl.fromNode == int(node.up.ND)) & (gl.toNode == int(node.ND))]
-        if rgain.empty:
+        if rloss.empty:
             continue
         rloss = rloss.item()
         style = NodeStyle()

@@ -102,9 +102,9 @@ for (geneFamily, iesColumn, fromNode, toNode, panc, gain, loss) in glF.itertuple
 with open(outputF, 'w') as f:
     f.write("\t".join(["geneFamily", "fromNode", "toNode", "pcijGain", "pcijLoss", "kij", "ng", "Ig\n"]))
     for k in sumgain:
-        f.write("\t".join([str(geneFamily),
-                           str(fromNode),
-                           str(toNode),
+        f.write("\t".join([str(k[0]),
+                           str(k[1]),
+                           str(k[1]),
                            str(sumgain[k]),
                            str(sumloss[k]),
                            str(kij[k]),
