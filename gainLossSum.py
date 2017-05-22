@@ -104,7 +104,7 @@ with open(outputF, 'w') as f:
     for k in sumgain:
         f.write("\t".join([str(k[0]),
                            str(k[1]),
-                           str(k[1]),
+                           str(k[2]),
                            str(sumgain[k]),
                            str(sumloss[k]),
                            str(kij[k]),
