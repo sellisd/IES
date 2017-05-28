@@ -13,7 +13,7 @@ import matplotlib.colors as colors
 for asrRun in ('1','2','3'):
     inputGLF = os.path.join(basePath, 'analysis', 'tables', 'gainLossNormBrLen' + str(asrRun) + '.dat')
     outP     = os.path.join(basePath, 'analysis', 'figures', 'spTree' + str(asrRun))
-    if asrRun == 3:
+    if asrRun == '3':
         analysisNumber = '3b'
     else:
         analysisNumber = asrRun
