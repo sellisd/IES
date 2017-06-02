@@ -44,7 +44,7 @@ for asrRun in ('1','2','3'):
             continue
         rgain = rgain.item()
         style = NodeStyle()
-        gainString = "+%.2f" % (rgain)
+        gainString = "%.2f" % (rgain)
         #pick colors
         ci = colors.rgb2hex(gcm.to_rgba(rgain)[:3])
         style["vt_line_color"] = ci
@@ -64,7 +64,7 @@ for asrRun in ('1','2','3'):
             continue
         rloss = rloss.item()
         style = NodeStyle()
-        lossString = "-%.2f" % (rloss)
+        lossString = "%.2f" % (rloss)
         ci = colors.rgb2hex(lcm.to_rgba(rloss)[:3])
         style["vt_line_color"] = ci
         style["hz_line_color"] = ci
