@@ -21,6 +21,7 @@ for asrRun in ('1','2','3'):
     gl = pd.read_csv(inputGLF, sep = "\t")
     t = Tree(spTreeF)
     ts = TreeStyle()
+    ts.complete_branch_lines_when_necessary = False
     # calculate branch colors
     gainL = [] # list with all rates of gain
     lossL = [] # list with all rates of loss
@@ -73,7 +74,7 @@ for asrRun in ('1','2','3'):
         style["size"] = 0
         node.add_face(TextFace(lossString), column = 0, position = "branch-bottom")
         node.set_style(style)
-    tg.show()
-    tl.show()
+    tg.show(tree_style = ts)
+    tl.show(tree_style = ts)
     tg.render(outP + ".gain.png", tree_style = ts)
     tl.render(outP + ".loss.png", tree_style = ts)
