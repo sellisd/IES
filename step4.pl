@@ -107,9 +107,9 @@ my $spTree2F      = catfile($iesdbP,  'speciesTree2.nhx');
 my $spTree3F      = catfile($iesdbP,  'speciesTree3b.nhx');
 
 # summarize and prepare plots at the end of the analysis
-run("./gainLossSum.py -k $nodePaths1F -g $gainLoss1F -b $gblocksF -t $spTree1F -o $gainLossSum1F", 1);
-run("./gainLossSum.py -k $nodePaths2F -g $gainLoss2F -b $gblocksF -t $spTree2F -o $gainLossSum2F", 1);
-run("./gainLossSum.py -k $nodePaths3F -g $gainLoss3F -b $gblocksF -t $spTree3F -o $gainLossSum3F", 1);
+run("./gainLossSum.py -k $nodePaths1F -g $gainLoss1F -b $gblocksF -t $spTree1F -o $gainLossSum1F", 0);
+run("./gainLossSum.py -k $nodePaths2F -g $gainLoss2F -b $gblocksF -t $spTree2F -o $gainLossSum2F", 0);
+run("./gainLossSum.py -k $nodePaths3F -g $gainLoss3F -b $gblocksF -t $spTree3F -o $gainLossSum3F", 0);
 
 my $gainLossNormBrLen1F = catfile($tablesP, 'gainLossNormBrLen1.dat');
 my $gainLossNormBrLen2F = catfile($tablesP, 'gainLossNormBrLen2.dat');

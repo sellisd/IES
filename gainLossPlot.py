@@ -13,14 +13,15 @@ import matplotlib.colors as colors
 for asrRun in ('1','2','3'):
     inputGLF = os.path.join(basePath, 'analysis', 'tables', 'gainLossNormBrLen' + str(asrRun) + '.dat')
     outP     = os.path.join(basePath, 'analysis', 'figures', 'spTree' + str(asrRun))
-    if asrRun == 3:
-        three = '3'
+    if asrRun == '3':
+        analysisNumber = '3b'
     else:
-        three = '3b'
-    spTreeF  = os.path.join(basePath, 'analysis', 'iesdb', 'speciesTree' + three + '.nhx')
+        analysisNumber = asrRun
+    spTreeF  = os.path.join(basePath, 'analysis', 'iesdb', 'speciesTree' + analysisNumber + '.nhx')
     gl = pd.read_csv(inputGLF, sep = "\t")
     t = Tree(spTreeF)
     ts = TreeStyle()
+    ts.complete_branch_lines_when_necessary = False
     # calculate branch colors
     gainL = [] # list with all rates of gain
     lossL = [] # list with all rates of loss
@@ -44,7 +45,7 @@ for asrRun in ('1','2','3'):
             continue
         rgain = rgain.item()
         style = NodeStyle()
-        gainString = "+%.2f" % (rgain)
+        gainString = "%.2f" % (rgain)
         #pick colors
         ci = colors.rgb2hex(gcm.to_rgba(rgain)[:3])
         style["vt_line_color"] = ci
@@ -60,11 +61,11 @@ for asrRun in ('1','2','3'):
             rloss = gl.rloss[(gl.fromNode == 0) & (gl.toNode == int(node.ND))]
         else:
             rloss = gl.rloss[(gl.fromNode == int(node.up.ND)) & (gl.toNode == int(node.ND))]
-        if rgain.empty:
+        if rloss.empty:
             continue
         rloss = rloss.item()
         style = NodeStyle()
-        lossString = "-%.2f" % (rloss)
+        lossString = "%.2f" % (rloss)
         ci = colors.rgb2hex(lcm.to_rgba(rloss)[:3])
         style["vt_line_color"] = ci
         style["hz_line_color"] = ci
@@ -73,7 +74,7 @@ for asrRun in ('1','2','3'):
         style["size"] = 0
         node.add_face(TextFace(lossString), column = 0, position = "branch-bottom")
         node.set_style(style)
-    tg.show()
-    tl.show()
+    tg.show(tree_style = ts)
+    tl.show(tree_style = ts)
     tg.render(outP + ".gain.png", tree_style = ts)
     tl.render(outP + ".loss.png", tree_style = ts)
