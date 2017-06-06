@@ -103,8 +103,8 @@ with open(outputF, 'w') as f:
     f.write("\t".join(["geneFamily", "fromNode", "toNode", "pcijGain", "pcijLoss", "kij", "ng", "Ig\n"]))
     for k in sumgain:
         f.write("\t".join([str(geneFamily),
-                           str(fromNode),
-                           str(toNode),
+                           str(k[1]),
+                           str(k[2]),
                            str(sumgain[k]),
                            str(sumloss[k]),
                            str(kij[k]),
