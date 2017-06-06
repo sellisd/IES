@@ -9,6 +9,7 @@ import os.path
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 
+
 # only decorate a tree that has already PHYDLOG ids
 for asrRun in ('1','2','3'):
     inputGLF = os.path.join(basePath, 'analysis', 'tables', 'gainLossNormBrLen' + str(asrRun) + '.dat')
@@ -20,6 +21,7 @@ for asrRun in ('1','2','3'):
     spTreeF  = os.path.join(basePath, 'analysis', 'iesdb', 'speciesTree' + analysisNumber + '.nhx')
     gl = pd.read_csv(inputGLF, sep = "\t")
     t = Tree(spTreeF)
+    t.sort_descendants(attr='O')
     ts = TreeStyle()
     ts.complete_branch_lines_when_necessary = False
     # calculate branch colors
