@@ -9,7 +9,6 @@ import os.path
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 
-
 # only decorate a tree that has already PHYDLOG ids
 for asrRun in ('1','2','3'):
     inputGLF = os.path.join(basePath, 'analysis', 'tables', 'gainLossNormBrLen' + str(asrRun) + '.dat')
@@ -55,8 +54,8 @@ for asrRun in ('1','2','3'):
         style["hz_line_width"] = 3
         style["vt_line_width"] = 3
         style["size"] = 0
-        node.add_face(TextFace(gainString), column = 0, position = "branch-top")
         node.set_style(style)
+        node.add_face(TextFace(gainString), column = 0, position = "branch-top")
 
     for node in tl.iter_descendants():
         if node.up.is_root():
@@ -74,9 +73,14 @@ for asrRun in ('1','2','3'):
         style["hz_line_width"] = 3
         style["vt_line_width"] = 3
         style["size"] = 0
-        node.add_face(TextFace(lossString), column = 0, position = "branch-bottom")
         node.set_style(style)
-    tg.show(tree_style = ts)
-    tl.show(tree_style = ts)
+        node.add_face(TextFace(lossString), column = 0, position = "branch-top")
+    #tg.show(tree_style = ts)
+    #tl.show(tree_style = ts)
+    ts.scale = 1500
+    #tg.show(tree_style = ts)
+    #tl.show(tree_style = ts)
     tg.render(outP + ".gain.png", tree_style = ts)
     tl.render(outP + ".loss.png", tree_style = ts)
+    tg.render(outP + ".gain.svg", tree_style = ts)
+    tl.render(outP + ".loss.svg", tree_style = ts)
