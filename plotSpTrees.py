@@ -12,7 +12,7 @@ outT3 = os.path.join(basePath, 'analysis', 'figures', 'spTree3.png')
 
 for tF, oF in zip([spTree1F, spTree2F, spTree3F], [outT1, outT2, outT3]):
     t = Tree(tF)
-    t.sort_descendants(attr='name')
+    t.sort_descendants(attr='O')
     for node in t.traverse():
         nstyle = NodeStyle()
         nstyle["size"] = 0
