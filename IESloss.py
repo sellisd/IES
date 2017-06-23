@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #figure IES loss
 from __future__ import print_function
-from ete3 import Tree, SeqGroup, SeqMotifFace, SequenceFace
+from ete3 import Tree, NodeStyle, TreeStyle
 from pyies.userOptions import basePath
 import os.path
 import string
@@ -13,6 +13,12 @@ treeF = os.path.join(basePath, 'analysis', 'phyldogT' + analysis, 'results', gen
 )
 alnF = os.path.join(basePath, 'analysis', 'msas', 'filtered', 'cluster.' + geneFamily + '.nucl.fa')
 t = Tree(treeF)
+ts = TreeStyle()
+ts.scale = 500
+nstyle = NodeStyle()
+nstyle["size"] = 0
+for n in t.traverse():
+   n.set_style(nstyle)
 
 #seqs = SeqGroup(sequences = alnF, format = "fasta")
 
@@ -25,4 +31,5 @@ t = Tree(treeF)
 #     seqFace = SequenceFace(seq, seqtype = 'dna')
 #     leaf.add_face(seqFace, 0, "aligned")
 #
-t.show()
+#t.show(tree_style = ts)
+t.render("/Users/dsellis/projects/IES/src/figureData/tree." + geneFamily + ".svg", tree_style = ts)
