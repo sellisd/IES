@@ -1,9 +1,28 @@
 #!/usr/bin/python
 from __future__ import print_function
 from collections import Counter
+import sys, getopt
 
-inputfile = '/Users/dsellis/data/IES/analysis/mies/blastout/mies.blastout'
-outputfile = '/Users/dsellis/data/IES/analysis/mies/blastout/mies.blastout.table'
+# Prepare histogram of IES cluster sizes by species from BLAST results
+
+inputfile = '';  # blastout/mies.blastout
+outputfile = ''; # blastout/mies.blastout.table
+
+usage = "./miesBLASTreformat.py -i <inputfile> -o <outputfile>"
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hi:o:")
+except getopt.GetoptError:
+    print(usage)
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print(usage)
+        sys.exit()
+    elif opt == "-i":
+        inputfile = arg
+    elif opt == "-o":
+        outputfile = arg
 
 fin = open(inputfile, 'r')
 fout = open(outputfile, 'w')
