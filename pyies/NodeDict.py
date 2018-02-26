@@ -17,13 +17,15 @@ class NodeDict:
         Args:
         geneFamily string Gene family unique Id
         nodeRb     string Node Id in revBayes numbering
+        returns    string revBayes NodeId
         """
-        return(self._df.phyldog[(self._df.cluster == geneFamily) & (self._df.rb == nodeRb)])
+        return(self._df.phyldog[(self._df.cluster == geneFamily) & (self._df.rb == nodeRb)].item())
 
     def phyldog2rb(self, geneFamily, nodeP):
         """translate node notation
         Args:
         geneFamily string Gene family unique Id
-        nodeP     string Node Id in PHYLDOG numbering
+        nodeP      string Node Id in PHYLDOG numbering
+        returns    string phyldog NodeId
         """
-        return(self._df.rb[(self._df.cluster == geneFamily) & (self._df.phyldog == nodeP)])
+        return(self._df.rb[(self._df.cluster == geneFamily) & (self._df.phyldog == nodeP)].item())

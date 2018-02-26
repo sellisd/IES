@@ -1,13 +1,29 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 from __future__ import print_function
+import pandas as pd
+from pyies.userOptions import basePath
+from pyies.NodeDict import NodeDict
 from ete3 import Tree
+import sys, getopt
+import os.path
 
+# For each gene tree find terminal(leaf) branches
+# foreach X.ReconciledTree find terminal branches
 
-# Find IES that are lost in a terminal branch.
+# Read average node probabilities
+
+# check if necessary to use the node nodeDictionary
+
+# search node probabilities for leaf branches and select those with change of probability from x = 0.1 to y = 1
+# this means it could have been lost in at least one paralog
+
+# print out analysis number genefamily iesColumn
 
 def prevSpec(nodeO):
     """
     find the closest direct ancestor that corresponds to a speciation node
+    Args:
+    nodeO ete node object
     """
     while nodeO.up:
         nodeO = nodeO.up
@@ -16,13 +32,77 @@ def prevSpec(nodeO):
         else:
             pass
 
+outputPath = ""
+geneFamilyId = None
+analysis = '2'
+cutoff = 1
+
+usage = """
+usage:
+
+./recentGainLossIES.py [OPTIONS]
+
+    where OPTIONS can be any of the following:
+    -g string       Gene family Id, if None provided use all gene families
+    -a [1|2|3]      Choice of species tree analysis to use (Default: 2)
+    -o <outputPath> Path to create output files
+    -c float        Cutoff for change of probability (negative for reduction positive for increase)
+    -h              This help screen
+"""
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"ha:o:g:c:")
+except getopt.GetoptError:
+    print(usage)
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print(usage)
+        sys.exit(1)
+    elif opt == '-g':
+        geneFamilyId = arg
+    elif opt == '-c':
+        cutoff = float(arg)
+    elif opt == '-a':
+        analysis = arg
+    elif opt == "-o":
+        outputPath = arg
+        if not os.path.isdir(outputPath):
+            print("Warning: Not existing path: " + outputPath)
+            print(usage)
+            quit(1)
+
+# load node dictionary
+nodeDictionary = NodeDict(os.path.join(basePath, "analysis", "tables", "nodeDictionary" + analysis + ".dat"))
+# load ancestral state probabilities
+nodeProbsFile = os.path.join(basePath, "analysis", "tables", "avNodeProb" + analysis + ".dat")
+nodeProb = pd.read_csv(nodeProbsFile, sep = "\t")
+
+if geneFamilyId == None:
+    pass
+else:
+    phyldogTreeFile = os.path.join(basePath, "analysis", "phyldogT" + analysis, "results", geneFamilyId + ".ReconciledTree")
+    print(phyldogTreeFile)
+    t = Tree(phyldogTreeFile)
+    for leaf in t:
+        ancestor = prevSpec(leaf)
+        ancestorRB = nodeDictionary.phyldog2rb(geneFamilyId, ancestor.ND)
+        offspringRB = nodeDictionary.phyldog2rb(geneFamilyId, leaf.ND)
+        print(ancestorRB + "-" + offspringRB)
+        aS = nodeProb.presence[(nodeProb.cluster == geneFamilyId) & (nodeProb.node == ancestorRB)]
+        oS = nodeProb.presence[(nodeProb.cluster == geneFamilyId) & (nodeProb.node == offspringRB)]
+        oS-aS
+
+
+
+print(np.head())
+quit()
 # output files
-fgl = open('/home/dsellis/data/IES_data/msas/recentGainLossIES.dat', 'w')
-fnt = open('/home/dsellis/data/IES_data/msas/recentGainLossIES.notSign.dat', 'w')
+rgl = open(os.path.join(outputPath, 'recentGainLossIES.dat'), 'w')
 
 # read node dictionary
 rb2phyldog = {}
-for line in open('/home/dsellis/data/IES_data/rdb/nodeDictionary.dat'):
+for line in open(os.path.join(basePath, 'IES/rdb/nodeDictionary.dat')):
     line = line.rstrip()
     (cluster, r, phyldog, rb) = line.split()
     rb2phyldog[(cluster, rb)] = phyldog
@@ -93,5 +173,3 @@ fnt.close()
 
 
 # Compare the probability of presence in the two nodes.
-
-
