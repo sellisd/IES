@@ -4,11 +4,26 @@ class NodeDict:
     a2b conversion functions return pd.Series
     """
 
-    def __init__(self, file):
-        self._df = pd.read_csv(file, sep = "\t")
+    def __init__(self, nodeDictionaryFile):
+        """Constructor
+        Args:
+        nodeDictionaryFile string  Path and filename for node dictionary file
+        returns Nothing
+        """
+        self._df = pd.read_csv(nodeDictionaryFile, sep = "\t", dtype = 'str')
 
     def rb2phyldog(self, geneFamily, nodeRb):
-        return(self._df.rb[(self._df.phyldog.isin([2])) & (self._df.geneFamily == geneFamily)])
+        """translate node notation
+        Args:
+        geneFamily string Gene family unique Id
+        nodeRb     string Node Id in revBayes numbering
+        """
+        return(self._df.phyldog[(self._df.cluster == geneFamily) & (self._df.rb == nodeRb)])
 
-    def phyldog2pb(self, geneFamily, nodeP):
-        return(self._df.phyldog[(self._df.rb.isin([2])) & (self._df.geneFamily == geneFamily)])
+    def phyldog2rb(self, geneFamily, nodeP):
+        """translate node notation
+        Args:
+        geneFamily string Gene family unique Id
+        nodeP     string Node Id in PHYLDOG numbering
+        """
+        return(self._df.rb[(self._df.cluster == geneFamily) & (self._df.phyldog == nodeP)])
