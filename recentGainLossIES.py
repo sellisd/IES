@@ -6,13 +6,11 @@ from pyies.NodeDict import NodeDict
 from ete3 import Tree
 import sys, getopt
 import os.path
-
+import numpy as np
 # For each gene tree find terminal(leaf) branches
 # foreach X.ReconciledTree find terminal branches
 
 # Read average node probabilities
-
-# check if necessary to use the node nodeDictionary
 
 # search node probabilities for leaf branches and select those with change of probability from x = 0.1 to y = 1
 # this means it could have been lost in at least one paralog
@@ -35,7 +33,7 @@ def prevSpec(nodeO):
 outputPath = ""
 geneFamilyId = None
 analysis = '2'
-cutoff = 1
+cutoff = -0.95
 
 usage = """
 usage:
@@ -74,10 +72,16 @@ for opt, arg in opts:
 
 # load node dictionary
 nodeDictionary = NodeDict(os.path.join(basePath, "analysis", "tables", "nodeDictionary" + analysis + ".dat"))
+# load homologous IES information
+homIES = pd.read_csv(os.path.join(basePath, "analysis", "iesdb", "homIESdb" + analysis + ".tab"), sep = "\t")
 # load ancestral state probabilities
 nodeProbsFile = os.path.join(basePath, "analysis", "tables", "avNodeProb" + analysis + ".dat")
-nodeProb = pd.read_csv(nodeProbsFile, sep = "\t")
+nodeProb = pd.read_csv(nodeProbsFile, sep = "\t", dtype = {'cluster':'str',
+                                                           'node': 'str',
+                                                           'iesColumn': 'str',
+                                                            'presence': np.float64})
 
+print("\t".join(['geneFamily', 'iesColumn', 'node']))
 if geneFamilyId == None:
     pass
 else:
@@ -88,14 +92,27 @@ else:
         ancestor = prevSpec(leaf)
         ancestorRB = nodeDictionary.phyldog2rb(geneFamilyId, ancestor.ND)
         offspringRB = nodeDictionary.phyldog2rb(geneFamilyId, leaf.ND)
-        print(ancestorRB + "-" + offspringRB)
-        aS = nodeProb.presence[(nodeProb.cluster == geneFamilyId) & (nodeProb.node == ancestorRB)]
-        oS = nodeProb.presence[(nodeProb.cluster == geneFamilyId) & (nodeProb.node == offspringRB)]
-        oS-aS
+        #print(ancestorRB + "-" + offspringRB)
+        # the probability of presence on the ancestor node
+        aS = nodeProb.loc[(nodeProb.cluster == geneFamilyId) & (nodeProb.node == ancestorRB)]
+        # the probability of presence on the offspring node
+        oS = nodeProb.loc[(nodeProb.cluster == geneFamilyId) & (nodeProb.node == offspringRB)]
+        aS = aS.reset_index()
+        oS = oS.reset_index()
+        #which homologous IES columns have a change of probability presence larger than the cuttoff
+        lost = oS.presence-aS.presence < cutoff
+        if lost.any():
+            if not aS.iesColumn.equals(oS.iesColumn):
+                print("Error! IES column numbers should match!")
+            #homIES['geneFamily' == geneFamilyId]
+            #geneFamilyId: oS.cluster[lost]
+            #iesColumn: oS.iesColumn[lost]
+            #node: leaf.name
+            print('\t'.join([oS.cluster[lost].item(), oS.iesColumn[lost].item(), leaf.name]))
+# from geneFamilyId, iesColumn and node, find IES
+# node can give us gene
+#The end result would be a table with columns: genefamily, IESColumn, node, where node is the gene name.
 
-
-
-print(np.head())
 quit()
 # output files
 rgl = open(os.path.join(outputPath, 'recentGainLossIES.dat'), 'w')
