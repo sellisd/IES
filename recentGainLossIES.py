@@ -83,11 +83,14 @@ nodeProb = pd.read_csv(nodeProbsFile, sep = "\t", dtype = {'cluster':'str',
 
 print("\t".join(['geneFamily', 'iesColumn', 'node']))
 
-if geneFamilyId == None:
-    pass
-else:
+def printRecentIESLoss(geneFamilyId = 10000, analysis = 2, cutoff = -0.95):
+    """Extract the recent IES loss
+    Args:
+    geneFamilyId:  string  Unique id of gene family
+    analysis:      string  Choice of species tree analysis to use (Default: 2)
+    cutoff:        float   Cutoff for change of probability (negative for reduction positive for increase)
+    """
     phyldogTreeFile = os.path.join(basePath, "analysis", "phyldogT" + analysis, "results", geneFamilyId + ".ReconciledTree")
-    print(phyldogTreeFile)
     t = Tree(phyldogTreeFile)
     for leaf in t:
         ancestor = prevSpec(leaf)
@@ -109,6 +112,11 @@ else:
             #iesColumn: oS.iesColumn[lost]
             #node: leaf.name
             print('\t'.join([oS.cluster[lost].item(), oS.iesColumn[lost].item(), leaf.name]))
-# from geneFamilyId, iesColumn and node, find IES
-# node can give us gene
-#The end result would be a table with columns: genefamily, IESColumn, node, where node is the gene name.
+
+
+if geneFamilyId == None:
+    #Run the analysis for all gene families for which we have ancestral state reconstructions
+    for geneFamilyId in nodeProb.cluster.unique():
+        printRecentIESLoss(geneFamilyId, analysis, cutoff)
+else:
+    printRecentIESLoss(geneFamilyId, analysis, cutoff)
