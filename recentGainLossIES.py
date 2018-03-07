@@ -30,11 +30,11 @@ def prevSpec(nodeO):
         else:
             pass
 
-outputPath = ""
+
 geneFamilyId = None
 analysis = '2'
 cutoff = -0.95
-
+outputFile = "./recentLoss" + analysis + ".dat"
 usage = """
 usage:
 
@@ -43,8 +43,8 @@ usage:
     where OPTIONS can be any of the following:
     -g string       Gene family Id, if None provided use all gene families
     -a [1|2|3]      Choice of species tree analysis to use (Default: 2)
-    -o <outputPath> Path to create output files
-    -c float        Cutoff for change of probability (negative for reduction positive for increase)
+    -o outputFile   Path and file name for output (Default: './recentLoss'+ a + '.dat')
+    -c float        Cutoff for change of probability (negative for reduction positive for increase) Default -0.95
     -h              This help screen
 """
 
@@ -64,9 +64,9 @@ for opt, arg in opts:
     elif opt == '-a':
         analysis = arg
     elif opt == "-o":
-        outputPath = arg
-        if not os.path.isdir(outputPath):
-            print("Warning: Not existing path: " + outputPath)
+        outputFile = arg
+        if not os.path.isfile(outputFile):
+            print("Warning: " + outputFile + " already exists")
             print(usage)
             quit(1)
 
@@ -81,7 +81,9 @@ nodeProb = pd.read_csv(nodeProbsFile, sep = "\t", dtype = {'cluster':'str',
                                                            'iesColumn': 'str',
                                                             'presence': np.float64})
 
-print("\t".join(['geneFamily', 'iesColumn', 'node']))
+
+with open(outputFile, 'w') as f:
+    f.write("\t".join(['geneFamily', 'iesColumn', 'node\n']))
 
 def printRecentIESLoss(geneFamilyId = 10000, analysis = 2, cutoff = -0.95):
     """Extract the recent IES loss
@@ -94,6 +96,9 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2, cutoff = -0.95):
     t = Tree(phyldogTreeFile)
     for leaf in t:
         ancestor = prevSpec(leaf)
+        if ancestor is None:
+            # skip leafs that are not preceded by a speciation event
+            continue
         ancestorRB = nodeDictionary.phyldog2rb(geneFamilyId, ancestor.ND)
         offspringRB = nodeDictionary.phyldog2rb(geneFamilyId, leaf.ND)
         # the probability of presence on the ancestor node
@@ -111,7 +116,9 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2, cutoff = -0.95):
             #geneFamilyId: oS.cluster[lost]
             #iesColumn: oS.iesColumn[lost]
             #node: leaf.name
-            print('\t'.join([oS.cluster[lost].item(), oS.iesColumn[lost].item(), leaf.name]))
+            with open(outputFile, 'a') as f:
+                f.write('\t'.join([oS.cluster[lost].item(), oS.iesColumn[lost].item(), leaf.name + "\n"]))
+
 
 
 if geneFamilyId == None:
