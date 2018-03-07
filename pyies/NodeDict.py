@@ -17,15 +17,23 @@ class NodeDict:
         Args:
         geneFamily string Gene family unique Id
         nodeRb     string Node Id in revBayes numbering
-        returns    string revBayes NodeId
+        returns    string revBayes NodeId or None if node not in database
         """
-        return(self._df.phyldog[(self._df.cluster == geneFamily) & (self._df.rb == nodeRb)].item())
+        nodeId = self._df.phyldog[(self._df.cluster == geneFamily) & (self._df.rb == nodeRb)]
+        if nodeId.empty:
+            return None
+        else:
+            return(nodeId.item())
 
     def phyldog2rb(self, geneFamily, nodeP):
         """translate node notation
         Args:
         geneFamily string Gene family unique Id
         nodeP      string Node Id in PHYLDOG numbering
-        returns    string phyldog NodeId
+        returns    string phyldog NodeId or None if node not in database
         """
-        return(self._df.rb[(self._df.cluster == geneFamily) & (self._df.phyldog == nodeP)].item())
+        nodeId = self._df.rb[(self._df.cluster == geneFamily) & (self._df.phyldog == nodeP)]
+        if nodeId.empty:
+            return None
+        else:
+            return(nodeId.item())

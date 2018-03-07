@@ -65,10 +65,8 @@ for opt, arg in opts:
         analysis = arg
     elif opt == "-o":
         outputFile = arg
-        if not os.path.isfile(outputFile):
-            print("Warning: " + outputFile + " already exists")
-            print(usage)
-            quit(1)
+        if os.path.isfile(outputFile):
+            print("Warning: overwriting file " + outputFile + "!")
 
 # load node dictionary
 nodeDictionary = NodeDict(os.path.join(basePath, "analysis", "tables", "nodeDictionary" + analysis + ".dat"))
@@ -101,6 +99,8 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2, cutoff = -0.95):
             continue
         ancestorRB = nodeDictionary.phyldog2rb(geneFamilyId, ancestor.ND)
         offspringRB = nodeDictionary.phyldog2rb(geneFamilyId, leaf.ND)
+        if (ancestorRB is None) or (offspringRB is None):
+            continue
         # the probability of presence on the ancestor node
         aS = nodeProb.loc[(nodeProb.cluster == geneFamilyId) & (nodeProb.node == ancestorRB)]
         # the probability of presence on the offspring node
