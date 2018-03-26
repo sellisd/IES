@@ -33,7 +33,7 @@ def prevSpec(nodeO):
 
 geneFamilyId = None
 analysis = '2'
-cutoff = -0.95
+cutoff = 0.95
 outputFile = "./recentLoss" + analysis + ".dat"
 usage = """
 usage:
@@ -44,7 +44,10 @@ usage:
     -g string       Gene family Id, if None provided use all gene families
     -a [1|2|3]      Choice of species tree analysis to use (Default: 2)
     -o outputFile   Path and file name for output (Default: './recentLoss'+ a + '.dat')
-    -c float        Cutoff for change of probability (negative for reduction positive for increase) Default -0.95
+    -c float        Absolute cutoff of probability change:
+                    if P_offspring - P_ancestral < - cutoff: loss
+                    if P_offspring - P_ancestral > cutoff  : gain
+                    else                                   : undetermined
     -h              This help screen
 """
 
@@ -83,12 +86,15 @@ nodeProb = pd.read_csv(nodeProbsFile, sep = "\t", dtype = {'cluster':'str',
 with open(outputFile, 'w') as f:
     f.write("\t".join(['geneFamily', 'iesColumn', 'node\n']))
 
-def printRecentIESLoss(geneFamilyId = 10000, analysis = 2, cutoff = -0.95):
+def printRecentIESLoss(geneFamilyId = 10000, analysis = 2, cutoff = 0.95):
     """Extract the recent IES loss
     Args:
     geneFamilyId:  string  Unique id of gene family
     analysis:      string  Choice of species tree analysis to use (Default: 2)
-    cutoff:        float   Cutoff for change of probability (negative for reduction positive for increase)
+    -c float        Absolute cutoff of probability change:
+                    if P_offspring - P_ancestral < - cutoff: loss
+                    if P_offspring - P_ancestral > cutoff  : gain
+                    else                                   : undetermined
     """
     phyldogTreeFile = os.path.join(basePath, "analysis", "phyldogT" + analysis, "results", geneFamilyId + ".ReconciledTree")
     t = Tree(phyldogTreeFile)
@@ -108,18 +114,26 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2, cutoff = -0.95):
         aS = aS.reset_index()
         oS = oS.reset_index()
         #which homologous IES columns have a change of probability presence larger than the cuttoff
-        lost = oS.presence-aS.presence < cutoff
-        if lost.any():
+        probabilityChange = oS.presence-aS.presence
+        losses = probabilityChange < - cutoff
+        gains = probabilityChange > cutoff
+        if losses.any() or gains.any():
             if not aS.iesColumn.equals(oS.iesColumn):
                 print("Error! IES column numbers should match!")
+            for i, dp in enumerate(probabilityChange.tolist()):
+                event = None
+                if losses[i].item() == True:
+                    event = "loss"
+                elif gains[i].item() == True:
+                    event = "gain"
+                else:
+                    event = "undetermined"
+                with open(outputFile, 'a') as f:
+                    f.write('\t'.join([oS.cluster[i], oS.iesColumn[i], leaf.name, event + "\n"]))
             #homIES['geneFamily' == geneFamilyId]
             #geneFamilyId: oS.cluster[lost]
             #iesColumn: oS.iesColumn[lost]
             #node: leaf.name
-            with open(outputFile, 'a') as f:
-                f.write('\t'.join([oS.cluster[lost].item(), oS.iesColumn[lost].item(), leaf.name + "\n"]))
-
-
 
 if geneFamilyId == None:
     #Run the analysis for all gene families for which we have ancestral state reconstructions
