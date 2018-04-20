@@ -18,9 +18,9 @@ import numpy as np
 
 # print out analysis number genefamily iesColumn
 
-def prevSpec(nodeO):
+def prevSpecRecursive(nodeO):
     """
-    find the closest direct ancestor that corresponds to a speciation node
+    Recursively go up the tree to find the closest direct ancestor that corresponds to a speciation node
     Args:
     nodeO ete node object
     """
@@ -31,7 +31,19 @@ def prevSpec(nodeO):
         else:
             pass
 
+def prevSpeciation(nodeO):
+    """
+    Return parent node if it is a speciation node else return None
+    Args:
+    nodeO ete node object
+    """
+    ancestor = nodeO.up
+    if ancestor:
+        if ancestor.Ev == 'S':
+            return ancestor
+    return None
 
+recursive = False
 geneFamilyId = None
 analysis = '3'
 outputFile = "./recentEvents" + analysis + ".dat"
@@ -42,13 +54,15 @@ usage:
 
     where OPTIONS can be any of the following:
     -g string       Gene family Id, if None provided use all gene families
+    -r              Terminal speciation branches can include duplication nodes (recursive search upstream)
+                    (By default this is false)
     -a [1|2|3]      Choice of species tree analysis to use (Default: 3)
     -o outputFile   Path and file name for output (Default: './recentEvents'+ a + '.dat')
     -h              This help screen
 """
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"ha:o:g:c:")
+    opts, args = getopt.getopt(sys.argv[1:],"ha:o:g:c:r")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -56,6 +70,8 @@ for opt, arg in opts:
     if opt == '-h':
         print(usage)
         sys.exit(1)
+    elif opt == '-r':
+        recursive = True
     elif opt == '-g':
         geneFamilyId = arg
     elif opt == '-a':
@@ -89,7 +105,11 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2):
     phyldogTreeFile = os.path.join(basePath, "analysis", "phyldogT" + analysis, "results", geneFamilyId + ".ReconciledTree")
     t = Tree(phyldogTreeFile)
     for leaf in t:
-        ancestor = prevSpec(leaf)
+        ancestor = None
+        if recursive:
+            ancestor = prevSpecRecursive(leaf)
+        else:
+            ancestor = prevSpeciation(leaf)
         if ancestor is None:
             # skip leafs that are not preceded by a speciation event
             continue
@@ -107,7 +127,7 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2):
         probabilityChange = oS.presence-aS.presence
         classIES = None
         i = 0
-        for pAncestral, pOffspring in zip(oS.presence.tolist(), aS.presence.tolist()):
+        for pAncestral, pOffspring in zip(aS.presence.tolist(), oS.presence.tolist()):
             if pOffspring <= 0.01:
                 if pAncestral > 0.95:
                     classIES = "lost"
