@@ -46,18 +46,21 @@ def prevSpeciation(nodeO):
 recursive = False
 geneFamilyId = None
 analysis = '3'
-outputFile = "./recentEvents" + analysis + ".dat"
+outputFile = "./branchEvents" + analysis + ".dat"
 usage = """
 usage:
-
+Classifies and prints events on branches. If option -c is set only the most recent (terminal) branches are considered.
 ./recentGainLossIES.py [OPTIONS]
 
     where OPTIONS can be any of the following:
     -g string       Gene family Id, if None provided use all gene families
-    -r              Terminal speciation branches can include duplication nodes (recursive search upstream)
+    -r              Branches can include duplication nodes (recursive search upstream)
                     (By default this is false)
     -a [1|2|3]      Choice of species tree analysis to use (Default: 3)
     -o outputFile   Path and file name for output (Default: './recentEvents'+ a + '.dat')
+    -c              If true only events on the most recent (terminal) branches are considered
+    -f string       Upstream node in PHYLDOG notation Id for branch definition
+    -t string       Downstream node in PHYLDOG notation ID for branch definition
     -h              This help screen
 """
 
@@ -76,6 +79,12 @@ for opt, arg in opts:
         geneFamilyId = arg
     elif opt == '-a':
         analysis = arg
+    elif opt == '-c':
+        recent = True
+    elif opt == '-f':
+        fromNode = arg
+    elif opt == '-t':
+        toNode = arg
     elif opt == "-o":
         outputFile = arg
         if os.path.isfile(outputFile):
@@ -104,7 +113,7 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2):
     """
     phyldogTreeFile = os.path.join(basePath, "analysis", "phyldogT" + analysis, "results", geneFamilyId + ".ReconciledTree")
     t = Tree(phyldogTreeFile)
-    for leaf in t:
+    for leaf in t.traverse("preorder"):
         ancestor = None
         if recursive:
             ancestor = prevSpecRecursive(leaf)
@@ -117,6 +126,13 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2):
         offspringRB = nodeDictionary.phyldog2rb(geneFamilyId, leaf.ND)
         if (ancestorRB is None) or (offspringRB is None):
             continue
+        # apply fiering conditions
+        if recent:
+            if not leaf.is_leaf():
+                continue
+        else:
+            if ancestorRB != fromNode or offspringRB != toNode:
+                continue
         # the probability of presence on the ancestor node
         aS = nodeProb.loc[(nodeProb.cluster == geneFamilyId) & (nodeProb.node == ancestorRB)]
         # the probability of presence on the offspring node
