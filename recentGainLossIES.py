@@ -50,7 +50,7 @@ outputFile = "./branchEvents" + analysis + ".dat"
 usage = """
 usage:
 Classifies and prints events on branches. If option -c is set only the most recent (terminal) branches are considered.
-./recentGainLossIES.py [OPTIONS]
+./branchEvents.py [OPTIONS]
 
     where OPTIONS can be any of the following:
     -g string       Gene family Id, if None provided use all gene families
