@@ -43,6 +43,7 @@ def prevSpeciation(nodeO):
             return ancestor
     return None
 
+recent = False
 recursive = False
 geneFamilyId = None
 analysis = '3'
@@ -57,7 +58,7 @@ Classifies and prints events on branches. If option -c is set only the most rece
     -r              Branches can include duplication nodes (recursive search upstream)
                     (By default this is false)
     -a [1|2|3]      Choice of species tree analysis to use (Default: 3)
-    -o outputFile   Path and file name for output (Default: './recentEvents'+ a + '.dat')
+    -o outputFile   Path and file name for output (Default: './branchEvents'+ a + '.dat')
     -c              If true only events on the most recent (terminal) branches are considered
     -f string       Upstream node in PHYLDOG notation Id for branch definition
     -t string       Downstream node in PHYLDOG notation ID for branch definition
@@ -65,7 +66,7 @@ Classifies and prints events on branches. If option -c is set only the most rece
 """
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"ha:o:g:c:r")
+    opts, args = getopt.getopt(sys.argv[1:],"ha:o:g:c:rf:t:")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -85,7 +86,7 @@ for opt, arg in opts:
         fromNode = arg
     elif opt == '-t':
         toNode = arg
-    elif opt == "-o":
+    elif opt == '-o':
         outputFile = arg
         if os.path.isfile(outputFile):
             print("Warning: overwriting file " + outputFile + "!")
