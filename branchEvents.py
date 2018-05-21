@@ -8,6 +8,8 @@ import sys, getopt
 import os.path
 import numpy as np
 
+#~/anaconda_ete/bin/python branchEvents.py -a 3 -f 6 -t 9 -o branchEvents3_PocPte.dat
+#~/anaconda_ete/bin/python branchEvents.py -a 3 -f 14 -t 15 -o branchEvents3_PprPpe.dat
 # For each gene tree find terminal(leaf) branches
 # foreach X.ReconciledTree find terminal branches
 
@@ -56,12 +58,13 @@ Classifies and prints events on branches. If option -c is set only the most rece
     where OPTIONS can be any of the following:
     -g string       Gene family Id, if None provided use all gene families
     -r              Branches can include duplication nodes (recursive search upstream)
-                    (By default this is false)
+                    (By default this is false). This option is not compatible
+                    with -f and -t
     -a [1|2|3]      Choice of species tree analysis to use (Default: 3)
     -o outputFile   Path and file name for output (Default: './branchEvents'+ a + '.dat')
     -c              If true only events on the most recent (terminal) branches are considered
-    -f string       Upstream node in PHYLDOG notation Id for branch definition
-    -t string       Downstream node in PHYLDOG notation ID for branch definition
+    -f string       Upstream species node notation Id for branch definition
+    -t string       Downstream species node notation ID for branch definition
     -h              This help screen
 """
 
@@ -132,7 +135,7 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2):
             if not leaf.is_leaf():
                 continue
         else:
-            if ancestorRB != fromNode or offspringRB != toNode:
+            if ancestor.S != fromNode or leaf.S != toNode:
                 continue
         # the probability of presence on the ancestor node
         aS = nodeProb.loc[(nodeProb.cluster == geneFamilyId) & (nodeProb.node == ancestorRB)]
