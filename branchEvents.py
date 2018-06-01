@@ -8,8 +8,8 @@ import sys, getopt
 import os.path
 import numpy as np
 
-#~/anaconda_ete/bin/python branchEvents.py -a 3 -f 6 -t 9 -o branchEvents3_PocPte.dat
-#~/anaconda_ete/bin/python branchEvents.py -a 3 -f 14 -t 15 -o branchEvents3_PprPpe.dat
+#~/anaconda_ete/bin/python branchEvents.py -n -a 3 -f 6 -t 9 -o branchEvents3_PocPte.dat
+#~/anaconda_ete/bin/python branchEvents.py -n -a 3 -f 14 -t 15 -o branchEvents3_PprPpe.dat
 # For each gene tree find terminal(leaf) branches
 # foreach X.ReconciledTree find terminal branches
 
@@ -45,6 +45,7 @@ def prevSpeciation(nodeO):
             return ancestor
     return None
 
+leafNames = True
 recent = False
 recursive = False
 geneFamilyId = None
@@ -65,11 +66,12 @@ Classifies and prints events on branches. If option -c is set only the most rece
     -c              If true only events on the most recent (terminal) branches are considered
     -f string       Upstream species node notation Id for branch definition
     -t string       Downstream species node notation ID for branch definition
+    -n              Include an extra column in the output with the name of the leafs
     -h              This help screen
 """
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"ha:o:g:c:rf:t:")
+    opts, args = getopt.getopt(sys.argv[1:],"ha:o:g:c:rf:t:n")
 except getopt.GetoptError:
     print(usage)
     sys.exit(2)
@@ -89,6 +91,8 @@ for opt, arg in opts:
         fromNode = arg
     elif opt == '-t':
         toNode = arg
+    elif opt == '-n':
+        leafNames = True
     elif opt == '-o':
         outputFile = arg
         if os.path.isfile(outputFile):
@@ -107,7 +111,12 @@ nodeProb = pd.read_csv(nodeProbsFile, sep = "\t", dtype = {'cluster':'str',
 
 
 with open(outputFile, 'w') as f:
-    f.write("\t".join(['geneFamily', 'iesColumn', 'node\n']))
+    outputList = ['geneFamily', 'iesColumn', 'node']
+    if leafNames:
+        outputList.append("genes")
+    outputList[-1] = outputList[-1] + '\n'
+    f.write("\t".join(outputList))
+
 
 def printRecentIESLoss(geneFamilyId = 10000, analysis = 2):
     """Extract the recent IES loss
@@ -119,10 +128,16 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2):
     t = Tree(phyldogTreeFile)
     for leaf in t.traverse("preorder"):
         ancestor = None
+        geneString = ""
         if recursive:
             ancestor = prevSpecRecursive(leaf)
         else:
             ancestor = prevSpeciation(leaf)
+        if leafNames:
+            #get string with all
+            geneNodes = leaf.get_leaves()
+            nameList = [node.name for node in geneNodes]
+            geneString = ",".join(nameList)
         if ancestor is None:
             # skip leafs that are not preceded by a speciation event
             continue
@@ -169,7 +184,7 @@ def printRecentIESLoss(geneFamilyId = 10000, analysis = 2):
             else:
                 classIES = "undetermined"
             with open(outputFile, 'a') as f:
-                f.write('\t'.join([oS.cluster[i], oS.iesColumn[i], leaf.name, classIES + "\n"]))
+                f.write('\t'.join([oS.cluster[i], oS.iesColumn[i], leaf.name, classIES, geneString + "\n"]))
             i += 1
 
 if geneFamilyId == None:
